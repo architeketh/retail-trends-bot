@@ -1,15 +1,15 @@
 # bot/infographic.py
-# Builds modern-styled charts + site page, writes CSV/JSON headline exports,
-# shows ~10-bar brand chart (Top 9 + "Other"), and adds a sources drawer.
+# Modern charts (distinct colors per bar) + CSV/JSON exports + Sources drawer.
 
-import os
-import json
-import csv
+import os, json, csv
 from datetime import datetime
+from collections import Counter
+
 import yaml
+import matplotlib
+matplotlib.use("Agg")  # headless
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-from collections import Counter
 
 BASE = os.path.dirname(__file__)
 ROOT = os.path.abspath(os.path.join(BASE, ".."))
@@ -22,76 +22,72 @@ def load_config():
 def ensure_dir(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-# ——————————————————————————————————————————
-# Modern chart styling helpers
-# ——————————————————————————————————————————
+# ---------- Visual style ----------
+# Explicit rc params so GitHub runners don’t fall back to Matplotlib defaults.
+plt.rcParams.update({
+    "figure.facecolor": "#0f1218",
+    "axes.facecolor":   "#0f1218",
+    "axes.edgecolor":   "#2b3242",
+    "axes.labelcolor":  "#cfe5ff",
+    "axes.titlecolor":  "#e7ebf3",
+    "xtick.color":      "#dfe7ff",
+    "ytick.color":      "#dfe7ff",
+    "font.size":        10,
+})
 
-# Palettes (distinct, modern). Feel free to tweak hex values.
 PALETTE_KEYWORDS = [
-    "#7BDFF2","#B2F7EF","#EFF7F6","#F7D6E0","#F2B5D4",
-    "#B39DDB","#80CBC4","#FFD54F","#FFAB91","#90CAF9",
-    "#A5D6A7","#F48FB1","#CE93D8","#FFCC80","#81D4FA",
-    "#EF9A9A","#C5E1A5","#E6EE9C"
+    "#7BDFF2","#B2F7EF","#F7D6E0","#F2B5D4","#B39DDB",
+    "#80CBC4","#FFD54F","#FFAB91","#90CAF9","#A5D6A7",
+    "#F48FB1","#CE93D8","#FFCC80","#81D4FA","#EF9A9A",
+    "#C5E1A5","#E6EE9C","#9FA8DA","#26C6DA","#FF8A65"
 ]
 PALETTE_BRANDS = [
     "#6CC0FF","#A18CFF","#FF8EC7","#FFC46C","#7BE495",
     "#FFD166","#06D6A0","#EF476F","#8892F6","#42C2FF",
-    "#F0A6CA","#9CDAF1","#6EE7B7","#FCD34D","#F472B6"
+    "#F0A6CA","#9CDAF1","#6EE7B7","#FCD34D","#F472B6",
+    "#B39DDB","#90CAF9","#A5D6A7","#FFCC80","#EF9A9A"
 ]
 
 def pick_colors(n, palette):
     if n <= len(palette):
         return palette[:n]
-    # repeat palette if more bars than colors
     reps = (n + len(palette) - 1) // len(palette)
     return (palette * reps)[:n]
 
 def style_axes(ax):
-    # Dark-ish look to match your CSS
-    ax.set_facecolor("#0f1218")
-    ax.figure.set_facecolor("#0f1218")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     for s in ("left","bottom"):
         ax.spines[s].set_color("#2b3242")
         ax.spines[s].set_linewidth(1)
-    ax.tick_params(colors="#dfe7ff", labelsize=10)
-    ax.grid(axis="x", color="#2b3242", linewidth=0.8, alpha=0.6)
+    ax.grid(axis="x", color="#2b3242", linewidth=0.8, alpha=0.5, zorder=0)
     ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
-    ax.set_xlabel("Relative Importance", color="#cfe5ff", labelpad=8)
+    ax.set_xlabel("Relative Importance", labelpad=8)
 
 def save_barh_modern(labels, values, title, outpath, palette):
     ensure_dir(outpath)
     plt.close("all")
-    fig, ax = plt.subplots(figsize=(8, 6), dpi=170)
+    fig, ax = plt.subplots(figsize=(8.6, 6.2), dpi=170)
 
     style_axes(ax)
-    ax.set_title(title, color="#e7ebf3", pad=10, fontsize=12)
+    ax.set_title(title, pad=10, fontsize=12, fontweight="bold")
 
-    # reverse to show highest at top (we’ll draw from low→high y)
-    labels = list(labels)
-    values = list(values)
-    if len(labels) != len(values):
-        return
-    # Draw bars one-by-one to color individually
-    y_pos = range(len(labels))
+    y = list(range(len(labels)))
     colors = pick_colors(len(labels), palette)
-    bars = ax.barh(y_pos, values, color=colors, edgecolor="none")
+    bars = ax.barh(y, values, color=colors, edgecolor="none", zorder=2)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels)
 
-    # Rounded feel: small alpha shadow behind bars
-    for b in bars:
-        b.set_alpha(0.95)
+    # value labels
+    for bar, val in zip(bars, values):
+        ax.text(val + (max(values) * 0.02 if values else 0.2), bar.get_y() + bar.get_height()/2,
+                f"{val}", va="center", ha="left", color="#cfe5ff", fontsize=9)
 
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels, color="#e7ebf3")
-    plt.tight_layout()
+    fig.tight_layout()
     fig.savefig(outpath, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close(fig)
 
-# ——————————————————————————————————————————
-# Data utilities
-# ——————————————————————————————————————————
-
+# ---------- Data helpers ----------
 def write_headlines_exports(assets_dir, highlights):
     os.makedirs(assets_dir, exist_ok=True)
 
@@ -102,33 +98,29 @@ def write_headlines_exports(assets_dir, highlights):
 
     # CSV
     csv_path = os.path.join(assets_dir, "headlines.csv")
-    fieldnames = ["title", "link", "source", "published"]
     with open(csv_path, "w", encoding="utf-8", newline="") as cf:
-        writer = csv.DictWriter(cf, fieldnames=fieldnames)
+        writer = csv.DictWriter(cf, fieldnames=["title","link","source","published"])
         writer.writeheader()
         for h in highlights:
             writer.writerow({
-                "title": h.get("title", ""),
-                "link": h.get("link", ""),
-                "source": h.get("source", ""),
-                "published": h.get("published", ""),
+                "title": h.get("title",""),
+                "link": h.get("link",""),
+                "source": h.get("source",""),
+                "published": h.get("published",""),
             })
-
     return os.path.basename(csv_path), os.path.basename(json_path)
 
 def sources_list_html(highlights, stats):
-    counts = Counter([h.get("source", "").strip() for h in highlights if h.get("source")])
+    counts = Counter([h.get("source","").strip() for h in highlights if h.get("source")])
     unique_sources = (stats or {}).get("sources") or sorted(s for s in counts if s)
-
     lis = []
     if counts:
-        for src, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
-            if not src: continue
-            lis.append(f"<li><span class='src-name'>{src}</span> <span class='src-count'>({n})</span></li>")
+        for src, n in sorted(counts.items(), key=lambda kv:(-kv[1], kv[0])):
+            if src:
+                lis.append(f"<li><span class='src-name'>{src}</span> <span class='src-count'>({n})</span></li>")
     else:
         for src in unique_sources:
             if src: lis.append(f"<li><span class='src-name'>{src}</span></li>")
-
     total = len(unique_sources) if unique_sources else len(counts)
     return f"""
     <details class="card" style="margin-top:18px">
@@ -139,8 +131,7 @@ def sources_list_html(highlights, stats):
     </details>
     """
 
-def build_index(title, description, keywords_img, brands_img, highlights, stats,
-                csv_name, json_name):
+def build_index(title, description, keywords_img, brands_img, highlights, stats, csv_name, json_name):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +149,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
         <p>{description}</p>
         <div class="badges">
           <span class="badge">Auto-updated daily</span>
-          <span class="badge">NRF · Retail Dive · Shopify · Census MTIS · + More</span>
+          <span class="badge">NRF · Retail Dive · Shopify · Supply Chain 24/7 · + More</span>
         </div>
       </div>
       <div class="actions">
@@ -166,7 +157,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
         <a class="btn" href="assets/{os.path.basename(brands_img)}" download>Download Brands PNG</a>
         <a class="btn" href="assets/{csv_name}" download>Download Headlines CSV</a>
         <a class="btn" href="assets/{json_name}" download>Download Headlines JSON</a>
-        <button class="btn primary" id="refreshBtn" onclick="location.reload()">Refresh</button>
+        <button class="btn primary" onclick="location.reload()">Refresh</button>
       </div>
     </header>
 
@@ -196,26 +187,20 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
 </body>
 </html>"""
 
-# ——————————————————————————————————————————
-# Brands chart: ensure ~N bars (Top N-1 + Other)
-# ——————————————————————————————————————————
+# ---------- Brands chart w/ Top N-1 + Other ----------
 def prepare_brand_bars(brands, desired_n):
     if not brands:
         return [], []
     if len(brands) >= desired_n:
         top = brands[:desired_n - 1]
-        remainder = brands[desired_n - 1:]
-        other_sum = sum(b["count"] for b in remainder)
-        rows = top + ([{"name": "Other", "count": other_sum}] if other_sum > 0 else brands[:desired_n])
+        rest = brands[desired_n - 1:]
+        other_sum = sum(b["count"] for b in rest)
+        rows = top + ([{"name":"Other","count":other_sum}] if other_sum > 0 else brands[:desired_n])
     else:
         rows = brands
-    labels = [b["name"] for b in rows]
-    values = [b["count"] for b in rows]
-    return labels, values
+    return [b["name"] for b in rows], [b["count"] for b in rows]
 
-# ——————————————————————————————————————————
-# Main
-# ——————————————————————————————————————————
+# ---------- Main ----------
 def run():
     cfg = load_config()
     with open(os.path.join(DATA_DIR, "summary.json"), "r", encoding="utf-8") as f:
@@ -226,26 +211,25 @@ def run():
     stats      = summary.get("stats", {})
     highlights = summary.get("highlights", [])
 
-    # Output chart paths (under /site/assets)
+    # chart output paths
     keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
     brands_img   = os.path.join(ROOT, cfg["infographic"]["brands_image"])
 
-    # ——— Keywords chart ———
+    # Keywords chart (distinct colors)
     if keywords:
-        # Highest at top → reverse label order and use rank as "importance"
         labels_kw = list(reversed(keywords))
         vals_kw   = list(range(len(keywords), 0, -1))
         save_barh_modern(labels_kw, vals_kw, "Retail Trend Keywords", keywords_img, PALETTE_KEYWORDS)
     else:
         ensure_dir(keywords_img); open(keywords_img, "wb").close()
 
-    # ——— Brands chart (Top 9 + Other) ———
+    # Brands chart (approx 10 bars, distinct colors)
     desired_n = max(10, int(cfg["infographic"].get("top_n_brands", 10)))
     if brands:
         labels_b, vals_b = prepare_brand_bars(brands, desired_n)
         if labels_b:
             save_barh_modern(list(reversed(labels_b)), list(reversed(vals_b)),
-                             f"Retail Brand Mentions", brands_img, PALETTE_BRANDS)
+                             "Retail Brand Mentions", brands_img, PALETTE_BRANDS)
         else:
             ensure_dir(brands_img); open(brands_img, "wb").close()
     else:
@@ -259,27 +243,13 @@ def run():
     csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
     index_html = build_index(
-        cfg["website"]["title"],
-        cfg["website"]["description"],
-        keywords_img, brands_img,
-        highlights, stats,
-        csv_name, json_name
+        cfg["website"]["title"], cfg["website"]["description"],
+        keywords_img, brands_img, highlights, stats, csv_name, json_name
     )
     with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html)
 
-    # Ensure CSS exists (don’t overwrite if user customized)
-    css_path = os.path.join(assets_dir, "style.css")
-    if not os.path.exists(css_path):
-        with open(css_path, "w", encoding="utf-8") as f:
-            f.write("""body{font-family:system-ui; margin:2rem; background:#0b0c10; color:#e7ebf3}
-h1{margin-bottom:.25rem}.tagline{color:#a4aec2;margin-top:0}
-.charts{display:grid;grid-template-columns:1fr;gap:1.5rem}
-.chart-card{background:#111319;border:1px solid #1b1e28;border-radius:12px;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.25)}
-.headlines li{margin:.4rem 0}.src{color:#a4aec2;font-size:.9em;margin-left:.25rem}
-@media(min-width:1100px){.charts{grid-template-columns:1fr 1fr}}""")
-
-    print(f"Wrote site/index.html and modern-styled charts (distinct colors for each bar)")
+    print("Wrote site/index.html with colorful modern charts")
 
 if __name__ == "__main__":
     run()
