@@ -1,11 +1,13 @@
 # bot/infographic.py
-# Builds charts and the site page (no KPI row) from bot/data/summary.json
+# Builds charts + site page, and writes CSV/JSON headline exports and a Sources drawer.
 
 import os
 import json
+import csv
 from datetime import datetime
 import yaml
 import matplotlib.pyplot as plt
+from collections import Counter
 
 BASE = os.path.dirname(__file__)
 ROOT = os.path.abspath(os.path.join(BASE, ".."))
@@ -28,7 +30,65 @@ def save_barh(labels, values, title, outpath):
     plt.savefig(outpath)
     plt.close()
 
-def build_index(title, description, keywords_img, brands_img, highlights):
+def write_headlines_exports(assets_dir, highlights):
+    """Write /assets/headlines.csv and /assets/headlines.json for the site to serve."""
+    os.makedirs(assets_dir, exist_ok=True)
+
+    # JSON
+    json_path = os.path.join(assets_dir, "headlines.json")
+    with open(json_path, "w", encoding="utf-8") as jf:
+        json.dump(highlights, jf, indent=2, ensure_ascii=False)
+
+    # CSV
+    csv_path = os.path.join(assets_dir, "headlines.csv")
+    fieldnames = ["title", "link", "source", "published"]
+    with open(csv_path, "w", encoding="utf-8", newline="") as cf:
+        writer = csv.DictWriter(cf, fieldnames=fieldnames)
+        writer.writeheader()
+        for h in highlights:
+            writer.writerow({
+                "title": h.get("title", ""),
+                "link": h.get("link", ""),
+                "source": h.get("source", ""),
+                "published": h.get("published", ""),
+            })
+
+    return os.path.basename(csv_path), os.path.basename(json_path)
+
+def sources_list_html(highlights, stats):
+    """
+    Build a <details> drawer with source counts for today.
+    Uses highlights (subset) for counts; shows unique list from stats if available.
+    """
+    counts = Counter([h.get("source", "").strip() for h in highlights if h.get("source")])
+    # Fallback unique list from stats (if provided)
+    unique_sources = (stats or {}).get("sources") or sorted(s for s in counts if s)
+
+    # Compose list HTML
+    lis = []
+    if counts:
+        # sort by count desc, then name
+        for src, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+            if not src:
+                continue
+            lis.append(f"<li><span class='src-name'>{src}</span> <span class='src-count'>({n})</span></li>")
+    else:
+        for src in unique_sources:
+            if src:
+                lis.append(f"<li><span class='src-name'>{src}</span></li>")
+
+    total = len(unique_sources) if unique_sources else len(counts)
+    return f"""
+    <details class="card" style="margin-top:18px">
+      <summary style="cursor:pointer"><strong>Sources</strong> (today: {total})</summary>
+      <ul class="list" style="margin-top:10px">
+        {''.join(lis) if lis else '<li><em>No sources detected.</em></li>'}
+      </ul>
+    </details>
+    """
+
+def build_index(title, description, keywords_img, brands_img, highlights, stats,
+                csv_name, json_name):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,6 +112,8 @@ def build_index(title, description, keywords_img, brands_img, highlights):
       <div class="actions">
         <a class="btn" href="assets/{os.path.basename(keywords_img)}" download>Download Keywords PNG</a>
         <a class="btn" href="assets/{os.path.basename(brands_img)}" download>Download Brands PNG</a>
+        <a class="btn" href="assets/{csv_name}" download>Download Headlines CSV</a>
+        <a class="btn" href="assets/{json_name}" download>Download Headlines JSON</a>
         <button class="btn primary" id="refreshBtn" onclick="location.reload()">Refresh</button>
       </div>
     </header>
@@ -75,6 +137,8 @@ def build_index(title, description, keywords_img, brands_img, highlights):
       </ul>
     </section>
 
+    {sources_list_html(highlights, stats)}
+
     <p class="footer">Updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
   </div>
 </body>
@@ -86,8 +150,9 @@ def run():
     with open(os.path.join(DATA_DIR, "summary.json"), "r", encoding="utf-8") as f:
         summary = json.load(f)
 
-    keywords = summary.get("keywords", [])
-    brands   = summary.get("brands", [])
+    keywords   = summary.get("keywords", [])
+    brands     = summary.get("brands", [])
+    stats      = summary.get("stats", {})
     highlights = summary.get("highlights", [])
 
     # output chart paths (under /site/assets)
@@ -109,16 +174,19 @@ def run():
     else:
         ensure_dir(brands_img); open(brands_img, "wb").close()
 
-    # write site/index.html
+    # write headline exports + page
     site_dir = os.path.join(ROOT, "site")
     assets_dir = os.path.join(site_dir, "assets")
     os.makedirs(assets_dir, exist_ok=True)
+
+    csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
     index_html = build_index(
         cfg["website"]["title"],
         cfg["website"]["description"],
         keywords_img, brands_img,
-        highlights
+        highlights, stats,
+        csv_name, json_name
     )
     with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html)
@@ -134,7 +202,7 @@ h1{margin-bottom:.25rem}.tagline{color:#555;margin-top:0}
 .headlines li{margin:.4rem 0}.src{color:#777;font-size:.9em;margin-left:.25rem}
 @media(min-width:1100px){.charts{grid-template-columns:1fr 1fr}}""")
 
-    print("Wrote site/index.html (no KPI row) and charts")
+    print("Wrote site/index.html with CSV/JSON downloads and Sources drawer")
 
 if __name__ == "__main__":
     run()
