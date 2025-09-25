@@ -1,5 +1,5 @@
 # bot/stats_page.py
-# Builds site/stats.html with summary + history chart
+# Builds site/stats.html with summary + history chart + 7-day rolling average
 
 import os, json
 from datetime import datetime
@@ -27,12 +27,21 @@ def build_chart(history, outpath):
     dates = [h["date"] for h in history]
     items = [h.get("items", 0) for h in history]
 
+    # Compute 7-day rolling average
+    rolling = []
+    for i in range(len(items)):
+        window = items[max(0, i-6):i+1]
+        avg = sum(window) / len(window)
+        rolling.append(avg)
+
     plt.figure(figsize=(9,4), dpi=120)
-    plt.plot(dates, items, marker="o", linestyle="-", color="#2E93fA")
+    plt.plot(dates, items, marker="o", linestyle="-", color="#2E93fA", label="Daily")
+    plt.plot(dates, rolling, linestyle="--", color="#FF9800", linewidth=2, label="7-day avg")
     plt.title("Articles Processed Per Day")
     plt.xlabel("Date")
     plt.ylabel("Articles")
     plt.xticks(rotation=45, ha="right", fontsize=8)
+    plt.legend()
     plt.tight_layout()
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
     plt.savefig(outpath, bbox_inches="tight")
@@ -85,7 +94,7 @@ def run():
     os.makedirs(SITE_DIR, exist_ok=True)
     with open(os.path.join(SITE_DIR, "stats.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print("Wrote site/stats.html with chart")
+    print("Wrote site/stats.html with chart and 7-day avg")
 
 if __name__ == "__main__":
     run()
