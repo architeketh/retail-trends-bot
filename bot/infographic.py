@@ -1,5 +1,5 @@
 # bot/infographic.py
-# White background, black text, per-bar colors, inline CSS.
+# White background, black text, per-bar colors, inline CSS, with Stats button.
 
 import os, json, csv
 from datetime import datetime
@@ -91,7 +91,7 @@ def sources_list_html(highlights, stats):
 
 INLINE_CSS = """<style>
 body{font-family:system-ui;background:#fff;color:#111;padding:2rem;max-width:1100px;margin:auto}
-.header{display:flex;justify-content:space-between;align-items:center}
+.header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 h1{margin:0}
 .badge{background:#eef6ff;color:#111;font-size:12px;padding:4px 8px;border-radius:8px;margin-right:4px}
 .btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;text-decoration:none;color:#111;margin-left:4px}
@@ -108,6 +108,8 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
  <div>
   <a class="btn" href="assets/{csv_name}" download>CSV</a>
   <a class="btn" href="assets/{json_name}" download>JSON</a>
+  <a class="btn" href="stats.html">Stats</a>
+  <button class="btn primary" onclick="location.reload()">Refresh</button>
  </div>
 </div>
 <div class="card"><h2>Top Keywords</h2><img src="assets/{os.path.basename(keywords_img)}"></div>
