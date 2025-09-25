@@ -1,16 +1,16 @@
 # bot/summarize.py
 # --------------------------------------------------------------------
-# Summarize fetched retail items:
-# - Clean HTML from feed summaries
-# - Build high-signal keywords (unigrams + bigrams)
-# - Count brand mentions (canonicalized)
-# - Emit compact highlights for the page
+# Summarize fetched items as RETAIL TRENDS ONLY (noun/noun-phrases):
+# - Strip HTML
+# - Extract only terms from a curated retail-trends lexicon (no verbs/adverbs)
+# - Handle common aliases (e.g., BOPIS, BNPL, CTV)
+# - Keep brand mentions + highlights + stats
 #
-# Outputs bot/data/summary.json with shape:
+# Output: bot/data/summary.json
 # {
-#   "keywords": ["holiday demand", "discounts", ...],
+#   "keywords": ["omnichannel", "BOPIS", "connected TV", ...],  # retail trends only
 #   "brands": [{"name":"Target","count":7}, ...],
-#   "highlights": [{"title": "...", "link": "...", "source": "...", "published": "..."}, ...],
+#   "highlights": [...],
 #   "stats": {...},
 #   "generated_from": "bot/data/items.json"
 # }
@@ -19,7 +19,7 @@
 import os
 import json
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 import yaml
 from bs4 import BeautifulSoup
 
@@ -29,91 +29,138 @@ DATA_DIR = os.path.join(BASE, "data")
 IN_FILE = os.path.join(DATA_DIR, "items.json")
 OUT_FILE = os.path.join(DATA_DIR, "summary.json")
 
-# -------------------------
-# Config helpers
-# -------------------------
 def load_config():
     with open(os.path.join(ROOT, "config.yml"), "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-# -------------------------
-# Text cleaning + tokenizing
-# -------------------------
-HTML_TAG_RE = re.compile(r"<[^>]+>")
+# ---------- Cleaning ----------
 MULTISPACE_RE = re.compile(r"\s+")
-
-# Broad, retail-tuned stopwords (add as needed)
-STOPWORDS = set("""
-a an the and or but if then else of in on at to for from by as is are was were be been being
-this that those these it its it's you your we our their they i he she them will would could should
-with without within about into over after before during between across under above per via vs
-new latest today update news report blog guide analysis announces launch unveils reveals says notes sees
-retail retailer retailers store stores chain chains ecommerce online digital brick mortar omnichannel
-sales shopper shoppers customers traffic demand supply category categories product products pricing price prices percent percentage
-growth decline increase decrease higher lower up down quarter qoq yoy fiscal year season seasonal holiday cyber monday black friday
-forecast outlook trend trends overview highlights make made make's making company companies
-https http www com net org img src figure div span nbsp br amp
-""".split())
-
-WORD_RE = re.compile(r"[a-z][a-z0-9\-']+")
+WORD_RE = re.compile(r"[a-z][a-z0-9\-&']+")
 
 def clean_html(raw: str) -> str:
-    """Strip HTML to plain text; preserve spaces where tags removed."""
     if not raw:
         return ""
-    # BeautifulSoup handles edge cases & entities well
-    text = BeautifulSoup(raw, "lxml").get_text(" ", strip=True)
-    text = MULTISPACE_RE.sub(" ", text)
-    return text
+    txt = BeautifulSoup(raw, "lxml").get_text(" ", strip=True)
+    return MULTISPACE_RE.sub(" ", txt)
 
 def tokenize(text: str):
-    """Lowercase word tokens; filter stopwords and very short tokens."""
-    text = text.lower()
-    tokens = [t for t in WORD_RE.findall(text) if t not in STOPWORDS and len(t) > 2]
-    return tokens
+    # lowercase tokens; keep hyphens/ampersand within terms
+    return [t for t in WORD_RE.findall(text.lower())]
 
-def top_keywords(texts, k_unigrams=12, k_bigrams=6, total_cap=18):
+# ---------- Retail trends lexicon (noun/noun phrases only) ----------
+# Normalize all to lowercase for matching.
+LEXICON = {
+    # channels & journeys
+    "omnichannel", "multichannel", "unified commerce", "social commerce",
+    "live shopping", "marketplaces", "d2c", "dtc", "subscription commerce",
+    "last mile", "same day delivery", "curbside pickup", "bopis", "boris",
+    "click and collect", "store pickup", "ship from store", "buy online pickup in store",
+
+    # payments & checkout
+    "mobile wallet", "contactless payments", "buy now pay later", "bnpl",
+    "pos financing", "checkout optimization", "fraud prevention",
+
+    # marketing & media
+    "retail media", "connected tv", "ctv", "attribution", "incrementality",
+    "first party data", "cookieless", "cookie deprecation", "ugc", "influencer marketing",
+    "email marketing", "sms marketing", "personalization",
+
+    # experience & ai
+    "generative ai", "recommendation systems", "search merchandising", "virtual try on",
+    "ar", "vr", "chatbots", "store analytics", "computer vision",
+
+    # merchandising & pricing
+    "assortment optimization", "markdown optimization", "price optimization",
+    "private label", "rfid", "planogram", "category management",
+
+    # operations & supply chain
+    "inventory visibility", "inventory accuracy", "order management system",
+    "micro fulfillment", "warehouse automation", "supply chain resilience",
+    "demand forecasting", "returns management", "reverse logistics", "shrink",
+
+    # metrics & economics
+    "customer lifetime value", "clv", "average order value", "aov",
+    "conversion rate", "cpi", "gmv", "same store sales", "comps",
+    "gross margin", "price elasticity", "basket size",
+
+    # seasonal & events
+    "holiday sales", "prime day", "back to school", "black friday", "cyber monday",
+
+    # sustainability & packaging
+    "sustainability", "esg", "recyclable packaging", "frustration free packaging",
+
+    # store format & fleet
+    "store openings", "store closures", "small format stores", "experiential retail",
+}
+
+# Aliases/synonyms → canonical forms (all lowercase)
+ALIASES = {
+    "click & collect": "click and collect",
+    "click-and-collect": "click and collect",
+    "bopac": "bopis",  # buy online pickup at curbside
+    "buy online pick up in store": "bopis",
+    "buy-online pick-up in-store": "bopis",
+    "buy online pickup in store": "bopis",
+    "pick up in store": "bopis",
+    "in-store pickup": "bopis",
+    "pick up at curbside": "curbside pickup",
+    "buy now, pay later": "buy now pay later",
+    "bnpl financing": "buy now pay later",
+    "retail media networks": "retail media",
+    "rmn": "retail media",
+    "connected-tv": "connected tv",
+    "connected television": "connected tv",
+    "tv streaming ads": "connected tv",
+    "vto": "virtual try on",
+    "augmented reality": "ar",
+    "virtual reality": "vr",
+    "direct to consumer": "d2c",
+    "direct-to-consumer": "d2c",
+    "first-party data": "first party data",
+    "lifetime value": "customer lifetime value",
+    "average basket size": "basket size",
+    "order management": "order management system",
+    "oms": "order management system",
+    "retail shrink": "shrink",
+    "computer-vision": "computer vision",
+    "personalisation": "personalization",
+}
+
+def canonicalize(term: str) -> str:
+    t = term.strip().lower()
+    # alias map first
+    if t in ALIASES:
+        return ALIASES[t]
+    return t
+
+def ngrams(tokens, n):
+    for i in range(len(tokens) - n + 1):
+        yield " ".join(tokens[i:i+n])
+
+def extract_trend_terms(texts, max_terms=18):
     """
-    Build a keyword list mixing unigrams and bigrams.
-    - Rank unigrams by frequency
-    - Build bigrams from adjacent tokens and rank them
-    - Merge (de-dup by string) up to total_cap
+    Find only lexicon terms (1–3 grams). Prefer multi-word (bigrams/trigrams) first,
+    then unigrams. Excludes verbs/adverbs implicitly by whitelisting noun/noun-phrases.
     """
-    # Unigrams
-    uni_counter = Counter()
-    # Bigrams
-    bi_counter = Counter()
+    counts = Counter()
 
     for txt in texts:
         toks = tokenize(txt)
-        if not toks:
-            continue
-        uni_counter.update(toks)
-        bigrams = [" ".join(pair) for pair in zip(toks, toks[1:])]
-        # Filter bigrams with stopword starts/ends or duplicates like "retail retail"
-        for bg in bigrams:
-            a, b = bg.split()
-            if a == b or a in STOPWORDS or b in STOPWORDS:
-                continue
-            bi_counter[bg] += 1
+        # 3-grams then 2-grams then unigrams, to bias toward phrases
+        for n in (3, 2, 1):
+            for g in ngrams(toks, n):
+                g_can = canonicalize(g)
+                if g_can in LEXICON:
+                    counts[g_can] += 1
 
-    uni = [w for w, _ in uni_counter.most_common(k_unigrams)]
-    bi  = [w for w, _ in bi_counter.most_common(k_bigrams)]
+    # Rank: phrases first (by length desc), then frequency
+    def rank_key(term):
+        return (-len(term.split()), -counts[term], term)
 
-    merged = []
-    seen = set()
-    for w in bi + uni:  # prefer bigrams first for more meaning
-        if w not in seen:
-            merged.append(w)
-            seen.add(w)
-        if len(merged) >= total_cap:
-            break
-    return merged
+    ranked = sorted(counts.keys(), key=rank_key)
+    return ranked[:max_terms]
 
-# -------------------------
-# Brand mentions
-# -------------------------
-# Canonical forms → variants to match. Add brands you care about.
+# ---------- Brand mentions (same as before) ----------
 BRAND_CANON = {
     "Amazon": ["Amazon"],
     "Walmart": ["Walmart"],
@@ -151,29 +198,21 @@ BRAND_CANON = {
 }
 
 def count_brands(texts):
-    """
-    Count brand mentions using case-insensitive exact-phrase matching
-    for each brand's variants. Returns Counter of canonical names.
-    """
     blob = " \n ".join(texts)
     counts = Counter()
     for canon, variants in BRAND_CANON.items():
         c = 0
         for v in variants:
-            # word boundary around first/last word; allow punctuation in middle (e.g., Lowe's)
             pattern = re.compile(rf"(?i)\b{re.escape(v)}\b")
             c += len(pattern.findall(blob))
         if c:
             counts[canon] = c
     return counts
 
-# -------------------------
-# Main summarization
-# -------------------------
+# ---------- Main ----------
 def run():
     cfg = load_config()
 
-    # Load fetched items
     if not os.path.exists(IN_FILE):
         raise FileNotFoundError(f"Missing input: {IN_FILE}. Run bot/fetch.py first.")
 
@@ -182,42 +221,38 @@ def run():
 
     items = data.get("items", [])
     if not items:
-        summary = {
+        out = {
             "keywords": [],
             "brands": [],
             "highlights": [],
             "stats": {"items_considered": 0, "sources": [], "unique_sources": 0},
             "generated_from": IN_FILE,
         }
-        with open(OUT_FILE, "w", encoding="utf-8") as out:
-            json.dump(summary, out, indent=2)
-        print("No items found; wrote empty summary.")
+        with open(OUT_FILE, "w", encoding="utf-8") as o:
+            json.dump(out, o, indent=2)
+        print("No items; wrote empty summary.")
         return
 
-    # Respect config cap
-    max_items = int(cfg.get("summary", {}).get("max_items", 25))
+    max_items = int(cfg.get("summary", {}).get("max_items", 40))
     items = items[:max_items]
 
-    # Clean text & prepare corpus
-    cleaned_texts = []
+    # Clean texts
+    cleaned = []
     for it in items:
         title = (it.get("title") or "").strip()
-        summary_raw = it.get("summary") or ""
-        summary_clean = clean_html(summary_raw)
-        cleaned_texts.append(f"{title} {summary_clean}".strip())
+        body = clean_html(it.get("summary") or "")
+        cleaned.append(f"{title} {body}".strip())
 
-    # Build keywords (unigrams + bigrams)
-    kw = top_keywords(cleaned_texts,
-                      k_unigrams=12,
-                      k_bigrams=6,
-                      total_cap=int(cfg.get("infographic", {}).get("top_n_keywords", 18)))
+    # Retail-trend keywords only
+    max_kw = int(cfg.get("infographic", {}).get("top_n_keywords", 18))
+    trend_terms = extract_trend_terms(cleaned, max_terms=max_kw)
 
-    # Count brand mentions
-    brand_counts = count_brands(cleaned_texts)
-    top_n_brands = int(cfg.get("infographic", {}).get("top_n_brands", 12))
+    # Brands
+    brand_counts = count_brands(cleaned)
+    top_n_brands = int(cfg.get("infographic", {}).get("top_n_brands", 10))
     brands_sorted = [{"name": b, "count": c} for b, c in brand_counts.most_common(top_n_brands)]
 
-    # Highlights (titles + links)
+    # Highlights
     highlights_cap = 6
     highlights = [{
         "title": (it.get("title") or "").strip(),
@@ -226,28 +261,27 @@ def run():
         "published": it.get("published") or "",
     } for it in items[:highlights_cap]]
 
-    # Stats block (optional, handy for badges/KPIs)
+    # Stats
     sources = [it.get("source") or "" for it in items]
     stats = {
         "items_considered": len(items),
         "unique_sources": len(set(sources)),
-        "sources": sorted(list(set(sources))),
+        "sources": sorted(set(sources)),
         "top_brand": brands_sorted[0]["name"] if brands_sorted else None,
         "brand_mentions_total": sum(b["count"] for b in brands_sorted),
     }
 
     out = {
-        "keywords": kw,
+        "keywords": trend_terms,
         "brands": brands_sorted,
         "highlights": highlights,
         "stats": stats,
         "generated_from": IN_FILE,
     }
-
     os.makedirs(DATA_DIR, exist_ok=True)
-    with open(OUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2)
-    print(f"Wrote summary to {OUT_FILE} with {len(kw)} keywords and {len(brands_sorted)} brands.")
+    with open(OUT_FILE, "w", encoding="utf-8") as o:
+        json.dump(out, o, indent=2)
+    print(f"Wrote summary with {len(trend_terms)} retail trend keywords and {len(brands_sorted)} brands.")
 
 if __name__ == "__main__":
     run()
