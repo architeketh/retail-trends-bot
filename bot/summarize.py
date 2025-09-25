@@ -1,19 +1,10 @@
 # bot/summarize.py
 # --------------------------------------------------------------------
-# Summarize fetched items as RETAIL TRENDS ONLY (noun/noun-phrases):
-# - Strip HTML
-# - Extract only terms from a curated retail-trends lexicon (no verbs/adverbs)
-# - Handle common aliases (e.g., BOPIS, BNPL, CTV)
-# - Keep brand mentions + highlights + stats
-#
-# Output: bot/data/summary.json
-# {
-#   "keywords": ["omnichannel", "BOPIS", "connected TV", ...],  # retail trends only
-#   "brands": [{"name":"Target","count":7}, ...],
-#   "highlights": [...],
-#   "stats": {...},
-#   "generated_from": "bot/data/items.json"
-# }
+# Retail-trends-only summarizer:
+# - Clean + normalize text (strip HTML, '&'->'and', hyphens->space, collapse spaces)
+# - Match ONLY curated retail trend nouns/phrases (no verbs/adverbs)
+# - Robust alias handling (BOPIS/BNPL/CTV/etc.)
+# - Preserve brands, highlights, stats
 # --------------------------------------------------------------------
 
 import os
@@ -33,9 +24,10 @@ def load_config():
     with open(os.path.join(ROOT, "config.yml"), "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-# ---------- Cleaning ----------
+# ----------------- HTML clean + normalization -----------------
 MULTISPACE_RE = re.compile(r"\s+")
-WORD_RE = re.compile(r"[a-z][a-z0-9\-&']+")
+URL_RE = re.compile(r"https?://\S+")
+NONWORD_GAPS = re.compile(r"[^\w&'-]+")
 
 def clean_html(raw: str) -> str:
     if not raw:
@@ -43,124 +35,147 @@ def clean_html(raw: str) -> str:
     txt = BeautifulSoup(raw, "lxml").get_text(" ", strip=True)
     return MULTISPACE_RE.sub(" ", txt)
 
-def tokenize(text: str):
-    # lowercase tokens; keep hyphens/ampersand within terms
-    return [t for t in WORD_RE.findall(text.lower())]
+def normalize_text(s: str) -> str:
+    """
+    Normalize to improve phrase matching:
+    - lowercase
+    - remove URLs
+    - replace '&' with 'and'
+    - replace hyphens with space
+    - collapse non-word runs to single space
+    - collapse multi-space
+    """
+    s = s.lower()
+    s = URL_RE.sub(" ", s)
+    s = s.replace("&", " and ")
+    s = s.replace("-", " ")
+    s = NONWORD_GAPS.sub(" ", s)
+    s = MULTISPACE_RE.sub(" ", s).strip()
+    return s
 
-# ---------- Retail trends lexicon (noun/noun phrases only) ----------
-# Normalize all to lowercase for matching.
+# ----------------- Retail trend lexicon -----------------
+# Canonical, normalized (lowercase, spaces only)
 LEXICON = {
     # channels & journeys
     "omnichannel", "multichannel", "unified commerce", "social commerce",
     "live shopping", "marketplaces", "d2c", "dtc", "subscription commerce",
     "last mile", "same day delivery", "curbside pickup", "bopis", "boris",
     "click and collect", "store pickup", "ship from store", "buy online pickup in store",
-
     # payments & checkout
     "mobile wallet", "contactless payments", "buy now pay later", "bnpl",
     "pos financing", "checkout optimization", "fraud prevention",
-
     # marketing & media
     "retail media", "connected tv", "ctv", "attribution", "incrementality",
-    "first party data", "cookieless", "cookie deprecation", "ugc", "influencer marketing",
-    "email marketing", "sms marketing", "personalization",
-
+    "first party data", "cookieless", "cookie deprecation", "ugc",
+    "influencer marketing", "email marketing", "sms marketing", "personalization",
     # experience & ai
     "generative ai", "recommendation systems", "search merchandising", "virtual try on",
     "ar", "vr", "chatbots", "store analytics", "computer vision",
-
     # merchandising & pricing
     "assortment optimization", "markdown optimization", "price optimization",
     "private label", "rfid", "planogram", "category management",
-
     # operations & supply chain
     "inventory visibility", "inventory accuracy", "order management system",
     "micro fulfillment", "warehouse automation", "supply chain resilience",
     "demand forecasting", "returns management", "reverse logistics", "shrink",
-
     # metrics & economics
     "customer lifetime value", "clv", "average order value", "aov",
     "conversion rate", "cpi", "gmv", "same store sales", "comps",
     "gross margin", "price elasticity", "basket size",
-
     # seasonal & events
     "holiday sales", "prime day", "back to school", "black friday", "cyber monday",
-
     # sustainability & packaging
     "sustainability", "esg", "recyclable packaging", "frustration free packaging",
-
     # store format & fleet
     "store openings", "store closures", "small format stores", "experiential retail",
 }
 
-# Aliases/synonyms → canonical forms (all lowercase)
+# Aliases (normalized) -> canonical term in LEXICON
 ALIASES = {
-    "click & collect": "click and collect",
-    "click-and-collect": "click and collect",
-    "bopac": "bopis",  # buy online pickup at curbside
+    # BOPIS & pickup variants
+    "click and collect": "click and collect",
+    "click n collect": "click and collect",
     "buy online pick up in store": "bopis",
-    "buy-online pick-up in-store": "bopis",
     "buy online pickup in store": "bopis",
     "pick up in store": "bopis",
-    "in-store pickup": "bopis",
-    "pick up at curbside": "curbside pickup",
-    "buy now, pay later": "buy now pay later",
+    "in store pickup": "bopis",
+    "in store pick up": "bopis",
+    "bopac": "curbside pickup",                 # buy online pickup at curbside
+    "pickup at curbside": "curbside pickup",
+    "curb side pickup": "curbside pickup",
+    # BNPL variants
+    "buy now pay later": "buy now pay later",
     "bnpl financing": "buy now pay later",
+    # Retail media variants
     "retail media networks": "retail media",
     "rmn": "retail media",
-    "connected-tv": "connected tv",
+    # CTV variants
     "connected television": "connected tv",
+    "connected tv advertising": "connected tv",
     "tv streaming ads": "connected tv",
-    "vto": "virtual try on",
+    "ctv advertising": "connected tv",
+    # D2C
+    "direct to consumer": "d2c",
+    "direct to consumer brands": "d2c",
+    "direct to consumer channel": "d2c",
+    "direct to consumer sales": "d2c",
+    "direct to consumer strategy": "d2c",
+    "direct to consumer model": "d2c",
+    "direct to consumer marketing": "d2c",
+    "direct to consumer growth": "d2c",
+    "direct to consumer commerce": "d2c",
+    "direct to consumer retail": "d2c",
+    "direct to consumer store": "d2c",
+    "direct to consumer sales channels": "d2c",
+    "direct to consumer ecommerce": "d2c",
+    "direct to consumer advertising": "d2c",
+    "direct to consumer operations": "d2c",
+    "direct to consumer distribution": "d2c",
+    # VTO / AR / VR
+    "virtual try on": "virtual try on",
     "augmented reality": "ar",
     "virtual reality": "vr",
-    "direct to consumer": "d2c",
-    "direct-to-consumer": "d2c",
-    "first-party data": "first party data",
-    "lifetime value": "customer lifetime value",
-    "average basket size": "basket size",
+    # OMS
     "order management": "order management system",
     "oms": "order management system",
-    "retail shrink": "shrink",
-    "computer-vision": "computer vision",
+    # personalization spelling
     "personalisation": "personalization",
 }
 
-def canonicalize(term: str) -> str:
-    t = term.strip().lower()
-    # alias map first
-    if t in ALIASES:
-        return ALIASES[t]
-    return t
-
-def ngrams(tokens, n):
-    for i in range(len(tokens) - n + 1):
-        yield " ".join(tokens[i:i+n])
-
-def extract_trend_terms(texts, max_terms=18):
+def lexicon_count(normalized_blob: str, max_terms: int = 18) -> list[str]:
     """
-    Find only lexicon terms (1–3 grams). Prefer multi-word (bigrams/trigrams) first,
-    then unigrams. Excludes verbs/adverbs implicitly by whitelisting noun/noun-phrases.
+    Count lexicon/alias phrases by scanning the normalized corpus.
+    Returns top phrases by count (desc) then phrase length desc, then alpha.
     """
     counts = Counter()
 
-    for txt in texts:
-        toks = tokenize(txt)
-        # 3-grams then 2-grams then unigrams, to bias toward phrases
-        for n in (3, 2, 1):
-            for g in ngrams(toks, n):
-                g_can = canonicalize(g)
-                if g_can in LEXICON:
-                    counts[g_can] += 1
+    # 1) Count aliases first (map to canonical)
+    for alias, canon in ALIASES.items():
+        alias_norm = normalize_text(alias)
+        # word-boundary-ish: ensure spaces around alias or start/end
+        pattern = re.compile(rf"(?<!\w){re.escape(alias_norm)}(?!\w)")
+        c = len(pattern.findall(normalized_blob))
+        if c:
+            counts[canon] += c
 
-    # Rank: phrases first (by length desc), then frequency
-    def rank_key(term):
-        return (-len(term.split()), -counts[term], term)
+    # 2) Count canonical terms directly
+    for term in LEXICON:
+        term_norm = normalize_text(term)
+        pattern = re.compile(rf"(?<!\w){re.escape(term_norm)}(?!\w)")
+        c = len(pattern.findall(normalized_blob))
+        if c:
+            counts[term] += c
 
-    ranked = sorted(counts.keys(), key=rank_key)
+    if not counts:
+        return []
+
+    def sort_key(k):
+        return (-counts[k], -len(k.split()), k)
+
+    ranked = sorted(counts.keys(), key=sort_key)
     return ranked[:max_terms]
 
-# ---------- Brand mentions (same as before) ----------
+# ----------------- Brand mentions (unchanged) -----------------
 BRAND_CANON = {
     "Amazon": ["Amazon"],
     "Walmart": ["Walmart"],
@@ -197,7 +212,7 @@ BRAND_CANON = {
     "Etsy": ["Etsy"],
 }
 
-def count_brands(texts):
+def count_brands(texts: list[str]) -> Counter:
     blob = " \n ".join(texts)
     counts = Counter()
     for canon, variants in BRAND_CANON.items():
@@ -209,10 +224,9 @@ def count_brands(texts):
             counts[canon] = c
     return counts
 
-# ---------- Main ----------
+# ----------------- Main -----------------
 def run():
     cfg = load_config()
-
     if not os.path.exists(IN_FILE):
         raise FileNotFoundError(f"Missing input: {IN_FILE}. Run bot/fetch.py first.")
 
@@ -233,22 +247,27 @@ def run():
         print("No items; wrote empty summary.")
         return
 
+    # Cap how many items we consider
     max_items = int(cfg.get("summary", {}).get("max_items", 40))
     items = items[:max_items]
 
-    # Clean texts
-    cleaned = []
+    # Clean + normalize article texts
+    cleaned_texts = []
+    norm_blob_parts = []
     for it in items:
         title = (it.get("title") or "").strip()
         body = clean_html(it.get("summary") or "")
-        cleaned.append(f"{title} {body}".strip())
+        text = f"{title} {body}".strip()
+        cleaned_texts.append(text)
+        norm_blob_parts.append(normalize_text(text))
+    norm_blob = " \n ".join(norm_blob_parts)
 
     # Retail-trend keywords only
     max_kw = int(cfg.get("infographic", {}).get("top_n_keywords", 18))
-    trend_terms = extract_trend_terms(cleaned, max_terms=max_kw)
+    trend_terms = lexicon_count(norm_blob, max_terms=max_kw)
 
     # Brands
-    brand_counts = count_brands(cleaned)
+    brand_counts = count_brands(cleaned_texts)
     top_n_brands = int(cfg.get("infographic", {}).get("top_n_brands", 10))
     brands_sorted = [{"name": b, "count": c} for b, c in brand_counts.most_common(top_n_brands)]
 
