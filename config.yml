@@ -1,6 +1,7 @@
 schedule: daily
 timezone: America/Chicago
 
+# Retail trend insight sources (RSS)
 sources:
   - name: Retail Dive
     type: rss
@@ -8,23 +9,46 @@ sources:
   - name: NRF Blog
     type: rss
     url: https://nrf.com/blog/rss.xml
-  - name: Shopify News
-    type: rss
-    url: https://news.shopify.com/rss
   - name: US Census - Monthly Retail Trade (MTIS)
     type: rss
     url: https://www.census.gov/economic-indicators/feeds/release/mtis.rss
+  - name: Shopify News
+    type: rss
+    url: https://news.shopify.com/rss
+
+  # New additions you requested
+  - name: Square (Town Square)
+    type: rss
+    url: https://squareup.com/us/en/townsquare/rss
+  - name: Glimpse
+    type: rss
+    url: https://www.glimpse.to/blog/rss
+  - name: Total Retail
+    type: rss
+    url: https://www.mytotalretail.com/feed/
+  - name: WestRock Newsroom
+    type: rss
+    url: https://www.westrock.com/en/newsroom/rss
+  - name: Supply Chain 24/7
+    type: rss
+    url: https://www.supplychain247.com/rss
+  - name: Intelistyle Blog
+    type: rss
+    url: https://www.intelistyle.com/blog/feed/
+  - name: Tinuiti Blog
+    type: rss
+    url: https://tinuiti.com/blog/feed/
 
 summary:
-  method: "extractive"
-  max_items: 25
+  method: "extractive"     # keep simple + free; can switch to "openai" later
+  max_items: 40            # consider more items now that we have more sources
   target_words: 220
 
 infographic:
   title: "Retail Trends — Auto Report"
   output_image: "site/assets/retail_trends_infographic.png"
   brands_image: "site/assets/retail_brands.png"
-  top_n_brands: 12
+  top_n_brands: 14         # show more brands
 
 website:
   title: "Retail Trends Daily"
