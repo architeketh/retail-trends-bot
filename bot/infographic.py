@@ -1,5 +1,5 @@
 # bot/infographic.py
-# Builds charts and the site page (with KPI row) from bot/data/summary.json
+# Builds charts and the site page (no KPI row) from bot/data/summary.json
 
 import os
 import json
@@ -28,28 +28,7 @@ def save_barh(labels, values, title, outpath):
     plt.savefig(outpath)
     plt.close()
 
-def kpi_card(label, value, sub=None):
-    s = f"""
-    <div class="kpi card">
-      <div class="kpi-value">{value}</div>
-      <div class="kpi-label">{label}</div>
-      {f'<div class="kpi-sub">{sub}</div>' if sub else ''}
-    </div>
-    """
-    return s
-
-def build_index(title, description, keywords_img, brands_img, highlights, stats):
-    # KPI values
-    mentions_total = (stats or {}).get("brand_mentions_total", 0)
-    unique_sources = (stats or {}).get("unique_sources", 0)
-    top_brand = (stats or {}).get("top_brand", "—")
-
-    kpis_html = (
-        kpi_card("Mentions Today", mentions_total)
-        + kpi_card("Sources Fetched", unique_sources)
-        + kpi_card("Top Brand", top_brand)
-    )
-
+def build_index(title, description, keywords_img, brands_img, highlights):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,15 +37,6 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats)
   <title>{title}</title>
   <link rel="stylesheet" href="assets/style.css">
   <meta name="theme-color" content="#0b0c10">
-  <style>
-    /* Minimal KPI styling (works with your existing stylesheet) */
-    .kpis {{ display:grid; grid-template-columns:1fr; gap:12px; margin:14px 0 18px }}
-    @media(min-width:900px){{ .kpis {{ grid-template-columns:repeat(3,1fr); }} }}
-    .kpi.card {{ text-align:center; padding:18px 14px }}
-    .kpi-value {{ font-size:28px; font-weight:700; line-height:1; margin-bottom:6px }}
-    .kpi-label {{ color:#a4aec2; font-size:13px }}
-    .kpi-sub {{ color:#cfe5ff; font-size:12px; margin-top:6px }}
-  </style>
 </head>
 <body>
   <div class="container">
@@ -76,7 +46,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats)
         <p>{description}</p>
         <div class="badges">
           <span class="badge">Auto-updated daily</span>
-          <span class="badge">Retail Dive · NRF · Shopify · Census MTIS</span>
+          <span class="badge">NRF · Retail Dive · Shopify · Census MTIS · + More</span>
         </div>
       </div>
       <div class="actions">
@@ -85,10 +55,6 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats)
         <button class="btn primary" id="refreshBtn" onclick="location.reload()">Refresh</button>
       </div>
     </header>
-
-    <section class="kpis">
-      {kpis_html}
-    </section>
 
     <section class="grid">
       <article class="card">
@@ -122,7 +88,6 @@ def run():
 
     keywords = summary.get("keywords", [])
     brands   = summary.get("brands", [])
-    stats    = summary.get("stats", {})
     highlights = summary.get("highlights", [])
 
     # output chart paths (under /site/assets)
@@ -153,7 +118,7 @@ def run():
         cfg["website"]["title"],
         cfg["website"]["description"],
         keywords_img, brands_img,
-        highlights, stats
+        highlights
     )
     with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html)
@@ -169,7 +134,7 @@ h1{margin-bottom:.25rem}.tagline{color:#555;margin-top:0}
 .headlines li{margin:.4rem 0}.src{color:#777;font-size:.9em;margin-left:.25rem}
 @media(min-width:1100px){.charts{grid-template-columns:1fr 1fr}}""")
 
-    print("Wrote site/index.html with KPI row and charts")
+    print("Wrote site/index.html (no KPI row) and charts")
 
 if __name__ == "__main__":
     run()
