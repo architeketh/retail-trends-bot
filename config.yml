@@ -1,0 +1,31 @@
+schedule: daily
+timezone: America/Chicago
+
+sources:
+  - name: Retail Dive
+    type: rss
+    url: https://www.retaildive.com/feeds/news/
+  - name: NRF Blog
+    type: rss
+    url: https://nrf.com/blog/rss.xml
+  - name: Shopify News
+    type: rss
+    url: https://news.shopify.com/rss
+  - name: US Census - Monthly Retail Trade (MTIS)
+    type: rss
+    url: https://www.census.gov/economic-indicators/feeds/release/mtis.rss
+
+summary:
+  method: "extractive"
+  max_items: 25
+  target_words: 220
+
+infographic:
+  title: "Retail Trends — Auto Report"
+  output_image: "site/assets/retail_trends_infographic.png"
+  brands_image: "site/assets/retail_brands.png"
+  top_n_brands: 12
+
+website:
+  title: "Retail Trends Daily"
+  description: "Automated snapshot of retail signals: sales, pricing, promotions, foot traffic, ecommerce, and macro updates."
