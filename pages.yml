@@ -41,3 +41,5 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+    - name: Build stats page
+      run: python bot/stats_page.py
