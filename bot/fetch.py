@@ -1,77 +1,171 @@
-import os, json, feedparser
-from datetime import datetime, timezone
-from dateutil import parser as dateparser
-import yaml, hashlib
+# bot/fetch.py
+# Fetches retail trend headlines from multiple RSS feeds.
+# Outputs bot/data/items.json with:
+#   {"items":[{"title","link","source","published","summary"}...]}
+
+import os, json, time
+from datetime import datetime
+from typing import List, Dict
+import feedparser
+import requests
+from bs4 import BeautifulSoup
 
 BASE = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(BASE, ".."))
 DATA_DIR = os.path.join(BASE, "data")
-os.makedirs(DATA_DIR, exist_ok=True)
+OUT_FILE = os.path.join(DATA_DIR, "items.json")
+CONFIG_FILE = os.path.join(ROOT, "config.yml")  # optional extra feeds
 
-def load_config():
-    with open(os.path.join(BASE, "..", "config.yml")) as f:
-        return yaml.safe_load(f)
+# --------- Feeds (curated; safe if some 404 — we skip gracefully) ----------
+FEEDS: List[Dict[str, str]] = [
+    {"name": "Retail Dive",            "url": "https://www.retaildive.com/feeds/news/"},
+    {"name": "RetailWire",             "url": "https://www.retailwire.com/feed/"},
+    {"name": "Chain Store Age",        "url": "https://chainstoreage.com/rss.xml"},
+    {"name": "Retail TouchPoints",     "url": "https://www.retailtouchpoints.com/feed"},
+    {"name": "Modern Retail",          "url": "https://www.modernretail.co/feed/"},
+    {"name": "Retail Brew",            "url": "https://www.morningbrew.com/retail/rss"},
+    {"name": "NRF",                    "url": "https://nrf.com/rss.xml"},
+    {"name": "Digital Commerce 360",   "url": "https://www.digitalcommerce360.com/feed/"},
+    {"name": "Total Retail",           "url": "https://www.mytotalretail.com/feed/"},
+    {"name": "Supply Chain 24/7",      "url": "https://www.supplychain247.com/rss"},
+    {"name": "Tinuiti",                "url": "https://tinuiti.com/blog/feed/"},
+    # Extras (fashion / resale / global retail)
+    {"name": "Business of Fashion",    "url": "https://www.businessoffashion.com/feed/"},
+    {"name": "FashionUnited",          "url": "https://fashionunited.com/rss"},
+]
 
-def hash_id(text: str) -> str:
-    return hashlib.sha1((text or "").encode("utf-8")).hexdigest()[:12]
+# --------- Helpers ----------
+UA = {"User-Agent": "retail-trends-bot/1.0 (+https://github.com/)"}
 
-def sanitize(entry, src_name):
-    title = getattr(entry, "title", "") or ""
-    link = getattr(entry, "link", "") or ""
-    summary = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
-    published = None
-    for k in ("published", "updated"):
-        if hasattr(entry, k) and getattr(entry, k):
-            try:
-                published = dateparser.parse(getattr(entry, k)).astimezone(timezone.utc).isoformat()
-                break
-            except Exception:
-                pass
-    if not published:
-        published = datetime.now(timezone.utc).isoformat()
-    return {
-        "id": hash_id(link or title),
-        "title": title,
-        "link": link,
-        "summary": summary,
-        "published": published,
-        "source": src_name,
-    }
+def ensure_dirs():
+    os.makedirs(DATA_DIR, exist_ok=True)
 
-def fetch_rss(url, src_name, limit=50):
-    feed = feedparser.parse(url)
-    items = []
-    for e in feed.entries[:limit]:
-        items.append(sanitize(e, src_name))
-    return items
+def to_iso(published_struct) -> str:
+    """Convert time.struct_time to ISO string (UTC) or return ''."""
+    try:
+        # feedparser dates are in local/unknown; treat as UTC-ish for charts
+        return time.strftime("%Y-%m-%dT%H:%M:%SZ", published_struct)
+    except Exception:
+        return ""
+
+def clean_html(html: str) -> str:
+    if not html:
+        return ""
+    try:
+        soup = BeautifulSoup(html, "lxml")
+        txt = soup.get_text(" ", strip=True)
+        # collapse spaces
+        return " ".join(txt.split())
+    except Exception:
+        return html
+
+def http_get_text(url: str, timeout=8) -> str:
+    try:
+        r = requests.get(url, headers=UA, timeout=timeout)
+        if r.ok and "text" in r.headers.get("Content-Type", ""):
+            return r.text
+    except Exception:
+        pass
+    return ""
+
+def best_effort_summary(entry) -> str:
+    # Prefer summary from feed; fallback to fetching the article and taking the first paragraph
+    summ = entry.get("summary") or entry.get("description") or ""
+    summ = clean_html(summ)
+    if summ:
+        return summ
+    link = entry.get("link") or ""
+    if not link:
+        return ""
+    html = http_get_text(link)
+    if not html:
+        return ""
+    try:
+        soup = BeautifulSoup(html, "lxml")
+        # try typical article containers
+        cand = None
+        for sel in ["article p", ".article__content p", ".post-content p", ".entry-content p", "p"]:
+            p = soup.select(sel)
+            if p:
+                cand = p[0].get_text(" ", strip=True)
+                if cand:
+                    break
+        return (cand or "")[:400]
+    except Exception:
+        return ""
+
+def fetch_feed(url: str) -> feedparser.FeedParserDict:
+    # Let feedparser fetch (it handles redirects, gzip, etc.)
+    return feedparser.parse(url)
+
+def add_config_feeds():
+    """Optional: if config.yml has sources.feeds: [ {name,url}, ... ], include them."""
+    try:
+        import yaml
+        cfg_path = CONFIG_FILE
+        if os.path.exists(cfg_path):
+            with open(cfg_path, "r", encoding="utf-8") as f:
+                cfg = yaml.safe_load(f) or {}
+            extra = (cfg.get("sources", {}) or {}).get("feeds", []) or []
+            for e in extra:
+                if isinstance(e, dict) and e.get("name") and e.get("url"):
+                    FEEDS.append({"name": e["name"], "url": e["url"]})
+    except Exception:
+        pass
 
 def run():
-    cfg = load_config()
-    collected = []
-    for src in cfg["sources"]:
+    ensure_dirs()
+    add_config_feeds()
+
+    items = []
+    seen_links = set()
+    per_feed_cap = 20   # keep each feed modest
+    total_cap = 150     # overall cap
+
+    for feed in FEEDS:
+        name, url = feed["name"], feed["url"]
         try:
-            stype = src.get("type", "rss")
-            if stype == "rss":
-                items = fetch_rss(src["url"], src["name"])
-            else:
-                print("Unsupported type:", stype, "for", src["name"])
-                items = []
-            collected.extend(items)
-            print(f"Fetched {len(items)} from {src['name']}")
-        except Exception as e:
-            print("Error fetching", src.get("name", src.get("url")), "->", e)
+            parsed = fetch_feed(url)
+            entries = parsed.entries[:per_feed_cap] if parsed.entries else []
+            for e in entries:
+                if len(items) >= total_cap:
+                    break
+                link = e.get("link") or ""
+                if not link or link in seen_links:
+                    continue
+                seen_links.add(link)
 
-    # sort newest first and dedupe by id
-    seen = set()
-    uniques = []
-    for it in sorted(collected, key=lambda x: x["published"], reverse=True):
-        if it["id"] in seen: continue
-        seen.add(it["id"])
-        uniques.append(it)
+                title = (e.get("title") or "").strip()
+                published = ""
+                # Try published_parsed, then updated_parsed
+                if getattr(e, "published_parsed", None):
+                    published = to_iso(e.published_parsed)
+                elif getattr(e, "updated_parsed", None):
+                    published = to_iso(e.updated_parsed)
 
-    out = {"fetched_at": datetime.now(timezone.utc).isoformat(), "items": uniques}
-    with open(os.path.join(DATA_DIR, "items.json"), "w") as f:
+                summary = best_effort_summary(e)
+                if not summary:
+                    summary = title  # minimal fallback so downstream never breaks
+
+                items.append({
+                    "title": title or "(untitled)",
+                    "link": link,
+                    "source": name,
+                    "published": published,
+                    "summary": summary,
+                })
+        except Exception as ex:
+            print(f"[warn] Skipping feed {name}: {ex}")
+
+    # Sort newest first, then title
+    items.sort(key=lambda x: (x.get("published") or "", x.get("title") or ""), reverse=True)
+
+    # Write output
+    out = {"items": items}
+    with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
-    print("Wrote", len(uniques), "items to data/items.json")
+
+    print(f"Fetched {len(items)} items from {len(FEEDS)} feeds → wrote {OUT_FILE}")
 
 if __name__ == "__main__":
     run()
