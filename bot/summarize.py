@@ -1,6 +1,6 @@
 # bot/summarize.py
-# Retail-trends-only keywords (noun/noun-phrases, strict whitelist)
-# + robust brand counting + capped history log (180 days).
+# Retail-trends-only keywords (whitelist) + brand counting + capped history log.
+# NOW outputs keyword COUNTS: out["keywords"] = [{"term": str, "count": int}, ...]
 
 import os, json, re, yaml
 from collections import Counter
@@ -83,24 +83,21 @@ ALIASES = {
     "connected television": "connected tv",
 }
 
-def count_trend_terms(norm_blob: str, max_terms: int = 18) -> list[str]:
+def keyword_counts(norm_blob: str) -> Counter:
     counts = Counter()
+    # aliases -> canonical
     for alias, canon in ALIASES.items():
         a = normalize_text(alias)
         hits = len(re.findall(rf"(?<!\w){re.escape(a)}(?!\w)", norm_blob))
         if hits:
             counts[canon] += hits
+    # canonical terms
     for term in LEXICON:
         t = normalize_text(term)
         hits = len(re.findall(rf"(?<!\w){re.escape(t)}(?!\w)", norm_blob))
         if hits:
             counts[term] += hits
-    if not counts:
-        return []
-    def sort_key(term):
-        return (-counts[term], -len(term.split()), term)
-    ranked = sorted(counts.keys(), key=sort_key)
-    return ranked[:max_terms]
+    return counts
 
 # ---------------- Brand aliases ----------------
 BRAND_ALIASES = {
@@ -125,7 +122,7 @@ BRAND_ALIASES = {
     "primark": "Primark", "jd sports": "JD Sports"
 }
 
-def count_brands_normalized(norm_blob: str) -> Counter:
+def brand_counts(norm_blob: str) -> Counter:
     counts = Counter()
     for alias, canon in BRAND_ALIASES.items():
         hits = len(re.findall(rf"(?<!\w){re.escape(alias)}(?!\w)", norm_blob))
@@ -147,6 +144,7 @@ def run():
         out = {"keywords": [], "brands": [], "highlights": [],
                "stats": {"items_considered": 0, "sources": [], "unique_sources": 0},
                "generated_from": IN_FILE}
+        os.makedirs(DATA_DIR, exist_ok=True)
         with open(OUT_FILE, "w", encoding="utf-8") as o:
             json.dump(out, o, indent=2)
         return
@@ -154,38 +152,49 @@ def run():
     max_items = int(cfg.get("summary", {}).get("max_items", 40))
     items = items[:max_items]
 
-    cleaned_texts, norm_parts = [], []
+    # Build normalized blob
+    norm_parts = []
     for it in items:
         text = f"{(it.get('title') or '').strip()} {clean_html(it.get('summary') or '')}".strip()
-        cleaned_texts.append(text)
         norm_parts.append(normalize_text(text))
     norm_blob = " \n ".join(norm_parts)
 
+    # Keyword COUNTS
+    k_counts = keyword_counts(norm_blob)
     top_n_keywords = int(cfg.get("infographic", {}).get("top_n_keywords", 18))
-    keywords = count_trend_terms(norm_blob, max_terms=top_n_keywords)
+    # Sort: count desc, phrase length desc, alpha
+    def kw_sort_key(term):
+        return (-k_counts[term], -len(term.split()), term)
+    kw_terms_sorted = sorted(k_counts.keys(), key=kw_sort_key)[:top_n_keywords]
+    keywords_out = [{"term": t, "count": k_counts[t]} for t in kw_terms_sorted]
 
-    brand_counts = count_brands_normalized(norm_blob)
+    # Brand counts
+    b_counts = brand_counts(norm_blob)
     top_n_brands = int(cfg.get("infographic", {}).get("top_n_brands", 12))
-    brands_sorted = [{"name": b, "count": c} for b, c in brand_counts.most_common(top_n_brands)]
+    brands_sorted = [{"name": b, "count": c} for b, c in b_counts.most_common(top_n_brands)]
 
+    # Highlights
+    highlights_cap = 6
     highlights = [{
         "title": (it.get("title") or "").strip(),
         "link": it.get("link") or "",
         "source": it.get("source") or "",
         "published": it.get("published") or "",
-    } for it in items[:6]]
+    } for it in items[:highlights_cap]]
 
+    # Stats
     sources = [it.get("source") or "" for it in items]
     stats = {
         "date": datetime.utcnow().strftime("%Y-%m-%d"),
         "items_considered": len(items),
         "unique_sources": len(set(sources)),
         "sources": sorted(set(sources)),
-        "brand_total_detected": sum(brand_counts.values()),
+        "brand_total_detected": sum(b_counts.values()),
+        "keyword_total_detected": sum(k_counts.values()),
     }
 
     out = {
-        "keywords": keywords,
+        "keywords": keywords_out,     # << now objects with counts
         "brands": brands_sorted,
         "highlights": highlights,
         "stats": stats,
@@ -199,21 +208,21 @@ def run():
     entry = {"date": stats["date"],
              "items": stats["items_considered"],
              "brands_found": len(brands_sorted),
-             "keywords_found": len(keywords)}
+             "keywords_found": len(keywords_out)}
     history = []
     if os.path.exists(HIST_FILE):
-        with open(HIST_FILE, "r", encoding="utf-8") as hf:
-            try:
+        try:
+            with open(HIST_FILE, "r", encoding="utf-8") as hf:
                 history = json.load(hf)
-            except Exception:
-                history = []
+        except Exception:
+            history = []
     history.append(entry)
     if len(history) > 180:
         history = history[-180:]
     with open(HIST_FILE, "w", encoding="utf-8") as hf:
         json.dump(history, hf, indent=2)
 
-    print(f"Wrote summary with {len(keywords)} keywords and {len(brands_sorted)} brands. History now {len(history)} days.")
+    print(f"Wrote summary with {len(keywords_out)} keywords (total mentions: {stats['keyword_total_detected']}) and {len(brands_sorted)} brands.")
 
 if __name__ == "__main__":
     run()
