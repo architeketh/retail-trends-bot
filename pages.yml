@@ -32,24 +32,29 @@ jobs:
           pip install -r requirements.txt
 
       # --- Your pipeline ---
-      - name: Fetch retail data
-        run: python bot/fetch.py
-        
-      - name: Discover new publisher sites
-      run: python bot/discover_sites.py
+  - name: Fetch retail data
+  run: python bot/fetch.py
 
+- name: Summarize data
+  run: python bot/summarize.py
 
-      - name: Summarize data
-        run: python bot/summarize.py
+- name: Build weekly AI summary page
+  run: python bot/weekly_summary.py
 
-      - name: Build infographic dashboard (index.html)
-        run: python bot/infographic.py
+- name: Build infographic dashboard (index.html)
+  run: python bot/infographic.py
 
-      - name: Build stats page (stats.html)
-        run: python bot/stats_page.py
+- name: Build stats page (stats.html)
+  run: python bot/stats_page.py
 
-      - name: Build news sites page (news.html)
-        run: python bot/news_links_page.py
+- name: Build news sites page (news.html)
+  run: python bot/news_links_page.py
+
+- name: Upload Pages artifact
+  uses: actions/upload-pages-artifact@v3
+  with:
+    path: ./site
+
 
       # --- Sanity check: prove the files exist before upload ---
       - name: Verify site output
