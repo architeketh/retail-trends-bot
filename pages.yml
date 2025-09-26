@@ -1,9 +1,9 @@
-name: Retail Trends – Build & Publish
+name: Retail Trends – Build & Publish (Simple)
 
 on:
-  workflow_dispatch:   # allow manual run
+  workflow_dispatch:
   schedule:
-    - cron: "0 9 * * *"   # run daily at 09:00 UTC
+    - cron: "0 9 * * *"   # daily at 09:00 UTC
 
 permissions:
   contents: read
@@ -31,27 +31,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # ---- Bot pipeline ----
+      # --- Pipeline (minimal, reliable) ---
       - name: Fetch retail data
         run: python bot/fetch.py
 
-      - name: Summarize data
+      - name: Summarize data (writes summary.json + daily_summaries.json)
         run: python bot/summarize.py
 
-      - name: Build weekly AI summary page
+      - name: Build weekly page (always writes site/weekly.html)
         run: python bot/weekly_summary.py
 
-      - name: Build infographic dashboard (index.html)
+      - name: Build dashboard (index.html)
         run: python bot/infographic.py
 
-      - name: Build stats page (stats.html)
+      - name: Build stats page (always writes site/stats.html)
         run: python bot/stats_page.py
 
-      - name: Build news sites page (news.html)
+      - name: Build news sites page
         run: python bot/news_links_page.py
 
-      # ---- Sanity check: make sure pages exist ----
-      - name: Verify output files
+      # --- Sanity: stop deploy if a key page is missing ---
+      - name: Verify output
         run: |
           ls -la site || true
           test -s site/index.html   || (echo "index.html missing" && exit 1)
