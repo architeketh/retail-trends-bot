@@ -64,7 +64,10 @@ LEXICON = {
     "holiday sales", "prime day", "back to school", "black friday", "cyber monday",
     "sustainability", "esg", "recyclable packaging", "net zero", "circular economy",
     "store openings", "store closures", "small format stores", "experiential retail",
-    "grocery", "international", "amazon"
+    "grocery", "international", "amazon", "recommerce", "re-commerce", "resale", "secondhand", "second hand",
+    "thrift", "thrifting", "upcycling", "upcycled", "circular fashion",
+    "resale marketplace", "rental", "fashion rental", "consignment",
+    "re-commerce platforms", "sustainable fashion",
 }
 
 ALIASES = {
@@ -226,3 +229,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
