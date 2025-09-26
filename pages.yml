@@ -1,9 +1,9 @@
 name: Retail Trends – Build & Publish
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # allow manual run
   schedule:
-    - cron: "0 9 * * *"  # daily at 09:00 UTC
+    - cron: "0 9 * * *"   # run daily at 09:00 UTC
 
 permissions:
   contents: read
@@ -31,46 +31,33 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # --- Your pipeline ---
-  - name: Fetch retail data
-  run: python bot/fetch.py
+      # ---- Bot pipeline ----
+      - name: Fetch retail data
+        run: python bot/fetch.py
 
-- name: Summarize data
-  run: python bot/summarize.py
+      - name: Summarize data
+        run: python bot/summarize.py
 
-- name: Build weekly AI summary page
-  run: python bot/weekly_summary.py
+      - name: Build weekly AI summary page
+        run: python bot/weekly_summary.py
 
-- name: Build infographic dashboard (index.html)
-  run: python bot/infographic.py
+      - name: Build infographic dashboard (index.html)
+        run: python bot/infographic.py
 
-- name: Build stats page (stats.html)
-  run: python bot/stats_page.py
+      - name: Build stats page (stats.html)
+        run: python bot/stats_page.py
 
-- name: Build news sites page (news.html)
-  run: python bot/news_links_page.py
+      - name: Build news sites page (news.html)
+        run: python bot/news_links_page.py
 
-- name: Upload Pages artifact
-  uses: actions/upload-pages-artifact@v3
-  with:
-    path: ./site
-
-
-      # --- Sanity check: prove the files exist before upload ---
-      - name: Verify site output
+      # ---- Sanity check: make sure pages exist ----
+      - name: Verify output files
         run: |
-          echo "Tree of site/:"
           ls -la site || true
-          echo "Tree of site/assets:"
-          ls -la site/assets || true
-
-          echo "First lines of index.html (if present):"
-          sed -n '1,5p' site/index.html || true
-
-          # HARD checks (fail the build if missing):
-          [ -f site/index.html ] || (echo "ERROR: site/index.html missing" && exit 1)
-          [ -f site/stats.html ] || (echo "ERROR: site/stats.html missing" && exit 1)
-          [ -f site/news.html ]  || (echo "ERROR: site/news.html missing"  && exit 1)
+          test -s site/index.html   || (echo "index.html missing" && exit 1)
+          test -s site/weekly.html  || (echo "weekly.html missing or empty" && exit 1)
+          test -s site/stats.html   || (echo "stats.html missing or empty" && exit 1)
+          test -s site/news.html    || (echo "news.html missing or empty" && exit 1)
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -87,29 +74,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Fetch retail data
-      run: python bot/fetch.py
-
-    - name: Discover new publisher sites
-      run: python bot/discover_sites.py
-
-    - name: Summarize data
-      run: python bot/summarize.py
-
-     - name: Build weekly AI summary page
-      run: python bot/weekly_summary.py
-
-    - name: Build infographic dashboard (index.html)
-      run: python bot/infographic.py
-
-    - name: Build stats page (stats.html)
-      run: python bot/stats_page.py
-
-    - name: Build news sites page (news.html)
-      run: python bot/news_links_page.py
-
-      env:
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-
