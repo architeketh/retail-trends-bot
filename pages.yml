@@ -31,8 +31,55 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Fetch retail data
+            - name: Fetch retail data
         run: python bot/fetch.py
+
+      - name: Summarize data (writes summary.json + daily_summaries.json)
+        run: |
+          set -e
+          python bot/summarize.py
+          echo "::group::summary.json (first 60 lines)"; head -n 60 bot/data/summary.json || true; echo "::endgroup::"
+          echo "::group::daily_summaries.json (keys)"; python - <<'PY'
+import json, os
+p="bot/data/daily_summaries.json"
+if os.path.exists(p):
+    d=json.load(open(p,encoding="utf-8"))
+    print("days:", ", ".join(sorted(d.keys())[-10:]) or "(none)")
+else:
+    print("daily_summaries.json not found")
+PY
+          echo "::endgroup::"
+
+      - name: Build weekly AI summary page (writes site/weekly.html)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}  # optional; AI if present
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -e
+          python -m pip show requests pyyaml beautifulsoup4 lxml matplotlib || true
+          python bot/weekly_summary.py
+          echo "::group::weekly.html (first 60 lines)"; head -n 60 site/weekly.html || true; echo "::endgroup::"
+          # Require real content (not placeholder)
+          grep -q "<h2>Top Keywords" site/weekly.html || (echo "weekly.html missing real content" && exit 1)
+
+      - name: Build dashboard (index.html)
+        run: python bot/infographic.py
+
+      - name: Build stats page (writes site/stats.html)
+        run: |
+          set -e
+          python bot/stats_page.py
+          echo "::group::stats.html (first 60 lines)"; head -n 60 site/stats.html || true; echo "::endgroup::"
+          # Require real content (not placeholder)
+          grep -q "Today’s Articles" site/stats.html || (echo "stats.html missing real content" && exit 1)
+
+      - name: Build news sites page
+        run: python bot/news_links_page.py
+
+      - name: List site folder
+        run: |
+          echo "--- site contents ---"; find site -maxdepth 2 -type f -print | sort; echo "---------------------"
+
 
       - name: Summarize data (writes summary.json + daily_summaries.json)
         run: |
