@@ -1,6 +1,5 @@
 # bot/infographic.py
-# White theme, per-bar colors, inline CSS, with header links to Stats & News Sites.
-# Always writes index.html (even if no data yet).
+# Draw keyword/brand charts using ACTUAL COUNTS for keywords (fallback compatible).
 
 import os, json, csv
 from datetime import datetime
@@ -23,7 +22,7 @@ def load_config():
 def ensure_dir_for_file(path: str):
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-# ---------- Chart style (white theme) ----------
+# ---------- Chart style ----------
 plt.rcParams.update({
     "figure.facecolor": "#ffffff",
     "axes.facecolor":   "#ffffff",
@@ -54,7 +53,7 @@ def style_axes(ax):
         ax.spines[s].set_color("#e0e0e0")
     ax.grid(axis="x", color="#eeeeee", linewidth=0.9, zorder=0)
     ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
-    ax.set_xlabel("Relative Importance")
+    ax.set_xlabel("Mentions")
 
 def save_barh(labels, values, title, outpath, palette):
     ensure_dir_for_file(outpath)
@@ -68,46 +67,33 @@ def save_barh(labels, values, title, outpath, palette):
     ax.set_yticks(list(y))
     ax.set_yticklabels(labels)
     for i, v in enumerate(values):
-        ax.text(v + 0.5, i, str(v), va="center", ha="left", color="#111111")
+        ax.text(v + (max(values)*0.02 if max(values)>0 else 0.5), i, str(v), va="center", ha="left", color="#111111")
     fig.tight_layout()
     fig.savefig(outpath, bbox_inches="tight")
     plt.close(fig)
 
 def write_headlines_exports(assets_dir, highlights):
     os.makedirs(assets_dir, exist_ok=True)
-    # JSON
     json_path = os.path.join(assets_dir, "headlines.json")
     with open(json_path, "w", encoding="utf-8") as jf:
         json.dump(highlights, jf, indent=2)
-    # CSV
     csv_path = os.path.join(assets_dir, "headlines.csv")
     with open(csv_path, "w", encoding="utf-8", newline="") as cf:
         w = csv.DictWriter(cf, fieldnames=["title","link","source","published"])
         w.writeheader()
-        for h in highlights:
-            w.writerow({
-                "title": h.get("title",""),
-                "link": h.get("link",""),
-                "source": h.get("source",""),
-                "published": h.get("published",""),
-            })
+        for h in highlights: w.writerow(h)
     return os.path.basename(csv_path), os.path.basename(json_path)
 
 def sources_list_html(highlights, stats):
     counts = Counter([h.get("source","") for h in highlights if h.get("source")])
-    if not counts and stats and stats.get("sources"):
-        lis = [f"<li>{s}</li>" for s in stats.get("sources")]
-    else:
-        lis = [f"<li>{s} ({n})</li>" for s, n in counts.items()]
-    return f"<details><summary><b>Sources</b></summary><ul>{''.join(lis) if lis else '<li>—</li>'}</ul></details>"
+    lis = [f"<li>{s} ({n})</li>" for s,n in counts.items()] or ["<li>—</li>"]
+    return f"<details><summary><b>Sources</b></summary><ul>{''.join(lis)}</ul></details>"
 
 INLINE_CSS = """<style>
-body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-     background:#fff;color:#111;padding:2rem;max-width:1100px;margin:auto}
+body{font-family:system-ui;background:#fff;color:#111;padding:2rem;max-width:1100px;margin:auto}
 .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 h1{margin:0}
-.btn{background:#f8fafc;padding:8px 12px;border:1px solid #ccc;border-radius:10px;
-     text-decoration:none;color:#111;margin-left:6px;display:inline-block}
+.btn{background:#f8fafc;padding:8px 12px;border:1px solid #ccc;border-radius:10px;text-decoration:none;color:#111;margin-left:6px;display:inline-block}
 .btn.primary{background:#2E93fA;color:#fff;border:none}
 .card{border:1px solid #eee;border-radius:10px;padding:1rem;margin-top:1rem}
 .note{color:#666;font-size:14px}
@@ -115,11 +101,10 @@ h1{margin:0}
 
 def build_index(title, description, keywords_img, brands_img, highlights, stats, csv_name, json_name,
                 has_keywords, has_brands):
-    # Optional blocks if no images yet
     kw_block = (f"<img src='assets/{os.path.basename(keywords_img)}' alt='Top Keywords'>"
-                if has_keywords else "<p class='note'>No keywords yet. This will populate after the first successful run.</p>")
+                if has_keywords else "<p class='note'>No keywords yet. This will populate after the next successful run.</p>")
     br_block = (f"<img src='assets/{os.path.basename(brands_img)}' alt='Brand Mentions'>"
-                if has_brands else "<p class='note'>No brand mentions yet. This will populate after the first successful run.</p>")
+                if has_brands else "<p class='note'>No brand mentions yet. This will populate after the next successful run.</p>")
 
     headlines_html = "".join(
         f"<li><a href='{h.get('link','#')}' target='_blank' rel='noopener'>{h.get('title')}</a> ({h.get('source','')})</li>"
@@ -140,7 +125,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
   </div>
 </div>
 
-<div class="card"><h2>Top Keywords</h2>{kw_block}</div>
+<div class="card"><h2>Top Keywords (by mentions)</h2>{kw_block}</div>
 <div class="card"><h2>Brand Mentions</h2>{br_block}</div>
 
 <div class="card"><h2>Headlines</h2><ul>
@@ -157,47 +142,57 @@ def run():
     assets_dir = os.path.join(site_dir, "assets")
     os.makedirs(assets_dir, exist_ok=True)
 
-    # Load summary if present
+    # Load summary
     summary_path = os.path.join(DATA_DIR, "summary.json")
     summary = {}
     if os.path.exists(summary_path):
         with open(summary_path, "r", encoding="utf-8") as f:
             summary = json.load(f)
 
-    keywords = summary.get("keywords", []) or []
-    brands = summary.get("brands", []) or []
     highlights = summary.get("highlights", []) or []
     stats = summary.get("stats", {}) or {}
 
-    # Output image paths from config
+    # ---- KEYWORDS: support new (objects w/ counts) and old (string list) formats
+    raw_keywords = summary.get("keywords", []) or []
+    kw_labels, kw_values = [], []
+    if raw_keywords and isinstance(raw_keywords[0], dict) and "term" in raw_keywords[0]:
+        # New format
+        kw_labels = [k["term"] for k in raw_keywords]
+        kw_values = [int(k.get("count", 0)) for k in raw_keywords]
+    else:
+        # Old format fallback: treat as rank (highest to lowest)
+        kw_labels = list(reversed(raw_keywords))
+        kw_values = list(range(len(raw_keywords), 0, -1))
+
+    # ---- BRANDS
+    brands = summary.get("brands", []) or []
+    br_labels = [b["name"] for b in brands]
+    br_values = [int(b.get("count", 0)) for b in brands]
+
+    # Output image paths
     keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
     brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
 
-    # Generate charts when data exists, otherwise create empty placeholders
-    has_keywords = False
-    has_brands = False
+    # Generate charts (only if lists non-empty)
+    has_keywords = bool(kw_labels)
+    has_brands = bool(br_labels)
 
-    if keywords:
-        save_barh(list(reversed(keywords)), list(range(len(keywords), 0, -1)),
-                  "Retail Trend Keywords", keywords_img, PALETTE_KEYWORDS)
-        has_keywords = True
+    if has_keywords:
+        # Highest at bottom: reverse both lists for horizontal bar aesthetics
+        save_barh(list(reversed(kw_labels)), list(reversed(kw_values)),
+                  "Retail Trend Keywords (Mentions)", keywords_img, PALETTE_KEYWORDS)
     else:
-        ensure_dir_for_file(keywords_img)
-        # create a zero-byte placeholder so the link resolves if needed
-        open(keywords_img, "wb").close()
+        ensure_dir_for_file(keywords_img); open(keywords_img, "wb").close()
 
-    if brands:
-        save_barh([b["name"] for b in brands], [b["count"] for b in brands],
-                  "Retail Brand Mentions", brands_img, PALETTE_BRANDS)
-        has_brands = True
+    if has_brands:
+        save_barh(br_labels, br_values, "Retail Brand Mentions", brands_img, PALETTE_BRANDS)
     else:
-        ensure_dir_for_file(brands_img)
-        open(brands_img, "wb").close()
+        ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
 
-    # CSV/JSON headline exports
+    # CSV/JSON exports
     csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
-    # Build index.html (always)
+    # Build index.html
     index_html = build_index(
         cfg["website"]["title"], cfg["website"]["description"],
         keywords_img, brands_img, highlights, stats,
