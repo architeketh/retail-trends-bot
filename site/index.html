@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Retail Trends – Dashboard</title>
+<style>
+  :root{--bg:#fff;--text:#111;--card:#fff;--stroke:#e5e7eb;--btn:#f8fafc;--primary:#2E93fA}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 18px}
+  .header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .title{margin:0;font-size:28px}
+  .desc{margin:4px 0 0;color:#4b5563}
+  .actions a,.actions button{display:inline-block;margin-left:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--stroke);background:var(--btn);color:#111;text-decoration:none;cursor:pointer}
+  .primary{background:var(--primary);color:#fff;border:none}
+  .grid{display:grid;gap:16px;margin-top:16px}
+  @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--stroke);border-radius:12px;padding:16px}
+  h2{margin:0 0 10px 0;font-size:18px}
+  .muted{color:#6b7280}
+  ul{margin:0;padding-left:18px}
+  img{max-width:100%;border-radius:8px}
+  details{margin-top:12px}
+  .note{color:#6b7280;font-size:14px}
+  .footer{margin-top:18px;color:#6b7280;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Retail Trends – Dashboard</h1>
+      <p class="desc">Daily retail headlines, keywords & brand mentions</p>
+    </div>
+    <div class="actions">
+      <a href="assets/headlines.csv" download>CSV</a>
+      <a href="assets/headlines.json" download>JSON</a>
+      <a href="news.html">News Sites</a>
+      <a href="stats.html">Stats</a>
+      <button class="primary" onclick="location.reload()">Refresh</button>
+    </div>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Top Keywords</h2>
+      <div id="kw">
+        <img alt="Top Keywords (if available)" src="assets/keywords.png" onerror="this.outerHTML='<p class=\'note\'>No keywords image yet. It will appear after the next successful build.</p>'"/>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Brand Mentions</h2>
+      <div id="brands">
+        <img alt="Brand Mentions (if available)" src="assets/brands.png" onerror="this.outerHTML='<p class=\'note\'>No brands image yet. It will appear after the next successful build.</p>'"/>
+      </div>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Headlines</h2>
+    <ul id="headlines"><li class="note">No headlines yet. These will appear once the workflow fetches data.</li></ul>
+  </section>
+
+  <details class="card">
+    <summary><b>Sources</b></summary>
+    <ul id="sources">
+      <li class="note">Sources list will populate after data is fetched.</li>
+    </ul>
+  </details>
+
+  <p class="footer">If you see this page, your GitHub Pages is configured correctly. The Python workflow will overwrite this dashboard each day with fresh content.</p>
+</div>
+
+<script>
+// Try to load headlines.json if present and render quickly
+fetch('assets/headlines.json')
+  .then(r => r.ok ? r.json() : null)
+  .then(data => {
+    if(!data) return;
+    const ul = document.getElementById('headlines');
+    ul.innerHTML = '';
+    data.slice(0,10).forEach(h=>{
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = h.link || '#';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = h.title || '(untitled)';
+      li.appendChild(a);
+      if (h.source){
+        const s = document.createElement('span');
+        s.textContent = ' (' + h.source + ')';
+        s.className = 'muted';
+        li.appendChild(s);
+      }
+      ul.appendChild(li);
+    });
+    const srcs = document.getElementById('sources');
+    if (srcs){
+      srcs.innerHTML = '';
+      const uniq = Array.from(new Set(data.map(x=>x.source).filter(Boolean))).sort();
+      if (uniq.length===0){ srcs.innerHTML = '<li class="note">No sources detected in today\\'s file.</li>'; return; }
+      uniq.forEach(s=>{ const li=document.createElement('li'); li.textContent = s; srcs.appendChild(li); });
+    }
+  })
+  .catch(()=>{ /* leave placeholders */});
+</script>
+</body>
+</html>
