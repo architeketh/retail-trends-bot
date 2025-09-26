@@ -1,6 +1,6 @@
 # bot/summarize.py
-# Retail-trends-only keywords (whitelist) + brand counting + capped history log.
-# NOW outputs keyword COUNTS: out["keywords"] = [{"term": str, "count": int}, ...]
+# Retail-trends-only keywords (whitelist) + brand counting + capped history + daily archive.
+# Outputs keyword COUNTS: out["keywords"] = [{"term": str, "count": int}, ...]
 
 import os, json, re, yaml
 from collections import Counter
@@ -13,6 +13,7 @@ DATA_DIR = os.path.join(BASE, "data")
 IN_FILE = os.path.join(DATA_DIR, "items.json")
 OUT_FILE = os.path.join(DATA_DIR, "summary.json")
 HIST_FILE = os.path.join(DATA_DIR, "history.json")
+ARCHIVE_FILE = os.path.join(DATA_DIR, "daily_summaries.json")
 
 def load_config():
     with open(os.path.join(ROOT, "config.yml"), "r", encoding="utf-8") as f:
@@ -64,7 +65,9 @@ LEXICON = {
     "holiday sales", "prime day", "back to school", "black friday", "cyber monday",
     "sustainability", "esg", "recyclable packaging", "net zero", "circular economy",
     "store openings", "store closures", "small format stores", "experiential retail",
-    "grocery", "international", "amazon", "recommerce", "re-commerce", "resale", "secondhand", "second hand",
+    "grocery", "international", "amazon",
+    # Re-commerce / recycled clothing trends
+    "recommerce", "re-commerce", "resale", "secondhand", "second hand",
     "thrift", "thrifting", "upcycling", "upcycled", "circular fashion",
     "resale marketplace", "rental", "fashion rental", "consignment",
     "re-commerce platforms", "sustainable fashion",
@@ -145,11 +148,23 @@ def run():
     items = data.get("items", [])
     if not items:
         out = {"keywords": [], "brands": [], "highlights": [],
-               "stats": {"items_considered": 0, "sources": [], "unique_sources": 0},
+               "stats": {"items_considered": 0, "sources": [], "unique_sources": 0,
+                         "date": datetime.utcnow().strftime("%Y-%m-%d")},
                "generated_from": IN_FILE}
         os.makedirs(DATA_DIR, exist_ok=True)
         with open(OUT_FILE, "w", encoding="utf-8") as o:
             json.dump(out, o, indent=2)
+        # also write empty history / archive safely
+        try:
+            history = []
+            with open(HIST_FILE, "w", encoding="utf-8") as hf:
+                json.dump(history, hf, indent=2)
+            archive = {}
+            with open(ARCHIVE_FILE, "w", encoding="utf-8") as af:
+                json.dump(archive, af, indent=2)
+        except Exception:
+            pass
+        print("Wrote empty summary (no items).")
         return
 
     max_items = int(cfg.get("summary", {}).get("max_items", 40))
@@ -165,16 +180,15 @@ def run():
     # Keyword COUNTS
     k_counts = keyword_counts(norm_blob)
     top_n_keywords = int(cfg.get("infographic", {}).get("top_n_keywords", 18))
-    # Sort: count desc, phrase length desc, alpha
     def kw_sort_key(term):
         return (-k_counts[term], -len(term.split()), term)
     kw_terms_sorted = sorted(k_counts.keys(), key=kw_sort_key)[:top_n_keywords]
-    keywords_out = [{"term": t, "count": k_counts[t]} for t in kw_terms_sorted]
+    keywords_out = [{"term": t, "count": int(k_counts[t])} for t in kw_terms_sorted]
 
     # Brand counts
     b_counts = brand_counts(norm_blob)
     top_n_brands = int(cfg.get("infographic", {}).get("top_n_brands", 12))
-    brands_sorted = [{"name": b, "count": c} for b, c in b_counts.most_common(top_n_brands)]
+    brands_sorted = [{"name": b, "count": int(c)} for b, c in b_counts.most_common(top_n_brands)]
 
     # Highlights
     highlights_cap = 6
@@ -192,17 +206,19 @@ def run():
         "items_considered": len(items),
         "unique_sources": len(set(sources)),
         "sources": sorted(set(sources)),
-        "brand_total_detected": sum(b_counts.values()),
-        "keyword_total_detected": sum(k_counts.values()),
+        "brand_total_detected": int(sum(b_counts.values())),
+        "keyword_total_detected": int(sum(k_counts.values())),
     }
 
+    # Assemble output (THIS is the 'out' that was missing)
     out = {
-        "keywords": keywords_out,     # << now objects with counts
+        "keywords": keywords_out,
         "brands": brands_sorted,
         "highlights": highlights,
         "stats": stats,
         "generated_from": IN_FILE,
     }
+
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(OUT_FILE, "w", encoding="utf-8") as o:
         json.dump(out, o, indent=2)
@@ -225,22 +241,24 @@ def run():
     with open(HIST_FILE, "w", encoding="utf-8") as hf:
         json.dump(history, hf, indent=2)
 
+    # --- Append today's snapshot into the daily archive used by weekly_summary.py (keep last 200 days) ---
+    archive = {}
+    if os.path.exists(ARCHIVE_FILE):
+        try:
+            with open(ARCHIVE_FILE, "r", encoding="utf-8") as af:
+                archive = json.load(af)
+        except Exception:
+            archive = {}
+    archive[stats["date"]] = out
+    # keep at most 200 days
+    dates_sorted = sorted(archive.keys())
+    if len(dates_sorted) > 200:
+        for d in dates_sorted[:-200]:
+            archive.pop(d, None)
+    with open(ARCHIVE_FILE, "w", encoding="utf-8") as af:
+        json.dump(archive, af, indent=2)
+
     print(f"Wrote summary with {len(keywords_out)} keywords (total mentions: {stats['keyword_total_detected']}) and {len(brands_sorted)} brands.")
 
 if __name__ == "__main__":
     run()
-
-# Append today's snapshot into an archive used by weekly_summary.py
-ARCHIVE = os.path.join(DATA_DIR, "daily_summaries.json")
-archive = {}
-if os.path.exists(ARCHIVE):
-    try:
-        with open(ARCHIVE,"r",encoding="utf-8") as f: archive = json.load(f)
-    except Exception:
-        archive = {}
-archive[stats["date"]] = out  # 'out' is the dict you already wrote to summary.json
-# keep last 200 days just in case
-for d in sorted(archive.keys())[:-200]:
-    del archive[d]
-with open(ARCHIVE,"w",encoding="utf-8") as af:
-    json.dump(archive, af, indent=2)
