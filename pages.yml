@@ -58,6 +58,33 @@ jobs:
           test -s site/weekly.html  || (echo "weekly.html missing or empty" && exit 1)
           test -s site/stats.html   || (echo "stats.html missing or empty" && exit 1)
           test -s site/news.html    || (echo "news.html missing or empty" && exit 1)
+# 🔎 Debug: show what's in /site
+- name: List site folder
+  run: |
+    echo "--- site contents ---"
+    ls -la site || true
+    echo "---------------------"
+
+# 🛡️ Guardrail: create placeholders if generation failed
+- name: Guard: ensure weekly.html and stats.html exist
+  run: |
+    mkdir -p site
+    if [ ! -s site/weekly.html ]; then
+      cat > site/weekly.html <<'HTML'
+<!doctype html><html><head><meta charset="utf-8"><title>Weekly (placeholder)</title></head>
+<body><h1>Weekly (placeholder)</h1><p>This placeholder was added by the workflow because the generator didn't write weekly.html this run.</p>
+<p>Links: <a href="index.html">Dashboard</a> · <a href="stats.html">Stats</a></p></body></html>
+HTML
+    fi
+    if [ ! -s site/stats.html ]; then
+      cat > site/stats.html <<'HTML'
+<!doctype html><html><head><meta charset="utf-8"><title>Stats (placeholder)</title></head>
+<body><h1>Stats (placeholder)</h1><p>This placeholder was added by the workflow because the generator didn't write stats.html this run.</p>
+<p>Links: <a href="index.html">Dashboard</a> · <a href="weekly.html">Weekly</a></p></body></html>
+HTML
+    fi
+    echo "--- final site contents ---"
+    ls -la site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
