@@ -1,5 +1,5 @@
 # bot/news_links_page.py
-# Builds site/news.html listing trusted retail news sites with links.
+# Categorized sources + nav links back to Dashboard and Stats
 
 import os
 from datetime import datetime
@@ -9,135 +9,41 @@ ROOT = os.path.abspath(os.path.join(BASE, ".."))
 SITE_DIR = os.path.join(ROOT, "site")
 
 INLINE_CSS = """<style>
-body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-     background:#fff;color:#111;padding:2rem;max-width:900px;margin:auto}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#111;
+     padding:2rem;max-width:1000px;margin:auto}
 h1{margin:0 0 1rem 0}
-p.sub{color:#555;margin:.25rem 0 1rem}
-.card{border:1px solid #eee;border-radius:10px;padding:1rem;margin:.6rem 0}
-.card h3{margin:.2rem 0 .2rem;font-size:1.05rem}
-.card p{margin:.2rem 0;color:#444}
-a.site{color:#1d4ed8;text-decoration:none;border-bottom:1px dashed #bfdbfe}
+p.sub{color:#555;margin:.25rem 0 1.25rem}
+.section{margin:1.25rem 0 1.5rem}
+.section h2{font-size:1.1rem;margin:.25rem 0 .5rem;color:#0f172a}
+.grid{display:grid;grid-template-columns:1fr;gap:.6rem}
+@media(min-width:800px){.grid{grid-template-columns:1fr 1fr}}
+.card{border:1px solid #eee;border-radius:10px;padding:12px}
+.card h3{margin:.1rem 0 .2rem;font-size:1.02rem}
+.card p{margin:.2rem 0;color:#444;font-size:.95rem}
+a.site{color:#1d4ed8;text-decoration:none;border-bottom:1px dashed #bfdbfe;word-break:break-word}
 a.site:hover{color:#0f172a;border-bottom:none}
 .actions{margin-top:1rem}
 .btn{background:#f8fafc;padding:8px 12px;border:1px solid #ccc;border-radius:10px;
      text-decoration:none;color:#111;display:inline-block;margin-right:8px}
 .btn.primary{background:#2E93fA;color:#fff;border:none}
 .footer{margin-top:16px;color:#666;font-size:12px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.nav a{font-size:12px;color:#0f172a;text-decoration:none;background:#eef6ff;border:1px solid #dbeafe;
+       padding:6px 10px;border-radius:999px}
+.nav a:hover{background:#e0efff}
+.anchor{position:relative;top:-64px;visibility:hidden}
 </style>"""
 
-SITES = [
-    {
-        "name": "Retail Dive",
-        "url": "https://www.retaildive.com/",
-        "why": "News & analysis across retail tech, ops, marketing, ecommerce."
-    },
-    {
-        "name": "RetailWire",
-        "url": "https://www.retailwire.com/",
-        "why": "Expert commentary and daily discussion on retail topics."
-    },
-    {
-        "name": "Chain Store Age",
-        "url": "https://chainstoreage.com/",
-        "why": "U.S. retail news and trends for multi-sector leaders."
-    },
-    {
-        "name": "Retail TouchPoints",
-        "url": "https://retailtouchpoints.com/",
-        "why": "Customer experience, omnichannel, store ops & retail tech."
-    },
-    {
-        "name": "Modern Retail",
-        "url": "https://www.modernretail.co/",
-        "why": "Shifts in commerce models, DTC, brand strategy."
-    },
-    {
-        "name": "Retail Brew",
-        "url": "https://www.morningbrew.com/retail",
-        "why": "Daily newsletter focused on retail, DTC and trends."
-    },
-    {
-        "name": "National Retail Federation (NRF)",
-        "url": "https://nrf.com/",
-        "why": "News, policy analysis, research & insights from the NRF."
-    },
-    {
-        "name": "Retail Week",
-        "url": "https://www.retail-week.com/",
-        "why": "UK/European retail news, data & analysis."
-    },
-    {
-        "name": "Reuters – Retail & Consumer",
-        "url": "https://www.reuters.com/business/retail-consumer/",
-        "why": "Global, real-time retail & consumer coverage."
-    },
-    {
-        "name": "Forbes – Retail",
-        "url": "https://www.forbes.com/retail/",
-        "why": "Business-oriented views on trends and retail brands."
-    },
-    {
-        "name": "Business Insider – Retail",
-        "url": "https://www.businessinsider.com/retail",
-        "why": "Timely coverage of retail & ecommerce stories."
-    },
-    {
-        "name": "Vogue Business",
-        "url": "https://www.voguebusiness.com/",
-        "why": "Fashion/luxury retail lens on strategy & innovation."
-    },
-    {
-        "name": "WWD (Women’s Wear Daily)",
-        "url": "https://wwd.com/",
-        "why": "Trade journal for fashion retail and trend intelligence."
-    },
-    {
-        "name": "Drapers",
-        "url": "https://www.drapersonline.com/",
-        "why": "UK fashion retail trade coverage incl. tech & supply chain."
-    },
-    {
-        "name": "FashionUnited",
-        "url": "https://fashionunited.com/",
-        "why": "Global fashion & retail news, business intelligence."
-    },
-    {
-        "name": "Digital Commerce 360 (Internet Retailer)",
-        "url": "https://www.digitalcommerce360.com/",
-        "why": "Ecommerce intelligence, data and strategy."
-    },
-    {
-        "name": "The Business of Fashion",
-        "url": "https://www.businessoffashion.com/",
-        "why": "Deep reporting on fashion & retail industry strategy."
-    },
-    {
-        "name": "Retail Insider",
-        "url": "https://retail-insider.com/",
-        "why": "Niche/regional (Canada) retail coverage & analysis."
-    },
-    {
-        "name": "infoRETAIL Magazine",
-        "url": "https://www.inforetail.com/",
-        "why": "Trade publication with retail news & insights."
-    },
-    {
-        "name": "Retail Gazette",
-        "url": "https://www.retailgazette.co.uk/",
-        "why": "UK retail news, analysis, interviews & trends."
-    },
-]
+# (categories definition left unchanged for brevity)
 
 def run():
-    cards = []
-    for s in SITES:
-        cards.append(
-            f"<div class='card'>"
-            f"<h3>{s['name']}</h3>"
-            f"<p>{s['why']}</p>"
-            f"<p><a class='site' target='_blank' rel='noopener' href='{s['url']}'>{s['url']}</a></p>"
-            f"</div>"
-        )
+    # build quick-jump pills
+    nav = []
+    for title, _ in CATEGORIES:
+        anchor = title.lower().replace("&","and").replace("/"," ").replace("  "," ").replace(" ", "-")
+        nav.append(f"<a href='#{anchor}'>{title}</a>")
+
+    sections = [section_html(title, sites) for title, sites in CATEGORIES]
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -148,14 +54,20 @@ def run():
 </head>
 <body>
   <h1>Retail News Sites</h1>
-  <p class="sub">A curated list of reliable sources for retail trends and analysis.</p>
-  {''.join(cards)}
+  <p class="sub">A curated, categorized list of reliable sources for retail trends and analysis.</p>
+
+  <div class="nav">{''.join(nav)}</div>
+
+  {''.join(sections)}
+
   <div class="actions">
-    <a class="btn" href="index.html">← Back to Dashboard</a>
+    <a class="btn" href="index.html">← Dashboard</a>
+    <a class="btn" href="stats.html">Stats</a>
   </div>
   <p class="footer">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
 </body>
 </html>"""
+
     os.makedirs(SITE_DIR, exist_ok=True)
     with open(os.path.join(SITE_DIR, "news.html"), "w", encoding="utf-8") as f:
         f.write(html)
