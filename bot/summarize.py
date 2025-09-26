@@ -230,3 +230,17 @@ def run():
 if __name__ == "__main__":
     run()
 
+# Append today's snapshot into an archive used by weekly_summary.py
+ARCHIVE = os.path.join(DATA_DIR, "daily_summaries.json")
+archive = {}
+if os.path.exists(ARCHIVE):
+    try:
+        with open(ARCHIVE,"r",encoding="utf-8") as f: archive = json.load(f)
+    except Exception:
+        archive = {}
+archive[stats["date"]] = out  # 'out' is the dict you already wrote to summary.json
+# keep last 200 days just in case
+for d in sorted(archive.keys())[:-200]:
+    del archive[d]
+with open(ARCHIVE,"w",encoding="utf-8") as af:
+    json.dump(archive, af, indent=2)
