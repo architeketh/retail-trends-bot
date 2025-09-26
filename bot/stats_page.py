@@ -1,5 +1,6 @@
 # bot/stats_page.py
-# Builds site/stats.html with summary + history chart + 7-day rolling average
+# Builds site/stats.html with summary + history chart + 7-day avg.
+# Always writes a page, even if no history yet.
 
 import os, json
 from datetime import datetime
@@ -21,53 +22,58 @@ h1{margin:0 0 1rem 0}
 .btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;text-decoration:none;color:#111}
 .btn.primary{background:#2E93fA;color:#fff}
 img{max-width:100%;border-radius:6px}
+.note{color:#666;font-size:14px}
 </style>"""
 
 def build_chart(history, outpath):
     dates = [h["date"] for h in history]
     items = [h.get("items", 0) for h in history]
 
-    # Compute 7-day rolling average
+    # 7-day rolling average
     rolling = []
     for i in range(len(items)):
         window = items[max(0, i-6):i+1]
-        avg = sum(window) / len(window)
-        rolling.append(avg)
+        rolling.append(sum(window)/len(window))
 
     plt.figure(figsize=(9,4), dpi=120)
     plt.plot(dates, items, marker="o", linestyle="-", color="#2E93fA", label="Daily")
     plt.plot(dates, rolling, linestyle="--", color="#FF9800", linewidth=2, label="7-day avg")
     plt.title("Articles Processed Per Day")
-    plt.xlabel("Date")
-    plt.ylabel("Articles")
+    plt.xlabel("Date"); plt.ylabel("Articles")
     plt.xticks(rotation=45, ha="right", fontsize=8)
-    plt.legend()
-    plt.tight_layout()
+    plt.legend(); plt.tight_layout()
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
-    plt.savefig(outpath, bbox_inches="tight")
-    plt.close()
+    plt.savefig(outpath, bbox_inches="tight"); plt.close()
 
 def run():
+    os.makedirs(SITE_DIR, exist_ok=True)
+
     hist_file = os.path.join(DATA_DIR, "history.json")
-    if not os.path.exists(hist_file):
-        print("No history.json yet")
-        return
+    history = []
+    if os.path.exists(hist_file):
+        try:
+            with open(hist_file, "r", encoding="utf-8") as f:
+                history = json.load(f)
+        except Exception:
+            history = []
 
-    with open(hist_file, "r", encoding="utf-8") as f:
-        history = json.load(f)
+    # Defaults
+    start_date = "—"
+    days = weeks = months = total_items = 0
+    chart_block = "<p class='note'>Not enough history to render a chart yet.</p>"
 
-    if not history:
-        return
+    # If we have at least one entry, compute stats & chart
+    if history:
+        start_date = history[0].get("date", "—")
+        days = len(history)
+        weeks = days // 7
+        months = days // 30
+        total_items = sum(h.get("items", 0) for h in history)
 
-    start_date = history[0]["date"]
-    days = len(history)
-    weeks = days // 7
-    months = days // 30
-    total_items = sum(h.get("items", 0) for h in history)
-
-    # build chart
-    chart_path = os.path.join(ASSETS_DIR, "history.png")
-    build_chart(history, chart_path)
+        chart_path = os.path.join(ASSETS_DIR, "history.png")
+        build_chart(history, chart_path)
+        chart_block = """<h2>Articles Processed Over Time</h2>
+        <img src="assets/history.png" alt="Articles per day chart">"""
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -82,19 +88,18 @@ def run():
     <li><b>{months}</b> months (approx.)</li>
     <li><b>{total_items}</b> total articles processed</li>
   </ul>
+  <p class="note">This page updates automatically after each daily run.</p>
 </div>
 <div class="card">
-  <h2>Articles Processed Over Time</h2>
-  <img src="assets/history.png" alt="Articles per day chart">
+  {chart_block}
 </div>
 <p style="margin-top:1rem;"><a class="btn" href="index.html">← Back to Dashboard</a></p>
 <p style="font-size:12px;color:#666;">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
 </body></html>"""
 
-    os.makedirs(SITE_DIR, exist_ok=True)
     with open(os.path.join(SITE_DIR, "stats.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print("Wrote site/stats.html with chart and 7-day avg")
+    print("Wrote site/stats.html")
 
 if __name__ == "__main__":
     run()
