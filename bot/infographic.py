@@ -1,5 +1,5 @@
 # bot/infographic.py
-# White background, black text, per-bar colors, inline CSS, with Stats button.
+# White background, black text, per-bar colors, inline CSS, with Stats & News Sites buttons.
 
 import os, json, csv
 from datetime import datetime
@@ -94,9 +94,9 @@ body{font-family:system-ui;background:#fff;color:#111;padding:2rem;max-width:110
 .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 h1{margin:0}
 .badge{background:#eef6ff;color:#111;font-size:12px;padding:4px 8px;border-radius:8px;margin-right:4px}
-.btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;text-decoration:none;color:#111;margin-left:4px}
+.btn{background:#f8fafc;padding:8px 12px;border:1px solid #ccc;border-radius:10px;text-decoration:none;color:#111;margin-left:6px}
 .btn.primary{background:#2E93fA;color:#fff}
-.card{border:1px solid #eee;border-radius:8px;padding:1rem;margin-top:1rem}
+.card{border:1px solid #eee;border-radius:10px;padding:1rem;margin-top:1rem}
 </style>"""
 
 def build_index(title, description, keywords_img, brands_img, highlights, stats, csv_name, json_name):
@@ -108,14 +108,15 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
  <div>
   <a class="btn" href="assets/{csv_name}" download>CSV</a>
   <a class="btn" href="assets/{json_name}" download>JSON</a>
+  <a class="btn" href="news.html">News Sites</a>
   <a class="btn" href="stats.html">Stats</a>
   <button class="btn primary" onclick="location.reload()">Refresh</button>
  </div>
 </div>
-<div class="card"><h2>Top Keywords</h2><img src="assets/{os.path.basename(keywords_img)}"></div>
-<div class="card"><h2>Brand Mentions</h2><img src="assets/{os.path.basename(brands_img)}"></div>
+<div class="card"><h2>Top Keywords</h2><img src="assets/{os.path.basename(keywords_img)}" alt="Top Keywords"></div>
+<div class="card"><h2>Brand Mentions</h2><img src="assets/{os.path.basename(brands_img)}" alt="Brand Mentions"></div>
 <div class="card"><h2>Headlines</h2><ul>
-{''.join(f"<li><a href='{h['link']}' target='_blank'>{h['title']}</a> ({h['source']})</li>" for h in highlights)}
+{''.join(f"<li><a href='{h.get('link','#')}' target='_blank' rel='noopener'>{h.get('title')}</a> ({h.get('source','')})</li>" for h in highlights)}
 </ul></div>
 {sources_list_html(highlights, stats)}
 <p>Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
