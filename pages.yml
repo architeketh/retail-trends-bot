@@ -43,3 +43,6 @@ jobs:
         uses: actions/deploy-pages@v4
     - name: Build stats page
       run: python bot/stats_page.py
+          - name: Build news sites page
+      run: python bot/news_links_page.py
+
