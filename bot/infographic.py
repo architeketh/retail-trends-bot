@@ -1,9 +1,9 @@
 # bot/infographic.py
-# Charts use 7-day totals from daily_summaries.json (fallback to today's summary.json).
+# Builds site/index.html dashboard with charts for retail keywords and brands
+# Uses 7-day totals from daily_summaries.json (fallback to today's summary.json).
 
 import os, json, csv
 from datetime import datetime
-
 import yaml
 import matplotlib
 matplotlib.use("Agg")
@@ -65,7 +65,6 @@ def write_headlines_exports(assets_dir, highlights):
     os.makedirs(assets_dir, exist_ok=True)
     jp = os.path.join(assets_dir, "headlines.json"); cp = os.path.join(assets_dir, "headlines.csv")
     with open(jp, "w", encoding="utf-8") as jf: json.dump(highlights, jf, indent=2)
-    import csv
     with open(cp, "w", encoding="utf-8", newline="") as cf:
         w = csv.DictWriter(cf, fieldnames=["title","link","source","published"])
         w.writeheader(); [w.writerow(h) for h in highlights]
@@ -155,14 +154,12 @@ def aggregate_week(archive: dict):
         day = archive[d]
         if i == 0:
             latest = day  # newest day for headlines
-        # keywords
         for k in day.get("keywords", []):
             if isinstance(k, dict):
                 term = k.get("term"); c = int(k.get("count", 0))
             else:
                 term, c = k, 1
             if term: kw[term] = kw.get(term, 0) + c
-        # brands
         for b in day.get("brands", []):
             name = b.get("name"); c = int(b.get("count", 0))
             if name: br[name] = br.get(name, 0) + c
@@ -177,7 +174,6 @@ def run():
     site_dir = os.path.join(ROOT, "site"); assets_dir = os.path.join(site_dir, "assets")
     os.makedirs(assets_dir, exist_ok=True)
 
-    # Prefer week aggregates; fallback to today's summary
     archive = load_archive()
     kw_pairs, br_pairs, highlights = aggregate_week(archive) if archive else ([], [], [])
     if not kw_pairs or not br_pairs:
@@ -188,12 +184,9 @@ def run():
             rk = today.get("keywords", [])
             if rk and isinstance(rk[0], dict):
                 kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
-            else:
-                kw_pairs = list(zip(list(reversed(rk)), list(range(len(rk), 0, -1))))
             rb = today.get("brands", [])
             br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
 
-    # Output chart images
     keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
     brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
 
@@ -202,8 +195,7 @@ def run():
         values = [p[1] for p in kw_pairs[:int(cfg.get("infographic",{}).get("top_n_keywords",18))]]
         save_barh(list(reversed(labels)), list(reversed(values)),
                   "Retail Trend Keywords (7-day totals)", keywords_img, PALETTE_KEYWORDS)
-        kw_top = kw_pairs[0]
-        has_keywords = True
+        kw_top = kw_pairs[0]; has_keywords = True
     else:
         ensure_dir_for_file(keywords_img); open(keywords_img, "wb").close()
         kw_top = None; has_keywords = False
@@ -212,13 +204,11 @@ def run():
         labels = [p[0] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
         values = [p[1] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
         save_barh(labels, values, "Retail Brand Mentions (7-day totals)", brands_img, PALETTE_BRANDS)
-        br_top = br_pairs[0]
-        has_brands = True
+        br_top = br_pairs[0]; has_brands = True
     else:
         ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
         br_top = None; has_brands = False
 
-    # Headlines downloads (latest day)
     csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
     index_html = build_index(
