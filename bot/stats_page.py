@@ -19,7 +19,8 @@ INLINE_CSS = """<style>
 body{font-family:system-ui;background:#fff;color:#111;padding:2rem;max-width:900px;margin:auto}
 h1{margin:0 0 1rem 0}
 .card{border:1px solid #eee;border-radius:8px;padding:1rem;margin-top:1rem}
-.btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;text-decoration:none;color:#111}
+.btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;
+     text-decoration:none;color:#111;display:inline-block;margin-right:6px}
 .btn.primary{background:#2E93fA;color:#fff}
 img{max-width:100%;border-radius:6px}
 .note{color:#666;font-size:14px}
@@ -57,12 +58,10 @@ def run():
         except Exception:
             history = []
 
-    # Defaults
     start_date = "—"
     days = weeks = months = total_items = 0
     chart_block = "<p class='note'>Not enough history to render a chart yet.</p>"
 
-    # If we have at least one entry, compute stats & chart
     if history:
         start_date = history[0].get("date", "—")
         days = len(history)
@@ -88,12 +87,12 @@ def run():
     <li><b>{months}</b> months (approx.)</li>
     <li><b>{total_items}</b> total articles processed</li>
   </ul>
-  <p class="note">This page updates automatically after each daily run.</p>
 </div>
-<div class="card">
-  {chart_block}
-</div>
-<p style="margin-top:1rem;"><a class="btn" href="index.html">← Back to Dashboard</a></p>
+<div class="card">{chart_block}</div>
+<p>
+  <a class="btn" href="index.html">← Dashboard</a>
+  <a class="btn" href="news.html">News Sites</a>
+</p>
 <p style="font-size:12px;color:#666;">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
 </body></html>"""
 
