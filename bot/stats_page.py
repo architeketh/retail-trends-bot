@@ -1,102 +1,80 @@
 # bot/stats_page.py
-# Builds site/stats.html with summary + history chart + 7-day avg.
-# Always writes a page, even if no history yet.
+# Minimal stats page: shows today's items and 7-day totals (keywords/brands/articles).
 
 import os, json
 from datetime import datetime
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
 BASE = os.path.dirname(__file__)
 ROOT = os.path.abspath(os.path.join(BASE, ".."))
-DATA_DIR = os.path.join(BASE, "data")
-SITE_DIR = os.path.join(ROOT, "site")
-ASSETS_DIR = os.path.join(SITE_DIR, "assets")
+DATA = os.path.join(BASE, "data")
+SITE = os.path.join(ROOT, "site")
+SUMMARY = os.path.join(DATA, "summary.json")
+ARCHIVE = os.path.join(DATA, "daily_summaries.json")
 
-INLINE_CSS = """<style>
-body{font-family:system-ui;background:#fff;color:#111;padding:2rem;max-width:900px;margin:auto}
-h1{margin:0 0 1rem 0}
-.card{border:1px solid #eee;border-radius:8px;padding:1rem;margin-top:1rem}
-.btn{background:#f8fafc;padding:6px 10px;border:1px solid #ccc;border-radius:8px;
-     text-decoration:none;color:#111;display:inline-block;margin-right:6px}
-.btn.primary{background:#2E93fA;color:#fff}
-img{max-width:100%;border-radius:6px}
-.note{color:#666;font-size:14px}
+CSS = """<style>
+:root{--stroke:#e5e7eb}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111;background:#fff}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--stroke);border-radius:12px;padding:16px;margin-top:16px}
+h1{margin:0 0 8px 0;font-size:26px} h2{margin:0 0 8px 0;font-size:18px}
+.small{font-size:12px;color:#6b7280}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.stat{border:1px solid var(--stroke);border-radius:12px;padding:12px}
+.stat b{font-size:20px}
 </style>"""
 
-def build_chart(history, outpath):
-    dates = [h["date"] for h in history]
-    items = [h.get("items", 0) for h in history]
+def load_json(path):
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f: return json.load(f)
+        except Exception: return None
+    return None
 
-    # 7-day rolling average
-    rolling = []
-    for i in range(len(items)):
-        window = items[max(0, i-6):i+1]
-        rolling.append(sum(window)/len(window))
-
-    plt.figure(figsize=(9,4), dpi=120)
-    plt.plot(dates, items, marker="o", linestyle="-", color="#2E93fA", label="Daily")
-    plt.plot(dates, rolling, linestyle="--", color="#FF9800", linewidth=2, label="7-day avg")
-    plt.title("Articles Processed Per Day")
-    plt.xlabel("Date"); plt.ylabel("Articles")
-    plt.xticks(rotation=45, ha="right", fontsize=8)
-    plt.legend(); plt.tight_layout()
-    os.makedirs(os.path.dirname(outpath), exist_ok=True)
-    plt.savefig(outpath, bbox_inches="tight"); plt.close()
+def week_aggregate(arch: dict):
+    if not isinstance(arch, dict) or not arch: return 0,0,0
+    dates = sorted(arch.keys(), reverse=True)[:7]
+    items = kw = br = 0
+    for d in dates:
+        day = arch[d]
+        items += int(day.get("stats", {}).get("items_considered", 0))
+        for k in day.get("keywords", []):
+            kw += int(k.get("count", 1)) if isinstance(k, dict) else 1
+        for b in day.get("brands", []):
+            br += int(b.get("count", 0))
+    return items, kw, br
 
 def run():
-    os.makedirs(SITE_DIR, exist_ok=True)
+    os.makedirs(SITE, exist_ok=True)
 
-    hist_file = os.path.join(DATA_DIR, "history.json")
-    history = []
-    if os.path.exists(hist_file):
-        try:
-            with open(hist_file, "r", encoding="utf-8") as f:
-                history = json.load(f)
-        except Exception:
-            history = []
+    s = load_json(SUMMARY) or {}
+    arch = load_json(ARCHIVE) or {}
 
-    start_date = "—"
-    days = weeks = months = total_items = 0
-    chart_block = "<p class='note'>Not enough history to render a chart yet.</p>"
+    today_date = s.get("stats", {}).get("date", "—")
+    today_items = int(s.get("stats", {}).get("items_considered", 0))
+    today_sources = int(s.get("stats", {}).get("unique_sources", 0))
 
-    if history:
-        start_date = history[0].get("date", "—")
-        days = len(history)
-        weeks = days // 7
-        months = days // 30
-        total_items = sum(h.get("items", 0) for h in history)
+    week_items, week_kw, week_br = week_aggregate(arch)
 
-        chart_path = os.path.join(ASSETS_DIR, "history.png")
-        build_chart(history, chart_path)
-        chart_block = """<h2>Articles Processed Over Time</h2>
-        <img src="assets/history.png" alt="Articles per day chart">"""
-
-    html = f"""<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Retail Trends – Stats</title>{INLINE_CSS}</head>
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>Stats</title>{CSS}</head>
 <body>
-<h1>Retail Trends – Data Collection Stats</h1>
-<div class="card">
-  <p>Tracking since <b>{start_date}</b></p>
-  <ul>
-    <li><b>{days}</b> days</li>
-    <li><b>{weeks}</b> weeks (approx.)</li>
-    <li><b>{months}</b> months (approx.)</li>
-    <li><b>{total_items}</b> total articles processed</li>
-  </ul>
+<div class="wrap">
+  <h1>Stats</h1>
+  <div class="grid">
+    <div class="stat"><div>Today’s Articles</div><b>{today_items}</b><div class="small">Date: {today_date}</div></div>
+    <div class="stat"><div>Today’s Sources</div><b>{today_sources}</b></div>
+    <div class="stat"><div>7-Day Articles</div><b>{week_items}</b></div>
+    <div class="stat"><div>7-Day Keyword Mentions</div><b>{week_kw}</b></div>
+    <div class="stat"><div>7-Day Brand Mentions</div><b>{week_br}</b></div>
+  </div>
+  <div class="card">
+    <h2>Details</h2>
+    <p class="small">Counts are computed from <code>summary.json</code> (today) and <code>daily_summaries.json</code> (last 7 days).</p>
+    <p class="small">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
+  </div>
 </div>
-<div class="card">{chart_block}</div>
-<p>
-  <a class="btn" href="index.html">← Dashboard</a>
-  <a class="btn" href="news.html">News Sites</a>
-</p>
-<p style="font-size:12px;color:#666;">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
 </body></html>"""
-
-    with open(os.path.join(SITE_DIR, "stats.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(SITE, "stats.html"), "w", encoding="utf-8") as f:
         f.write(html)
     print("Wrote site/stats.html")
 
