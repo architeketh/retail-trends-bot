@@ -83,7 +83,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-            - name: Fetch retail data
+      - name: Fetch retail data
       run: python bot/fetch.py
 
     - name: Discover new publisher sites
@@ -91,6 +91,9 @@ jobs:
 
     - name: Summarize data
       run: python bot/summarize.py
+
+     - name: Build weekly AI summary page
+      run: python bot/weekly_summary.py
 
     - name: Build infographic dashboard (index.html)
       run: python bot/infographic.py
@@ -100,4 +103,8 @@ jobs:
 
     - name: Build news sites page (news.html)
       run: python bot/news_links_page.py
+
+      env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
 
