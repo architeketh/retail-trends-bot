@@ -1,101 +1,50 @@
 # bot/infographic.py
-# Builds site/index.html dashboard with charts for retail keywords and brands
-# Uses 7-day totals from daily_summaries.json (fallback to today's summary.json).
+# Builds index.html dashboard with keywords, brands, headlines, stats + visitor counter
 
-import os, json, csv
+import os, json
 from datetime import datetime
-import yaml
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib import ticker
 
 BASE = os.path.dirname(__file__)
 ROOT = os.path.abspath(os.path.join(BASE, ".."))
-DATA_DIR = os.path.join(BASE, "data")
-ARCHIVE = os.path.join(DATA_DIR, "daily_summaries.json")
-SUMMARY = os.path.join(DATA_DIR, "summary.json")
+DATA = os.path.join(BASE, "data")
+SITE = os.path.join(ROOT, "site")
+ASSETS = os.path.join(SITE, "assets")
 
-def load_config():
-    with open(os.path.join(ROOT, "config.yml"), "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-def ensure_dir_for_file(path: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-
-plt.rcParams.update({
-    "figure.facecolor": "#ffffff",
-    "axes.facecolor":   "#ffffff",
-    "axes.edgecolor":   "#cccccc",
-    "axes.labelcolor":  "#111111",
-    "axes.titlecolor":  "#111111",
-    "xtick.color":      "#111111",
-    "ytick.color":      "#111111",
-    "font.size":        10,
-})
-
-PALETTE_KEYWORDS = ["#2E93fA","#66DA26","#E91E63","#FF9800","#00E396","#775DD0",
-                    "#008FFB","#FEB019","#FF4560","#00D9E9","#A300D6","#F86624",
-                    "#D10CE8","#4CAF50","#9C27B0"]
-PALETTE_BRANDS = ["#7B61FF","#FF6B6B","#00C49A","#FFB703","#219EBC","#8338EC",
-                  "#FB5607","#06D6A0","#118AB2","#EF476F","#3A86FF","#FFBE0B"]
-
-def pick_colors(n, pal): 
-    return (pal * ((n + len(pal) - 1)//len(pal)))[:n]
-
-def style_axes(ax):
-    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    for s in ("left","bottom"): ax.spines[s].set_color("#e0e0e0")
-    ax.grid(axis="x", color="#eeeeee", linewidth=0.9, zorder=0)
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
-    ax.set_xlabel("Mentions (7-day total)")
-
-def save_barh(labels, values, title, outpath, palette):
-    ensure_dir_for_file(outpath); plt.close("all")
-    fig, ax = plt.subplots(figsize=(8,6), dpi=150)
-    style_axes(ax); ax.set_title(title, fontsize=12, fontweight="bold")
-    y = range(len(labels)); colors = pick_colors(len(labels), palette)
-    ax.barh(y, values, color=colors, edgecolor="#fff")
-    ax.set_yticks(list(y)); ax.set_yticklabels(labels)
-    mx = max(values) if values else 0; offs = mx*0.02 if mx>0 else 0.5
-    for i,v in enumerate(values): ax.text(v+offs, i, str(v), va="center", ha="left", color="#111111")
-    fig.tight_layout(); fig.savefig(outpath, bbox_inches="tight"); plt.close(fig)
-
-def write_headlines_exports(assets_dir, highlights):
-    os.makedirs(assets_dir, exist_ok=True)
-    jp = os.path.join(assets_dir, "headlines.json"); cp = os.path.join(assets_dir, "headlines.csv")
-    with open(jp, "w", encoding="utf-8") as jf: json.dump(highlights, jf, indent=2)
-    with open(cp, "w", encoding="utf-8", newline="") as cf:
-        w = csv.DictWriter(cf, fieldnames=["title","link","source","published"])
-        w.writeheader(); [w.writerow(h) for h in highlights]
-    return os.path.basename(cp), os.path.basename(jp)
-
-INLINE_CSS = """<style>
-:root{--stroke:#e5e7eb;--btn:#f8fafc;--primary:#7b61ff}
+CSS = """<style>
+:root{--stroke:#e5e7eb}
 *{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#111;margin:0}
-.hero{position:relative;min-height:240px;background:
-  linear-gradient(180deg, rgba(10,14,25,.60), rgba(10,14,25,.60)),
-  url('assets/bg.jpg') center/cover no-repeat;}
-.hero::after{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.28;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  background-size:160px 160px;
-}
-.hero .wrap{max-width:1100px;margin:0 auto;padding:28px 18px;width:100%;position:relative;z-index:1}
-.hero h1{color:#fff;margin:0 0 6px 0;font-size:28px}
-.hero p{color:#dbeafe;margin:0}
-.wrap{max-width:1100px;margin:0 auto;padding:18px}
-.header-actions a,.header-actions button{display:inline-block;margin-right:8px;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--btn);color:#111;text-decoration:none;cursor:pointer}
-.header-actions .primary{background:var(--primary);color:#fff;border:none}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111;background:#fff}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.hero{background:#f9fafb;border-bottom:1px solid var(--stroke);padding:24px 0}
+h1{margin:0 0 8px 0;font-size:28px} h2{margin:0 0 8px 0;font-size:20px}
+.note{font-size:13px;color:#6b7280}
 .card{background:#fff;border:1px solid var(--stroke);border-radius:12px;padding:16px;margin-top:16px}
-h2{margin:0 0 10px 0;font-size:18px}
-.note{color:#6b7280;font-size:14px}
-img{max-width:100%;border-radius:8px}
-.kpis{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.kpi{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#f3f4f6;color:#111;border:1px solid var(--stroke)}
-.kpi b{font-weight:700}
+img{max-width:100%}
+.header-actions a, .header-actions button{margin-right:12px;text-decoration:none;color:#0b6cff;font-size:14px}
+.header-actions button{background:#0b6cff;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
+.kpis{margin-top:8px;font-size:14px;color:#374151}
+.kpi{margin-right:14px}
+#visitor-count{font-size:14px;color:#111;margin-top:8px}
 </style>"""
+
+def bar_chart(data, title, outfile):
+    if not data: return None
+    labels, values = zip(*data)
+    fig, ax = plt.subplots(figsize=(6,4))
+    bars = ax.barh(range(len(labels)), values)
+    ax.set_yticks(range(len(labels)))
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()
+    ax.set_title(title)
+    for i, v in enumerate(values):
+        ax.text(v+0.2, i, str(v), va="center")
+    plt.tight_layout()
+    os.makedirs(ASSETS, exist_ok=True)
+    path = os.path.join(ASSETS, outfile)
+    plt.savefig(path)
+    plt.close(fig)
+    return path
 
 def build_index(title, description, keywords_img, brands_img, highlights, stats, csv_name, json_name,
                 has_keywords, has_brands, kw_top, br_top):
@@ -113,7 +62,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[1]}</b> {br_top[0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
     return f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>{title}</title>{INLINE_CSS}</head>
+<html><head><meta charset="utf-8"><title>{title}</title>{CSS}</head>
 <body>
 <div class="hero">
   <div class="wrap">
@@ -128,6 +77,14 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
       <button class="primary" onclick="location.reload()">Refresh</button>
     </div>
     {kpi_html}
+    <div id="visitor-count">Visitors: …</div>
+    <script>
+      fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
+        .then(res => res.json())
+        .then(data => {{
+          document.getElementById('visitor-count').innerText = "Visitors: " + data.value;
+        }});
+    </script>
   </div>
 </div>
 <div class="wrap">
@@ -138,88 +95,38 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
 </div>
 </body></html>"""
 
-def load_archive():
-    if os.path.exists(ARCHIVE):
-        try:
-            with open(ARCHIVE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if isinstance(data, dict): return data
-        except Exception: pass
-    return {}
-
-def aggregate_week(archive: dict):
-    dates = sorted(archive.keys(), reverse=True)[:7]
-    kw = {}; br = {}; latest = None; highlights = []
-    for i, d in enumerate(dates):
-        day = archive[d]
-        if i == 0:
-            latest = day  # newest day for headlines
-        for k in day.get("keywords", []):
-            if isinstance(k, dict):
-                term = k.get("term"); c = int(k.get("count", 0))
-            else:
-                term, c = k, 1
-            if term: kw[term] = kw.get(term, 0) + c
-        for b in day.get("brands", []):
-            name = b.get("name"); c = int(b.get("count", 0))
-            if name: br[name] = br.get(name, 0) + c
-    kw_top_pairs = sorted(kw.items(), key=lambda x: (-x[1], -len(x[0].split()), x[0]))
-    br_top_pairs = sorted(br.items(), key=lambda x: (-x[1], x[0]))
-    if latest:
-        highlights = latest.get("highlights", [])
-    return kw_top_pairs, br_top_pairs, highlights
-
 def run():
-    cfg = load_config()
-    site_dir = os.path.join(ROOT, "site"); assets_dir = os.path.join(site_dir, "assets")
-    os.makedirs(assets_dir, exist_ok=True)
+    os.makedirs(SITE, exist_ok=True)
+    s_path = os.path.join(DATA, "summary.json")
+    if not os.path.exists(s_path):
+        print("summary.json missing")
+        return
+    with open(s_path, "r", encoding="utf-8") as f:
+        s = json.load(f)
 
-    archive = load_archive()
-    kw_pairs, br_pairs, highlights = aggregate_week(archive) if archive else ([], [], [])
-    if not kw_pairs or not br_pairs:
-        if os.path.exists(SUMMARY):
-            with open(SUMMARY, "r", encoding="utf-8") as f:
-                today = json.load(f)
-            highlights = today.get("highlights", []) or highlights
-            rk = today.get("keywords", [])
-            if rk and isinstance(rk[0], dict):
-                kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
-            rb = today.get("brands", [])
-            br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
+    keywords = [(k["word"], k["count"]) for k in s.get("keywords", []) if "word" in k]
+    brands = [(b["brand"], b["count"]) for b in s.get("brands", []) if "brand" in b]
 
-    keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
-    brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
+    kw_chart = bar_chart(keywords[:15], "Top Keywords (7-day totals)", "keywords.png")
+    br_chart = bar_chart(brands[:15], "Brand Mentions (7-day totals)", "brands.png")
 
-    if kw_pairs:
-        labels = [p[0] for p in kw_pairs[:int(cfg.get("infographic",{}).get("top_n_keywords",18))]]
-        values = [p[1] for p in kw_pairs[:int(cfg.get("infographic",{}).get("top_n_keywords",18))]]
-        save_barh(list(reversed(labels)), list(reversed(values)),
-                  "Retail Trend Keywords (7-day totals)", keywords_img, PALETTE_KEYWORDS)
-        kw_top = kw_pairs[0]; has_keywords = True
-    else:
-        ensure_dir_for_file(keywords_img); open(keywords_img, "wb").close()
-        kw_top = None; has_keywords = False
-
-    if br_pairs:
-        labels = [p[0] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
-        values = [p[1] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
-        save_barh(labels, values, "Retail Brand Mentions (7-day totals)", brands_img, PALETTE_BRANDS)
-        br_top = br_pairs[0]; has_brands = True
-    else:
-        ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
-        br_top = None; has_brands = False
-
-    csv_name, json_name = write_headlines_exports(assets_dir, highlights)
-
-    index_html = build_index(
-        cfg["website"]["title"], cfg["website"]["description"],
-        keywords_img, brands_img, highlights, {},
-        csv_name, json_name, has_keywords, has_brands,
-        kw_top, br_top
+    html = build_index(
+        "Retail Trends Dashboard",
+        "Daily updated retail trend insights.",
+        kw_chart, br_chart,
+        s.get("headlines", []),
+        s.get("stats", {}),
+        "headlines.csv",
+        "headlines.json",
+        bool(keywords), bool(brands),
+        keywords[0] if keywords else None,
+        brands[0] if brands else None
     )
-    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(index_html)
-    print("Wrote site/index.html (7-day totals)")
+
+    out_path = os.path.join(SITE, "index.html")
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(html)
+    print("Wrote site/index.html with visitor count")
 
 if __name__ == "__main__":
     run()
