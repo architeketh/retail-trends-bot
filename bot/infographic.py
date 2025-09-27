@@ -1,12 +1,15 @@
 # bot/infographic.py
-# Builds site/index.html dashboard with charts for retail keywords and brands
-# Uses 7-day totals from daily_summaries.json (fallback to today's summary.json).
+# Builds site/index.html dashboard with 7-day totals + visitor counter
+# Schema expected:
+#   daily_summaries.json: { <date>: { keywords:[{term,count}], brands:[{name,count}], highlights:[...], stats:{...} } }
+#   summary.json fallback: same fields
 
 import os, json, csv
 from datetime import datetime
 import yaml
+
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg")  # <- headless backend for CI
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 
@@ -40,7 +43,7 @@ PALETTE_KEYWORDS = ["#2E93fA","#66DA26","#E91E63","#FF9800","#00E396","#775DD0",
 PALETTE_BRANDS = ["#7B61FF","#FF6B6B","#00C49A","#FFB703","#219EBC","#8338EC",
                   "#FB5607","#06D6A0","#118AB2","#EF476F","#3A86FF","#FFBE0B"]
 
-def pick_colors(n, pal): 
+def pick_colors(n, pal):
     return (pal * ((n + len(pal) - 1)//len(pal)))[:n]
 
 def style_axes(ax):
@@ -48,12 +51,12 @@ def style_axes(ax):
     for s in ("left","bottom"): ax.spines[s].set_color("#e0e0e0")
     ax.grid(axis="x", color="#eeeeee", linewidth=0.9, zorder=0)
     ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
-    ax.set_xlabel("Mentions (7-day total)")
 
-def save_barh(labels, values, title, outpath, palette):
+def save_barh(labels, values, title, outpath, palette, xlabel):
     ensure_dir_for_file(outpath); plt.close("all")
     fig, ax = plt.subplots(figsize=(8,6), dpi=150)
     style_axes(ax); ax.set_title(title, fontsize=12, fontweight="bold")
+    ax.set_xlabel(xlabel)
     y = range(len(labels)); colors = pick_colors(len(labels), palette)
     ax.barh(y, values, color=colors, edgecolor="#fff")
     ax.set_yticks(list(y)); ax.set_yticklabels(labels)
@@ -79,10 +82,10 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;backgr
   url('assets/bg.jpg') center/cover no-repeat;}
 .hero::after{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.28;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image:url("data:image/svg;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size:160px 160px;
 }
-.hero .wrap{max-width:1100px;margin:0 auto;padding:28px 18px;width:100%;position:relative;z-index:1}
+.hero .wrap{max-width:1100px;margin:0 auto;padding:28px 18px;position:relative;z-index:1}
 .hero h1{color:#fff;margin:0 0 6px 0;font-size:28px}
 .hero p{color:#dbeafe;margin:0}
 .wrap{max-width:1100px;margin:0 auto;padding:18px}
@@ -95,9 +98,10 @@ img{max-width:100%;border-radius:8px}
 .kpis{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .kpi{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#f3f4f6;color:#111;border:1px solid var(--stroke)}
 .kpi b{font-weight:700}
+#visitor-count{font-size:14px;color:#fff;margin-top:8px}
 </style>"""
 
-def build_index(title, description, keywords_img, brands_img, highlights, stats, csv_name, json_name,
+def build_index(title, description, keywords_img, brands_img, highlights, csv_name, json_name,
                 has_keywords, has_brands, kw_top, br_top):
     kw_block = (f"<img src='assets/{os.path.basename(keywords_img)}' alt='Top Keywords (7-day)'>"
                 if has_keywords else "<p class='note'>No keywords yet.</p>")
@@ -128,6 +132,15 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
       <button class="primary" onclick="location.reload()">Refresh</button>
     </div>
     {kpi_html}
+    <div id="visitor-count">Visitors: …</div>
+    <script>
+      (function(){{
+        fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
+          .then(function(res){{return res.json();}})
+          .then(function(data){{document.getElementById('visitor-count').innerText='Visitors: '+data.value;}})
+          .catch(function(_){{document.getElementById('visitor-count').innerText='';}});
+      }})();
+    </script>
   </div>
 </div>
 <div class="wrap">
@@ -154,12 +167,14 @@ def aggregate_week(archive: dict):
         day = archive[d]
         if i == 0:
             latest = day  # newest day for headlines
+        # keywords [{term,count}] or fallback list[str]
         for k in day.get("keywords", []):
             if isinstance(k, dict):
                 term = k.get("term"); c = int(k.get("count", 0))
             else:
                 term, c = k, 1
             if term: kw[term] = kw.get(term, 0) + c
+        # brands [{name,count}]
         for b in day.get("brands", []):
             name = b.get("name"); c = int(b.get("count", 0))
             if name: br[name] = br.get(name, 0) + c
@@ -184,42 +199,50 @@ def run():
             rk = today.get("keywords", [])
             if rk and isinstance(rk[0], dict):
                 kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
+            else:
+                kw_pairs = list(zip(list(reversed(rk)), list(range(len(rk), 0, -1))))
             rb = today.get("brands", [])
             br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
 
+    # Output chart images (paths from config)
     keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
     brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
 
     if kw_pairs:
-        labels = [p[0] for p in kw_pairs[:int(cfg.get("infographic",{}).get("top_n_keywords",18))]]
-        values = [p[1] for p in kw_pairs[:int(cfg.get("infographic",{}).get("top_n_keywords",18))]]
+        topN = int(cfg.get("infographic",{}).get("top_n_keywords",18))
+        labels = [p[0] for p in kw_pairs[:topN]]
+        values = [p[1] for p in kw_pairs[:topN]]
         save_barh(list(reversed(labels)), list(reversed(values)),
-                  "Retail Trend Keywords (7-day totals)", keywords_img, PALETTE_KEYWORDS)
+                  "Retail Trend Keywords (7-day totals)", keywords_img, PALETTE_KEYWORDS,
+                  xlabel="Mentions (7-day total)")
         kw_top = kw_pairs[0]; has_keywords = True
     else:
         ensure_dir_for_file(keywords_img); open(keywords_img, "wb").close()
         kw_top = None; has_keywords = False
 
     if br_pairs:
-        labels = [p[0] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
-        values = [p[1] for p in br_pairs[:int(cfg.get("infographic",{}).get("top_n_brands",12))]]
-        save_barh(labels, values, "Retail Brand Mentions (7-day totals)", brands_img, PALETTE_BRANDS)
+        topB = int(cfg.get("infographic",{}).get("top_n_brands",12))
+        labels = [p[0] for p in br_pairs[:topB]]
+        values = [p[1] for p in br_pairs[:topB]]
+        save_barh(labels, values, "Retail Brand Mentions (7-day totals)", brands_img, PALETTE_BRANDS,
+                  xlabel="Mentions (7-day total)")
         br_top = br_pairs[0]; has_brands = True
     else:
         ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
         br_top = None; has_brands = False
 
+    # Headlines downloads (from newest day)
     csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
     index_html = build_index(
         cfg["website"]["title"], cfg["website"]["description"],
-        keywords_img, brands_img, highlights, {},
+        keywords_img, brands_img, highlights,
         csv_name, json_name, has_keywords, has_brands,
         kw_top, br_top
     )
     with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html)
-    print("Wrote site/index.html (7-day totals)")
+    print("Wrote site/index.html (7-day totals + visitor counter)")
 
 if __name__ == "__main__":
     run()
