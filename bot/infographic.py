@@ -113,12 +113,6 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[1]}</b> {br_top[0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
     return f"""<!DOCTYPE html>
-
-  // Try to increment; if adblockers block it, fall back to a friendly message
-  fetch(url, {cache: "no-store"})
-    .then(function(r){ return r.json(); })
-    
-    
 <html><head><meta charset="utf-8"><title>{title}</title>{INLINE_CSS}</head>
 <body>
 <div class="hero">
