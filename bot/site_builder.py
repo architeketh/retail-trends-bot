@@ -262,10 +262,10 @@ def run():
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[1]}</b> {br_top[0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
 
-    # Weekly Summary lists
+       # Weekly Summary lists
     wk_kw = "".join(f"<li>{k} — <b>{v}</b></li>" for k,v in kw_pairs[:15]) or "<li class='note'>No keywords yet.</li>"
     wk_br = "".join(f"<li>{b} — <b>{v}</b></li>" for b,v in br_pairs[:12]) or "<li class='note'>No brands yet.</li>"
-    weekly_html = f"<div class='grid"><div><ul>{wk_kw}</ul></div><div><ul>{wk_br}</ul></div></div>"
+    weekly_html = f"<div class='grid'><div><ul>{wk_kw}</ul></div><div><ul>{wk_br}</ul></div></div>"
 
     # Stats: today + 7-day totals
     today_date = summary.get("stats", {}).get("date", "—")
