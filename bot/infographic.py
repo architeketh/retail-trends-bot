@@ -114,53 +114,10 @@ def build_index(title, description, keywords_img, brands_img, highlights, stats,
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
     return f"""<!DOCTYPE html>
 
-    
-def render_visit_counter():
-    # You can style the container however you want
-    return """
-<div id="visit-counter" style="position:relative; display:flex; gap:8px; align-items:center; font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#f5f7fb; color:#111827; border:1px solid #e5e7eb; border-radius:12px; padding:8px 12px; width:max-content">
-  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" role="img">
-    <path d="M12 3a9 9 0 1 0 9 9 9.01 9.01 0 0 0-9-9Zm1 9V7h-2v7h6v-2Z" fill="currentColor"/>
-  </svg>
-  <span>Visits:</span>
-  <span id="visitor-count" aria-live="polite">—</span>
-</div>
-<script>
-(function(){
-  // Use a stable namespace/key for your site + page
-  var ns = "architeketh_retail_trends_bot";
-  var key = "index_html";
-  var url = "https://api.countapi.xyz/hit/" + encodeURIComponent(ns) + "/" + encodeURIComponent(key);
-  var el = document.getElementById("visitor-count");
-
-  // Helper: format ints with commas
-  function fmt(n){ return (n||0).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ","); }
-
-
   // Try to increment; if adblockers block it, fall back to a friendly message
   fetch(url, {cache: "no-store"})
     .then(function(r){ return r.json(); })
-    .then(function(data){
-      // data.value is the incremented total
-      if (data && typeof data.value === "number") {
-        el.textContent = fmt(data.value);
-      } else {
-        el.textContent = "n/a";
-      }
-    })
-    .catch(function(){
-      // Fallback: attempt a readonly get so the badge still shows something
-      var getUrl = "https://api.countapi.xyz/get/" + encodeURIComponent(ns) + "/" + encodeURIComponent(key);
-      fetch(getUrl, {cache: "no-store"})
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          el.textContent = (data && typeof data.value === "number") ? fmt(data.value) : "n/a";
-        })
-        .catch(function(){ el.textContent = "n/a"; });
-    });
-})();
-</script>
-    """
+    
     
 <html><head><meta charset="utf-8"><title>{title}</title>{INLINE_CSS}</head>
 <body>
