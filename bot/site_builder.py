@@ -1,16 +1,16 @@
 # bot/site_builder.py
-# Builds a SINGLE PAGE: site/index.html with sections:
+# Single-page site (index.html) with sections:
 # - Overview (charts + headlines)
-# - Weekly Summary (7-day rollup lists)
+# - Weekly Summary (7-day lists)
 # - Stats (today + 7-day totals)
-#
-# This eliminates weekly.html and stats.html 404s.
+# - News Sites (curated links)
+# No external pages -> no 404s.
 
 import os, json, csv
 from datetime import datetime
 
 import matplotlib
-matplotlib.use("Agg")  # headless for CI
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 
@@ -63,6 +63,27 @@ img{max-width:100%;border-radius:8px}
 ul{margin:.25rem 0 .75rem 1.25rem}
 .anchor{scroll-margin-top:80px}
 </style>"""
+
+NEWS_LINKS = [
+    ("Retail Dive", "https://www.retaildive.com/"),
+    ("RetailWire", "https://www.retailwire.com/"),
+    ("Chain Store Age", "https://chainstoreage.com/"),
+    ("Retail TouchPoints", "https://www.retailtouchpoints.com/"),
+    ("Modern Retail", "https://www.modernretail.co/"),
+    ("Retail Brew", "https://www.morningbrew.com/retail"),
+    ("NRF", "https://nrf.com/"),
+    ("Digital Commerce 360", "https://www.digitalcommerce360.com/"),
+    ("Total Retail", "https://www.mytotalretail.com/"),
+    ("Supply Chain 24/7", "https://www.supplychain247.com/"),
+    ("Tinuiti", "https://tinuiti.com/blog/"),
+    ("Business of Fashion", "https://www.businessoffashion.com/"),
+    ("FashionUnited", "https://fashionunited.com/"),
+    ("Reuters – Retail & Consumer", "https://www.reuters.com/business/retail-consumer/"),
+    ("Forbes – Retail", "https://www.forbes.com/retail/"),
+    ("Vogue Business", "https://www.voguebusiness.com/"),
+    ("Retail Week", "https://www.retail-week.com/"),
+    ("Retail Gazette", "https://www.retailgazette.co.uk/"),
+]
 
 def ensure_dir_for_file(path): os.makedirs(os.path.dirname(path), exist_ok=True)
 def pick_colors(n, p): return (p * ((n+len(p)-1)//len(p)))[:n]
@@ -120,8 +141,8 @@ def aggregate_week(archive: dict):
     headlines = (newest.get("highlights", []) if newest else [])[:10]
     return kw_top, br_top, headlines
 
-def build_html(head_html, kw_img_rel, br_img_rel, headlines_html, kpi_html,
-               weekly_html, stats_html, updated_str):
+def build_html(head_html, kw_img_rel, br_img_rel, kpi_html,
+               weekly_html, stats_html, news_html, updated_str):
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>{TITLE}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -134,7 +155,7 @@ def build_html(head_html, kw_img_rel, br_img_rel, headlines_html, kpi_html,
   <div class="header-actions" style="margin-top:10px">
     <a href="#weekly">Weekly Summary</a>
     <a href="#stats">Stats</a>
-    <a href="news.html">News Sites</a>
+    <a href="#news">News Sites</a>
     <button class="primary" onclick="location.reload()">Refresh</button>
   </div>
   {kpi_html}
@@ -142,11 +163,13 @@ def build_html(head_html, kw_img_rel, br_img_rel, headlines_html, kpi_html,
 
 <div class="wrap">
   <div id="visitor-count">Visitors: loading…
-    <img class="badge" alt="Visitors badge" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://architeketh.github.io/retail-trends-bot/&title=Visitors">
+    <img class="badge" alt="Visitors badge" 
+         src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Farchiteketh.github.io%2Fretail-trends-bot%2F&title=Visitors&edge_flat=false&_cb={int(datetime.utcnow().timestamp())}">
   </div>
   <script>
     (function(){{
-      fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
+      // Use a fresh key to avoid collisions; text always updates even if badge fails.
+      fetch('https://api.countapi.xyz/hit/architeketh/retail-trends-index')
         .then(function(r){{return r.json();}})
         .then(function(d){{document.getElementById('visitor-count').firstChild.nodeValue='Visitors: '+d.value+' ';}})
         .catch(function(_){{/* badge fallback stays visible */}});
@@ -181,6 +204,12 @@ def build_html(head_html, kw_img_rel, br_img_rel, headlines_html, kpi_html,
     {stats_html}
   </div>
 
+  <a id="news" class="anchor"></a>
+  <div class="card">
+    <h2>Retail News Sites</h2>
+    {news_html}
+  </div>
+
   <p class="note">Updated {updated_str}</p>
 </div>
 </body></html>"""
@@ -190,10 +219,9 @@ def run():
     archive = load_json(ARCHIVE) or {}
     summary = load_json(SUMMARY) or {}
 
-    # 7-day aggregation
+    # 7-day aggregation (fallback to today for charts/headlines)
     kw_pairs, br_pairs, heads = aggregate_week(archive) if archive else ([], [], [])
     if not (kw_pairs and br_pairs):
-        # fallback to today so charts still render
         rk = summary.get("keywords", []) or []
         if rk:
             if isinstance(rk[0], dict): kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
@@ -202,7 +230,7 @@ def run():
         if rb: br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
         if not heads: heads = summary.get("highlights", []) or []
 
-    # Charts (always write image files so <img> never 404s)
+    # Charts (always write image files)
     if kw_pairs:
         labels = [p[0] for p in kw_pairs[:18]]
         values = [p[1] for p in kw_pairs[:18]]
@@ -210,7 +238,7 @@ def run():
                   "Retail Trend Keywords (7-day totals)", KW_IMG, PALETTE_KW, "Mentions (7-day total)")
         kw_top = kw_pairs[0]
     else:
-        ensure_dir_for_file(KW_IMG); open(KW_IMG, "wb").close(); kw_top = None
+        open(KW_IMG, "wb").close(); kw_top = None
 
     if br_pairs:
         labels = [p[0] for p in br_pairs[:12]]
@@ -218,7 +246,7 @@ def run():
         save_barh(labels, values, "Retail Brand Mentions (7-day totals)", BR_IMG, PALETTE_BR, "Mentions (7-day total)")
         br_top = br_pairs[0]
     else:
-        ensure_dir_for_file(BR_IMG); open(BR_IMG, "wb").close(); br_top = None
+        open(BR_IMG, "wb").close(); br_top = None
 
     # Headlines list + exports
     head_html = "".join(
@@ -234,18 +262,15 @@ def run():
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[1]}</b> {br_top[0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
 
-    # Weekly Summary section (compact lists)
+    # Weekly Summary lists
     wk_kw = "".join(f"<li>{k} — <b>{v}</b></li>" for k,v in kw_pairs[:15]) or "<li class='note'>No keywords yet.</li>"
     wk_br = "".join(f"<li>{b} — <b>{v}</b></li>" for b,v in br_pairs[:12]) or "<li class='note'>No brands yet.</li>"
-    weekly_html = f"<div class='grid'><div><ul>{wk_kw}</ul></div><div><ul>{wk_br}</ul></div></div>"
+    weekly_html = f"<div class='grid"><div><ul>{wk_kw}</ul></div><div><ul>{wk_br}</ul></div></div>"
 
-    # Stats section
-    # Today's
+    # Stats: today + 7-day totals
     today_date = summary.get("stats", {}).get("date", "—")
     today_items = int(summary.get("stats", {}).get("items_considered", 0))
     today_sources = int(summary.get("stats", {}).get("unique_sources", 0))
-
-    # 7-day totals
     w_items = w_kw = w_br = 0
     if isinstance(archive, dict) and archive:
         dates = sorted(archive.keys(), reverse=True)[:7]
@@ -256,7 +281,6 @@ def run():
                 w_kw += int(k.get("count", 1)) if isinstance(k, dict) else 1
             for b in day.get("brands", []) or []:
                 w_br += int(b.get("count", 0)) if isinstance(b, dict) else 0
-
     stats_html = f"""
 <div class="grid">
   <div class="card"><div>Today’s Articles</div><b style="font-size:20px">{today_items}</b><div class="note">Date: {today_date}</div></div>
@@ -266,14 +290,20 @@ def run():
   <div class="card"><div>7-Day Brand Mentions</div><b style="font-size:20px">{w_br}</b></div>
 </div>"""
 
-    html = build_html(head_html, "assets/keywords.png", "assets/brands.png",
-                      head_html, kpi_html, weekly_html, stats_html,
-                      datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC'))
+    # News Sites section (same page, no 404)
+    news_html = "<ul>" + "".join(
+        f"<li><a href='{u}' target='_blank' rel='noopener'>{n}</a></li>" for n,u in NEWS_LINKS
+    ) + "</ul>"
+
+    html = build_html(
+        head_html, "assets/keywords.png", "assets/brands.png",
+        kpi_html, weekly_html, stats_html, news_html,
+        datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+    )
 
     os.makedirs(SITE, exist_ok=True)
     with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    print("Wrote single-page site/index.html (no 404s)")
-
+    print("Wrote single-page site/index.html (no external pages)")
 if __name__ == "__main__":
     run()
