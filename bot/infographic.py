@@ -1,13 +1,9 @@
 # bot/infographic.py
-# Builds site/index.html dashboard with 7-day totals + visitor counter
-# Expects:
-#   bot/data/daily_summaries.json  -> { <date>: { keywords:[{term,count}], brands:[{name,count}], highlights:[...], stats:{...} } }
-#   bot/data/summary.json          -> fallback (today) with same fields
-# Uses countapi.xyz to show "Visitors: ###" on the main page.
+# Builds site/index.html with 7-day totals (keywords & brands) + visitor counter.
+# Robust to missing config.yml; uses defaults.
 
 import os, json, csv
 from datetime import datetime
-import yaml
 
 import matplotlib
 matplotlib.use("Agg")  # headless for CI
@@ -19,13 +15,14 @@ ROOT = os.path.abspath(os.path.join(BASE, ".."))
 DATA_DIR = os.path.join(BASE, "data")
 ARCHIVE = os.path.join(DATA_DIR, "daily_summaries.json")
 SUMMARY = os.path.join(DATA_DIR, "summary.json")
+SITE_DIR = os.path.join(ROOT, "site")
+ASSETS_DIR = os.path.join(SITE_DIR, "assets")
 
-def load_config():
-    with open(os.path.join(ROOT, "config.yml"), "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-def ensure_dir_for_file(path: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+# Safe defaults if config.yml is missing
+DEFAULT_TITLE = "Retail Trends Dashboard"
+DEFAULT_DESC  = "Daily updated retail trend insights."
+KEYWORDS_IMG  = os.path.join(ROOT, "site", "assets", "keywords.png")
+BRANDS_IMG    = os.path.join(ROOT, "site", "assets", "brands.png")
 
 plt.rcParams.update({
     "figure.facecolor": "#ffffff",
@@ -44,6 +41,9 @@ PALETTE_KEYWORDS = ["#2E93fA","#66DA26","#E91E63","#FF9800","#00E396","#775DD0",
 PALETTE_BRANDS = ["#7B61FF","#FF6B6B","#00C49A","#FFB703","#219EBC","#8338EC",
                   "#FB5607","#06D6A0","#118AB2","#EF476F","#3A86FF","#FFBE0B"]
 
+def ensure_dir_for_file(path: str):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
 def pick_colors(n, pal):
     return (pal * ((n + len(pal) - 1)//len(pal)))[:n]
 
@@ -54,7 +54,8 @@ def style_axes(ax):
     ax.xaxis.set_major_locator(ticker.MaxNLocator(6))
 
 def save_barh(labels, values, title, outpath, palette, xlabel):
-    ensure_dir_for_file(outpath); plt.close("all")
+    ensure_dir_for_file(outpath)
+    plt.close("all")
     fig, ax = plt.subplots(figsize=(8,6), dpi=150)
     style_axes(ax); ax.set_title(title, fontsize=12, fontweight="bold")
     ax.set_xlabel(xlabel)
@@ -100,9 +101,10 @@ img{max-width:100%;border-radius:8px}
 .kpi{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#f3f4f6;color:#111;border:1px solid var(--stroke)}
 .kpi b{font-weight:700}
 #visitor-count{font-size:14px;color:#fff;margin-top:8px}
+.badge{display:inline-block;margin-left:10px;vertical-align:middle}
 </style>"""
 
-def build_index(title, description, keywords_img, brands_img, highlights, csv_name, json_name,
+def build_index(title, description, keywords_img, brands_img, highlights,
                 has_keywords, has_brands, kw_top, br_top):
     kw_block = (f"<img src='assets/{os.path.basename(keywords_img)}' alt='Top Keywords (7-day)'>"
                 if has_keywords else "<p class='note'>No keywords yet.</p>")
@@ -117,6 +119,7 @@ def build_index(title, description, keywords_img, brands_img, highlights, csv_na
     if kw_top: kpis.append(f"<span class='kpi'><b>{kw_top[1]}</b> “{kw_top[0]}”</span>")
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[1]}</b> {br_top[0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
+
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>{title}</title>{INLINE_CSS}</head>
 <body>
@@ -125,22 +128,22 @@ def build_index(title, description, keywords_img, brands_img, highlights, csv_na
     <h1>{title}</h1>
     <p>{description}</p>
     <div class="header-actions" style="margin-top:10px">
-      <a href="assets/{csv_name}" download>CSV</a>
-      <a href="assets/{json_name}" download>JSON</a>
       <a href="weekly.html">Weekly Summary</a>
       <a href="news.html">News Sites</a>
       <a href="stats.html">Stats</a>
       <button class="primary" onclick="location.reload()">Refresh</button>
     </div>
     {kpi_html}
-    <div id="visitor-count">Visitors: …</div>
+    <div id="visitor-count">Visitors: loading… 
+      <img class="badge" alt="Visitors badge" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://architeketh.github.io/retail-trends-bot/&title=Visitors">
+    </div>
     <script>
       (function(){{
         // Increment + get total page views using countapi.xyz
         fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
           .then(function(res){{return res.json();}})
-          .then(function(data){{document.getElementById('visitor-count').innerText='Visitors: '+data.value;}})
-          .catch(function(_){{document.getElementById('visitor-count').style.display='none';}});
+          .then(function(data){{document.getElementById('visitor-count').firstChild.nodeValue='Visitors: '+data.value+' ';}})
+          .catch(function(_){{/* keep badge fallback */}});
       }})();
     </script>
   </div>
@@ -167,83 +170,71 @@ def aggregate_week(archive: dict):
     kw = {}; br = {}; latest = None; highlights = []
     for i, d in enumerate(dates):
         day = archive[d]
-        if i == 0:
-            latest = day  # newest day for headlines
-        # keywords [{term,count}] or fallback list[str]
+        if i == 0: latest = day  # newest day for headlines
         for k in day.get("keywords", []):
             if isinstance(k, dict):
                 term = k.get("term"); c = int(k.get("count", 0))
             else:
                 term, c = k, 1
             if term: kw[term] = kw.get(term, 0) + c
-        # brands [{name,count}]
         for b in day.get("brands", []):
             name = b.get("name"); c = int(b.get("count", 0))
             if name: br[name] = br.get(name, 0) + c
     kw_top_pairs = sorted(kw.items(), key=lambda x: (-x[1], -len(x[0].split()), x[0]))
     br_top_pairs = sorted(br.items(), key=lambda x: (-x[1], x[0]))
-    if latest:
-        highlights = latest.get("highlights", [])
+    if latest: highlights = latest.get("highlights", [])
     return kw_top_pairs, br_top_pairs, highlights
 
 def run():
-    cfg = load_config()
-    site_dir = os.path.join(ROOT, "site"); assets_dir = os.path.join(site_dir, "assets")
-    os.makedirs(assets_dir, exist_ok=True)
-
+    os.makedirs(ASSETS_DIR, exist_ok=True)
+    # Prefer 7-day archive; fallback to today's summary if needed
     archive = load_archive()
     kw_pairs, br_pairs, highlights = aggregate_week(archive) if archive else ([], [], [])
-    if not kw_pairs or not br_pairs:
-        if os.path.exists(SUMMARY):
-            with open(SUMMARY, "r", encoding="utf-8") as f:
-                today = json.load(f)
-            highlights = today.get("highlights", []) or highlights
-            rk = today.get("keywords", [])
-            if rk and isinstance(rk[0], dict):
-                kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
-            else:
-                kw_pairs = list(zip(list(reversed(rk)), list(range(len(rk), 0, -1))))
-            rb = today.get("brands", [])
-            br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
+    if not (kw_pairs and br_pairs) and os.path.exists(SUMMARY):
+        with open(SUMMARY, "r", encoding="utf-8") as f:
+            today = json.load(f)
+        highlights = today.get("highlights", []) or highlights
+        rk = today.get("keywords", [])
+        if rk:
+            if isinstance(rk[0], dict): kw_pairs = [(k["term"], int(k.get("count", 0))) for k in rk]
+            else: kw_pairs = list(zip(list(reversed(rk)), list(range(len(rk), 0, -1))))
+        rb = today.get("brands", [])
+        if rb: br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
 
-    # Output chart images (paths from config.yml)
-    keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
-    brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
-
+    # Charts (always create image files, even empty)
     if kw_pairs:
-        topN = int(cfg.get("infographic",{}).get("top_n_keywords",18))
-        labels = [p[0] for p in kw_pairs[:topN]]
-        values = [p[1] for p in kw_pairs[:topN]]
+        labels = [p[0] for p in kw_pairs[:18]]
+        values = [p[1] for p in kw_pairs[:18]]
         save_barh(list(reversed(labels)), list(reversed(values)),
-                  "Retail Trend Keywords (7-day totals)", keywords_img, PALETTE_KEYWORDS,
+                  "Retail Trend Keywords (7-day totals)", KEYWORDS_IMG, PALETTE_KEYWORDS,
                   xlabel="Mentions (7-day total)")
         kw_top = kw_pairs[0]; has_keywords = True
     else:
-        ensure_dir_for_file(keywords_img); open(keywords_img, "wb").close()
+        ensure_dir_for_file(KEYWORDS_IMG); open(KEYWORDS_IMG, "wb").close()
         kw_top = None; has_keywords = False
 
     if br_pairs:
-        topB = int(cfg.get("infographic",{}).get("top_n_brands",12))
-        labels = [p[0] for p in br_pairs[:topB]]
-        values = [p[1] for p in br_pairs[:topB]]
-        save_barh(labels, values, "Retail Brand Mentions (7-day totals)", brands_img, PALETTE_BRANDS,
+        labels = [p[0] for p in br_pairs[:12]]
+        values = [p[1] for p in br_pairs[:12]]
+        save_barh(labels, values, "Retail Brand Mentions (7-day totals)", BRANDS_IMG, PALETTE_BRANDS,
                   xlabel="Mentions (7-day total)")
         br_top = br_pairs[0]; has_brands = True
     else:
-        ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
+        ensure_dir_for_file(BRANDS_IMG); open(BRANDS_IMG, "wb").close()
         br_top = None; has_brands = False
 
-    # Headlines downloads (newest day)
-    csv_name, json_name = write_headlines_exports(assets_dir, highlights)
+    # Export headlines (from newest day we have)
+    write_headlines_exports(ASSETS_DIR, highlights or [])
 
-    index_html = build_index(
-        cfg["website"]["title"], cfg["website"]["description"],
-        keywords_img, brands_img, highlights,
-        csv_name, json_name, has_keywords, has_brands,
-        kw_top, br_top
+    html = build_index(
+        DEFAULT_TITLE, DEFAULT_DESC,
+        KEYWORDS_IMG, BRANDS_IMG, highlights or [],
+        has_keywords, has_brands, kw_top, br_top
     )
-    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(index_html)
+    out_path = os.path.join(SITE_DIR, "index.html")
+    os.makedirs(SITE_DIR, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(html)
     print("Wrote site/index.html (7-day totals + visitor counter)")
 
 if __name__ == "__main__":
