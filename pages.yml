@@ -16,10 +16,11 @@ else:
 PY
           echo "::endgroup::"
 
-      - name: Build single-page site (index.html only)
-        run: |
-          python bot/site_builder.py
-          echo "::group::index.html head"; head -n 60 site/index.html || true; echo "::endgroup::"
+- name: Build single-page site (index.html only)
+  run: |
+    python bot/site_builder.py
+    sed -n '1,80p' site/index.html || true
+
 
       - name: Verify output
         run: |
