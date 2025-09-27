@@ -108,3 +108,11 @@ fetch('assets/headlines.json')
 </script>
 </body>
 </html>
+<div id="visitor-count">Visitors: …</div>
+<script>
+  fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('visitor-count').innerText = "Visitors: " + data.value;
+    });
+</script>
