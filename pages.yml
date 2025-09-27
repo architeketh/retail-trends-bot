@@ -126,6 +126,23 @@ HTML
           echo "--- final site contents ---"
           find site -maxdepth 2 -type f -print | sort
 
+
+
+- name: Inspect built pages
+  run: |
+    echo "---- HEAD weekly.html ----"; head -n 40 site/weekly.html || true
+    echo "---- HEAD stats.html ----";  head -n 40 site/stats.html  || true
+    echo "---- HEAD index.html ----";  head -n 40 site/index.html  || true
+
+# Fail the build if these pages look like placeholders
+- name: Verify real content
+  run: |
+    grep -q "Weekly Retail Summary" site/weekly.html || (echo "weekly.html missing real content" && exit 1)
+    grep -q "Today’s Articles"      site/stats.html  || (echo "stats.html missing real content" && exit 1)
+    grep -q "Retail Trends Dashboard" site/index.html || (echo "index.html not built" && exit 1)
+
+
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
