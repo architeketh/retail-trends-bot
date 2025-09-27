@@ -1,15 +1,16 @@
 # bot/infographic.py
 # Builds site/index.html dashboard with 7-day totals + visitor counter
-# Schema expected:
-#   daily_summaries.json: { <date>: { keywords:[{term,count}], brands:[{name,count}], highlights:[...], stats:{...} } }
-#   summary.json fallback: same fields
+# Expects:
+#   bot/data/daily_summaries.json  -> { <date>: { keywords:[{term,count}], brands:[{name,count}], highlights:[...], stats:{...} } }
+#   bot/data/summary.json          -> fallback (today) with same fields
+# Uses countapi.xyz to show "Visitors: ###" on the main page.
 
 import os, json, csv
 from datetime import datetime
 import yaml
 
 import matplotlib
-matplotlib.use("Agg")  # <- headless backend for CI
+matplotlib.use("Agg")  # headless for CI
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 
@@ -135,10 +136,11 @@ def build_index(title, description, keywords_img, brands_img, highlights, csv_na
     <div id="visitor-count">Visitors: …</div>
     <script>
       (function(){{
+        // Increment + get total page views using countapi.xyz
         fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
           .then(function(res){{return res.json();}})
           .then(function(data){{document.getElementById('visitor-count').innerText='Visitors: '+data.value;}})
-          .catch(function(_){{document.getElementById('visitor-count').innerText='';}});
+          .catch(function(_){{document.getElementById('visitor-count').style.display='none';}});
       }})();
     </script>
   </div>
@@ -204,7 +206,7 @@ def run():
             rb = today.get("brands", [])
             br_pairs = [(b["name"], int(b.get("count", 0))) for b in rb]
 
-    # Output chart images (paths from config)
+    # Output chart images (paths from config.yml)
     keywords_img = os.path.join(ROOT, cfg["infographic"]["output_image"])
     brands_img = os.path.join(ROOT, cfg["infographic"]["brands_image"])
 
@@ -231,7 +233,7 @@ def run():
         ensure_dir_for_file(brands_img); open(brands_img, "wb").close()
         br_top = None; has_brands = False
 
-    # Headlines downloads (from newest day)
+    # Headlines downloads (newest day)
     csv_name, json_name = write_headlines_exports(assets_dir, highlights)
 
     index_html = build_index(
