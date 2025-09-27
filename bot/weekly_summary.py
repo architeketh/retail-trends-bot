@@ -1,24 +1,23 @@
 # bot/weekly_summary.py
-# Always writes site/weekly.html. Uses last 7 days if available, else today, else placeholders.
-
+# Writes site/weekly.html every run, using last 7 days if available, else today, else a minimal-but-real page.
 import os, json
 from datetime import datetime
 
 BASE = os.path.dirname(__file__)
 ROOT = os.path.abspath(os.path.join(BASE, ".."))
-DATA_DIR = os.path.join(BASE, "data")
-SITE_DIR = os.path.join(ROOT, "site")
-ARCHIVE = os.path.join(DATA_DIR, "daily_summaries.json")
-SUMMARY = os.path.join(DATA_DIR, "summary.json")
+DATA = os.path.join(BASE, "data")
+SITE = os.path.join(ROOT, "site")
+ARCHIVE = os.path.join(DATA, "daily_summaries.json")
+SUMMARY = os.path.join(DATA, "summary.json")
 
 CSS = """<style>
-:root{--stroke:#e5e7eb;--primary:#7b61ff;--chipbg:#f3f4f6}
+:root{--stroke:#e5e7eb;--chipbg:#f3f4f6}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111;background:#fff}
 .hero{position:relative;min-height:220px;background:
   linear-gradient(180deg, rgba(10,14,25,.60), rgba(10,14,25,.60)),
   url('assets/bg.jpg') center/cover no-repeat;}
 .hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.28;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image:url("data:image/svg;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size:160px 160px}
 .wrap{max-width:1100px;margin:0 auto;padding:18px}
 .hero .wrap{padding:28px 18px;position:relative;z-index:1}
@@ -33,16 +32,15 @@ h2{margin:0 0 8px 0;font-size:18px} .small{font-size:12px;color:#6b7280}
 ul{margin:.25rem 0 .75rem 1.25rem}
 </style>"""
 
-def load_json(path):
-    if os.path.exists(path):
+def load_json(p):
+    if os.path.exists(p):
         try:
-            with open(path, "r", encoding="utf-8") as f: return json.load(f)
-        except Exception:
-            return None
+            with open(p, "r", encoding="utf-8") as f: return json.load(f)
+        except Exception: return None
     return None
 
-def last7_from_archive(arch: dict):
-    if not isinstance(arch, dict) or not arch: return []
+def last7(arch):
+    if not isinstance(arch, dict): return []
     dates = sorted(arch.keys(), reverse=True)[:7]
     return [(d, arch[d]) for d in dates]
 
@@ -58,30 +56,30 @@ def aggregate(window):
         for b in day.get("brands", []):
             name, c = b.get("name"), int(b.get("count", 0))
             if name: br[name] = br.get(name, 0) + c
-    kw_top = sorted(kw.items(), key=lambda x: (-x[1], -len(x[0].split()), x[0]))[:15]
-    br_top = sorted(br.items(), key=lambda x: (-x[1], x[0]))[:12]
+    kw_top = sorted(kw.items(), key=lambda x:(-x[1], -len(x[0].split()), x[0]))[:15]
+    br_top = sorted(br.items(), key=lambda x:(-x[1], x[0]))[:12]
     headlines = (newest.get("highlights", []) if newest else [])[:10]
     return items, kw_top, br_top, headlines
 
-def render(span_text, items, kw_top, br_top, headlines):
+def render(span, items, kw_top, br_top, heads):
     kpis = []
     if items: kpis.append(f"<span class='kpi'><b>{items}</b> Articles</span>")
     if kw_top: kpis.append(f"<span class='kpi'><b>{kw_top[0][1]}</b> “{kw_top[0][0]}”</span>")
     if br_top: kpis.append(f"<span class='kpi'><b>{br_top[0][1]}</b> {br_top[0][0]}</span>")
     kpi_html = f"<div class='kpis'>{''.join(kpis)}</div>" if kpis else ""
-    kw_html = "".join(f"<li>{k} — <b>{v}</b></li>" for k, v in kw_top) or "<li class='small'>No keywords yet.</li>"
-    br_html = "".join(f"<li>{b} — <b>{v}</b></li>" for b, v in br_top) or "<li class='small'>No brands yet.</li>"
+    kw_html = "".join(f"<li>{k} — <b>{v}</b></li>" for k,v in kw_top) or "<li class='small'>No keywords yet.</li>"
+    br_html = "".join(f"<li>{b} — <b>{v}</b></li>" for b,v in br_top) or "<li class='small'>No brands yet.</li>"
     hl_html = "".join(
         f"<li><a href='{h.get('link','#')}' target='_blank' rel='noopener'>{h.get('title','(untitled)')}</a> "
         f"<span class='small'>({h.get('source','')})</span></li>"
-        for h in headlines
+        for h in heads
     ) or "<li class='small'>No headlines.</li>"
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>Weekly Retail Summary</title>{CSS}</head>
 <body>
 <div class="hero"><div class="wrap">
   <h1>Weekly Retail Summary</h1>
-  <p>{span_text}</p>
+  <p>{span}</p>
   {kpi_html}
   <div class="actions">
     <a class="btn" href="index.html">Dashboard</a>
@@ -98,44 +96,28 @@ def render(span_text, items, kw_top, br_top, headlines):
 </body></html>"""
 
 def run():
-    os.makedirs(SITE_DIR, exist_ok=True)
-
-    # Try 7-day archive
+    os.makedirs(SITE, exist_ok=True)
     arch = load_json(ARCHIVE)
-    window = last7_from_archive(arch) if arch else []
+    window = last7(arch) if arch else []
 
-    # Fallback: use today's summary so we still publish a page
     if not window:
         today = load_json(SUMMARY) or {}
         if today:
-            date = today.get("stats", {}).get("date", datetime.utcnow().strftime("%Y-%m-%d"))
-            window = [(date, today)]
+            d = today.get("stats", {}).get("date", datetime.utcnow().strftime("%Y-%m-%d"))
+            window = [(d, today)]
 
-    # Still nothing? Publish a graceful page
+    # If STILL nothing, we still write a real page (not the YAML fallback)
     if not window:
-        html = f"""<!doctype html><html><head><meta charset="utf-8"><title>Weekly Retail Summary</title>{CSS}</head>
-<body>
-<div class="hero"><div class="wrap">
-  <h1>Weekly Retail Summary</h1>
-  <p>No data yet — page will populate after the first run.</p>
-  <div class="actions"><a class="btn" href="index.html">Dashboard</a></div>
-</div></div>
-<div class="wrap"><div class="card"><p class="small">Updated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p></div></div>
-</body></html>"""
-        with open(os.path.join(SITE_DIR, "weekly.html"), "w", encoding="utf-8") as f:
-            f.write(html)
-        print("Wrote site/weekly.html (empty)")
-        return
+        span = "No data yet"
+        items, kw_top, br_top, heads = 0, [], [], []
+    else:
+        dates = [d for d,_ in window]
+        span = f"{dates[-1]} → {dates[0]}" if len(dates)>1 else dates[0]
+        items, kw_top, br_top, heads = aggregate(window)
 
-    # Build span and content
-    dates = [d for d, _ in window]
-    span_text = f"{dates[-1]} → {dates[0]}" if len(dates) > 1 else dates[0]
-    items, kw_top, br_top, headlines = aggregate(window)
-
-    # Write page
-    page = render(span_text, items, kw_top, br_top, headlines)
-    with open(os.path.join(SITE_DIR, "weekly.html"), "w", encoding="utf-8") as f:
-        f.write(page)
+    html = render(span, items, kw_top, br_top, heads)
+    with open(os.path.join(SITE, "weekly.html"), "w", encoding="utf-8") as f:
+        f.write(html)
     print("Wrote site/weekly.html")
 
 if __name__ == "__main__":
