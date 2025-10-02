@@ -11,7 +11,7 @@ def esc(s: str) -> str:
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Load categorized data
+# Categorized data (front first, then back)
 cats = {}
 src = ASSETS / "categorized.json"
 if not src.exists():
@@ -22,16 +22,16 @@ if src.exists():
     except Exception:
         cats = {}
 
-# Fallback headlines (if needed)
+# Headlines fallback
 articles = []
-hj = ASSETS / "headlines.json"
-if hj.exists():
+hjson = ASSETS / "headlines.json"
+if hjson.exists():
     try:
-        articles = json.loads(hj.read_text(encoding="utf-8"))
+        articles = json.loads(hjson.read_text(encoding="utf-8"))
     except Exception:
         pass
 
-# Prefer SVG charts, fallback to PNG
+# Prefer SVG charts; fallback to PNG
 kw_src = "assets/keywords.svg" if (ASSETS / "keywords.svg").exists() else (
          "assets/keywords.png" if (ASSETS / "keywords.png").exists() else "")
 br_src = "assets/brands.svg" if (ASSETS / "brands.svg").exists() else (
