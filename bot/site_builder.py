@@ -1,5 +1,6 @@
 # bot/site_builder.py
-import pathlib, json, datetime
+import pathlib, json, datetime, re
+from collections import Counter
 
 ROOT = pathlib.Path(".")
 DATA, ASSETS = ROOT / "data", ROOT / "assets"
@@ -9,6 +10,7 @@ def esc(s: str) -> str:
     return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+today = datetime.date.today().isoformat()
 
 # ---- Load data ----
 cats = {}
@@ -69,6 +71,60 @@ def section_chart_row(title: str, img: str, side_list: list, label_key: str):
   {right}
 </article>"""
 
+# ---- Lightweight “AI” summary per category (headline-driven) ----
+# We keep a small brand list and stopwords just for summarization.
+BRAND_SEED = {
+    "Amazon","Walmart","Target","Costco","Best Buy","Home Depot","Lowe's","Lowe’s","Kroger","Aldi",
+    "Tesco","Carrefour","IKEA","H&M","Zara","Nike","Adidas","Lululemon","Gap","Old Navy",
+    "Sephora","Ulta","Macy's","Nordstrom","Kohl's","TJX","TJ Maxx","Marshalls","Saks","Apple",
+    "Shein","Temu","Wayfair","Etsy","eBay","Shopify","Instacart","DoorDash","Uber","FedEx","UPS"
+}
+STOPWORDS = {
+    "a","an","the","and","or","but","if","then","else","for","with","without","of","to","in","on","at","by","from",
+    "is","are","was","were","be","been","do","does","did","done","have","has","had","will","would","can","could","may","might",
+    "that","this","these","those","it","its","as","about","so","such","not","no","yes","why","how","when","where","what","who","which",
+    "your","we","our","they","their","new","news","update","report","today","week","month","year","online","retail","ecommerce"
+}
+WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’\-&]+")
+
+def top_brands_from_items(items, k=3):
+    c = Counter()
+    for a in items:
+        t = (a.get("title") or "").lower()
+        for b in BRAND_SEED:
+            if b.lower() in t:
+                c[b] += 1
+    return [b for b,_ in c.most_common(k)]
+
+def gen_sentence(cat: str, items: list) -> str:
+    if not items:
+        return f"{cat}: no headlines today."
+    count = len(items)
+    brands = top_brands_from_items(items, k=3)
+    sample = items[0].get("title") or "(untitled)"
+    parts = [f"{cat}: {count} headline{'s' if count!=1 else ''}."]
+    if brands:
+        parts.append(f"Notable mentions: {', '.join(brands)}.")
+    parts.append(f"Example: “{sample}”.")
+    return " ".join(parts)
+
+# Build per-category lines
+ai_lines = []
+for cat, items in ordered:
+    ai_lines.append(gen_sentence(cat, items))
+
+# Save to data/summaries.json (append/overwrite today)
+sum_path = DATA / "summaries.json"
+all_summaries = {}
+if sum_path.exists():
+    try: all_summaries = json.loads(sum_path.read_text(encoding="utf-8"))
+    except Exception: all_summaries = {}
+all_summaries[today] = {
+    "generated_at": now,
+    "by_category": {cat: gen_sentence(cat, items) for cat, items in ordered}
+}
+sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
+
 # ---- Build HTML ----
 html = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -113,7 +169,6 @@ img{{max-width:100%;border-radius:10px}}
 .chips{{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}}
 .chip{{background:#1e293b;color:#ffffff;border:1px solid #1f2a44;padding:6px 10px;border-radius:999px;font-size:13px}}
 .anchor{{scroll-margin-top:90px}}
-/* Force white links in key spots for mobile readability */
 .card a, .table a, .cat a{{color:#ffffff}}
 </style></head><body><div class="wrap">
 
@@ -133,6 +188,15 @@ html += """  </div>
 </section>
 
 <section class="card">
+  <h2>Daily AI Summary</h2>
+  <ul>
+"""
+for line in ai_lines:
+    html += f"    <li>{esc(line)}</li>\n"
+html += """  </ul>
+</section>
+
+<section class="card">
   <h2>Totals</h2>
   <div class="totals">
     <div>
@@ -142,7 +206,7 @@ html += """  </div>
         <tbody>
 """
 
-# Category totals
+# Category totals table
 total_articles = 0
 for cat, items in ordered:
     cnt = len(items); total_articles += cnt
@@ -246,4 +310,4 @@ html += f"""
 """
 
 (ROOT / "index.html").write_text(html, encoding="utf-8")
-print("✓ Wrote index.html (hero title fixed to 'Retail Trends')")
+print("✓ Wrote index.html (added Daily AI Summary per category + persisted to data/summaries.json)")
