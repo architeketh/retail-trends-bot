@@ -118,7 +118,7 @@ img{{max-width:100%;border-radius:10px}}
 </style></head><body><div class="wrap">
 
 <section class="hero">
-  <h1>Plan boldly. Retire confidently.</h1>
+  <h1>Retail Trends</h1>
   <p>Daily retail headlines with 7-day, month-to-date, and year-to-date trends.</p>
   <div class="chips">
 """
@@ -152,8 +152,8 @@ html += f"<tr><td><b>Total</b></td><td><b>{total_articles}</b></td></tr>"
 
 def totals_block(title: str, data: dict, key: str, label_key: str):
     lst = data.get(key, []) if data else []
-    total = totals_sum(lst, label_key)
-    top = nice_list(lst, label_key)
+    total = sum(int(x.get("count", 0)) for x in lst)
+    top = ", ".join(f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})" for x in lst[:10]) if lst else "<span class='note'>—</span>"
     return f"""
       <h3 style="margin:12px 0 6px 0">{esc(title)}</h3>
       <div class="kv">
@@ -246,4 +246,4 @@ html += f"""
 """
 
 (ROOT / "index.html").write_text(html, encoding="utf-8")
-print("✓ Wrote index.html (white links for mobile + multi-color hero)")
+print("✓ Wrote index.html (hero title fixed to 'Retail Trends')")
