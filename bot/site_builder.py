@@ -1,3 +1,4 @@
+# bot/site_builder.py
 import pathlib, datetime, json
 
 DATA = pathlib.Path("data")
@@ -6,7 +7,7 @@ SITE.mkdir(parents=True, exist_ok=True)
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Try to load articles
+# Load fetched headlines
 articles = []
 f = DATA / "headlines.json"
 if f.exists():
@@ -16,6 +17,7 @@ if f.exists():
     except Exception as e:
         print("WARN: could not read headlines.json:", e)
 
+# Build HTML
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -26,7 +28,7 @@ html = f"""<!doctype html>
     body {{ font-family: system-ui, sans-serif; margin: 2rem; }}
     .card {{ max-width: 800px; margin: auto; padding: 1.5rem;
              border: 1px solid #ccc; border-radius: 10px; }}
-    h2 {{ margin-top: 0 }}
+    h1,h2 {{ margin-top: 0 }}
     ul {{ padding-left: 1.2rem }}
     li {{ margin-bottom: 6px }}
     .muted {{ color: #666; font-size: 0.9em }}
@@ -43,7 +45,7 @@ html = f"""<!doctype html>
 """
 
 if articles:
-    for art in articles[:10]:
+    for art in articles[:10]:  # top 10 headlines
         title = art.get("title", "Untitled")
         link = art.get("link", "#")
         src = art.get("source", "")
@@ -52,7 +54,7 @@ if articles:
             html += f' <span class="muted">({src})</span>'
         html += "</li>\n"
 else:
-    html += "<li class='muted'>No articles yet. Will appear after fetch.py runs.</li>"
+    html += "<li class='muted'>No articles yet. Run fetch.py first.</li>"
 
 html += """
     </ul>
