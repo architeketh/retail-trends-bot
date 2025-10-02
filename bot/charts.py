@@ -30,43 +30,50 @@ BRAND_SEED = {
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’\-&]+")
 
 CATEGORY_RULES = {
-    "Retail": [r"\bretail(er|ing)?\b", r"\bstore(s)?\b", r"\bchain(s)?\b", r"\bmall(s)?\b", r"\bdepartment store(s)?\b"],
-    "eCommerce": [r"\be-?commerce\b", r"\bonline\b", r"\bshopify\b", r"\bmarketplace\b", r"\bdigital\b"],
-    "AI": [r"\bAI\b", r"\bartificial intelligence\b", r"\bmachine learning\b", r"\bgenerative\b", r"\bChatGPT\b"],
-    "Supply Chain": [r"\bsupply\b", r"\blogistic(s)?\b", r"\bwarehouse(s|ing)?\b", r"\bshipping\b", r"\bfulfillment\b"],
-    "Big Box": [r"\bwalmart\b", r"\btarget\b", r"\bcostco\b", r"\bhome depot\b", r"\bbest buy\b", r"\blowe['’]s\b"],
-    "Luxury": [r"\blouis vuitton\b", r"\bgucci\b", r"\bprada\b", r"\bherm[eè]s\b", r"\bcartier\b", r"\bchanel\b", r"\bdior\b"],
-    "Vintage": [r"\bvintage\b", r"\bresale\b", r"\bthrift\b", r"\bsecondhand\b", r"\bconsignment\b"],
+    "Retail":[r"\bretail(er|ing)?\b",r"\bstore(s)?\b",r"\bchain(s)?\b",r"\bmall(s)?\b",r"\bdepartment store(s)?\b"],
+    "eCommerce":[r"\be-?commerce\b",r"\bonline\b",r"\bshopify\b",r"\bmarketplace\b",r"\bdigital\b"],
+    "AI":[r"\bAI\b",r"\bartificial intelligence\b",r"\bmachine learning\b",r"\bgenerative\b",r"\bChatGPT\b"],
+    "Supply Chain":[r"\bsupply\b",r"\blogistic(s)?\b",r"\bwarehouse(s|ing)?\b",r"\bshipping\b",r"\bfulfillment\b"],
+    "Big Box":[r"\bwalmart\b",r"\btarget\b",r"\bcostco\b",r"\bhome depot\b",r"\bbest buy\b",r"\blowe['’]s\b"],
+    "Luxury":[r"\blouis vuitton\b",r"\bgucci\b",r"\bprada\b",r"\bherm[eè]s\b",r"\bcartier\b",r"\bchanel\b",r"\bdior\b"],
+    "Vintage":[r"\bvintage\b",r"\bresale\b",r"\bthrift\b",r"\bsecondhand\b",r"\bconsignment\b"],
 }
-CATEGORY_REGEX = {k: [re.compile(p, re.I) for p in v] for k, v in CATEGORY_RULES.items()}
+CATEGORY_REGEX = {k:[re.compile(p,re.I) for p in v] for k,v in CATEGORY_RULES.items()}
 
-def categorize(title: str):
+def categorize(title:str):
     t = title or ""
     hits = [cat for cat, regs in CATEGORY_REGEX.items() if any(r.search(t) for r in regs)]
     return hits or ["Other"]
 
-def tokenize(text: str):
+def tokenize(text:str):
     for m in WORD_RE.finditer(text or ""):
         w = m.group(0).strip("’'\"-–—").lower()
         if w and (w not in STOPWORDS):
             yield w
 
 def load_articles():
-    src = DATA / "headlines.json"
-    if not src.exists():
-        return []
+    p = DATA/"headlines.json"
+    if not p.exists(): return []
     try:
-        obj = json.loads(src.read_text(encoding="utf-8"))
-        return obj.get("articles", [])
+        return json.loads(p.read_text(encoding="utf-8")).get("articles", [])
     except Exception:
-        print("charts.py: failed to parse headlines.json\n", traceback.format_exc())
+        print("charts.py: parse error\n", traceback.format_exc())
         return []
 
 def save_json(path: pathlib.Path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-def plot_bar(pairs, title, outfile):
+def save_fig(outfile_no_ext:str):
+    """Save current matplotlib figure as both SVG and PNG."""
+    svg = ASSETS / f"{outfile_no_ext}.svg"
+    png = ASSETS / f"{outfile_no_ext}.png"
+    plt.savefig(svg, bbox_inches="tight")
+    plt.savefig(png, dpi=160, bbox_inches="tight")
+    print(f"✓ Wrote {svg} and {png}")
+    plt.close()
+
+def plot_bar(pairs, title, outfile_no_ext):
     labels = [p[0] for p in pairs][::-1]
     values = [p[1] for p in pairs][::-1]
     plt.figure(figsize=(8, 4.8))
@@ -77,20 +84,16 @@ def plot_bar(pairs, title, outfile):
         for i, b in enumerate(bars):
             w = b.get_width()
             plt.text(w + (vmax * 0.02 if vmax else 0.2),
-                     b.get_y() + b.get_height()/2, str(values[i]),
+                     b.get_y()+b.get_height()/2, str(values[i]),
                      va="center", fontsize=9)
     else:
         plt.text(0.5, 0.5, "No data yet", ha="center", va="center", fontsize=14)
         plt.axis("off")
     plt.title(title)
     plt.tight_layout()
-    out = ASSETS / outfile
-    plt.savefig(out, dpi=160, bbox_inches="tight")
-    plt.close()
-    print(f"✓ Wrote {out}")
+    save_fig(outfile_no_ext)
 
 def aggregate_7d(history: dict):
-    """Return total counts for keys across the last 7 days (inclusive)."""
     last7 = set((dt.date.today() - dt.timedelta(days=i)).isoformat() for i in range(7))
     totals = collections.Counter()
     for day, counts in history.items():
@@ -101,59 +104,49 @@ def aggregate_7d(history: dict):
 def main():
     arts = load_articles()
 
-    # Front-end headlines mirror
+    # headlines mirror
     front = [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in arts]
-    save_json(ASSETS / "headlines.json", front)
+    save_json(ASSETS/"headlines.json", front)
 
-    # Raw counts for this run
+    # day counts
     day_kw = collections.Counter()
     day_br = collections.Counter()
-
     for a in arts:
-        title = a.get("title", "")
-        for tok in tokenize(title):
-            day_kw[tok] += 1
-        lt = (title or "").lower()
+        t = a.get("title","")
+        for tok in tokenize(t):
+            day_kw[tok]+=1
+        lt = t.lower()
         for b in BRAND_SEED:
             if b.lower() in lt:
-                day_br[b] += 1
+                day_br[b]+=1
 
-    # ---- Persist history (keep last 30 days) ----
-    kw_hist_path = DATA / "history_keywords.json"
-    br_hist_path = DATA / "history_brands.json"
+    # history (last 30d)
+    kw_hist_path = DATA/"history_keywords.json"
+    br_hist_path = DATA/"history_brands.json"
     kw_hist = json.loads(kw_hist_path.read_text(encoding="utf-8")) if kw_hist_path.exists() else {}
     br_hist = json.loads(br_hist_path.read_text(encoding="utf-8")) if br_hist_path.exists() else {}
-
     kw_hist[TODAY] = day_kw
     br_hist[TODAY] = day_br
-
-    # Convert Counters to dicts and trim to last 30 days
-    def trim_last_30(h: dict):
+    def trim(h): 
         days = sorted(h.keys())[-30:]
-        return {d: {k:int(v) for k,v in h[d].items()} for d in days}
+        return {d:{k:int(v) for k,v in h[d].items()} for d in days}
+    kw_hist = trim(kw_hist); br_hist = trim(br_hist)
+    save_json(kw_hist_path, kw_hist); save_json(br_hist_path, br_hist)
 
-    kw_hist = trim_last_30(kw_hist)
-    br_hist = trim_last_30(br_hist)
-
-    save_json(kw_hist_path, kw_hist)
-    save_json(br_hist_path, br_hist)
-
-    # ---- 7-day totals → charts ----
+    # charts = last 7 days
     kw7 = aggregate_7d(kw_hist).most_common(12)
     br7 = aggregate_7d(br_hist).most_common(12)
+    plot_bar(kw7, "Top Keywords (last 7 days)", "keywords")
+    plot_bar(br7, "Brand Mentions (last 7 days)", "brands")
 
-    plot_bar(kw7, "Top Keywords (last 7 days)", "keywords.png")
-    plot_bar(br7, "Brand Mentions (last 7 days)", "brands.png")
-
-    # ---- Categorize and export ----
+    # categories
     cats = {}
     for a in arts:
         for c in categorize(a.get("title","")):
             cats.setdefault(c, []).append(a)
-
-    save_json(DATA / "categorized.json", cats)
-    save_json(ASSETS / "categorized.json", cats)
-    print("✓ Categorized & wrote JSON")
+    save_json(DATA/"categorized.json", cats)
+    save_json(ASSETS/"categorized.json", cats)
+    print("✓ Categorized JSON written")
 
 if __name__ == "__main__":
     main()
