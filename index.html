@@ -1,39 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Retail Trends Bot</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 2rem; }
-    .card { max-width: 800px; margin: auto; padding: 1.5rem;
-             border: 1px solid #ccc; border-radius: 10px; }
-    h1,h2 { margin-top: 0 }
-    ul { padding-left: 1.2rem }
-    li { margin-bottom: 6px }
-    .muted { color: #666; font-size: 0.9em }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Retail Trends – Dashboard</title>
+<style>
+  :root{--bg:#fff;--text:#111;--card:#fff;--stroke:#e5e7eb;--btn:#f8fafc;--primary:#2E93fA}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 18px}
+  .header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .title{margin:0;font-size:28px}
+  .desc{margin:4px 0 0;color:#4b5563}
+  .actions a,.actions button{display:inline-block;margin-left:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--stroke);background:var(--btn);color:#111;text-decoration:none;cursor:pointer}
+  .primary{background:var(--primary);color:#fff;border:none}
+  .grid{display:grid;gap:16px;margin-top:16px}
+  @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--stroke);border-radius:12px;padding:16px}
+  h2{margin:0 0 10px 0;font-size:18px}
+  .muted{color:#6b7280}
+  ul{margin:0;padding-left:18px}
+  img{max-width:100%;border-radius:8px}
+  details{margin-top:12px}
+  .note{color:#6b7280;font-size:14px}
+  .footer{margin-top:18px;color:#6b7280;font-size:12px}
+  .pill{display:inline-block; padding:2px 8px; background:#eef2ff; color:#4338ca; border-radius:999px; font-size:12px; margin-left:6px}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Retail Trends Bot</h1>
-    <p><b>Last updated:</b> 2025-10-02 04:14:20 UTC</p>
-  </div>
-  <div class="card">
-    <h2>Latest Headlines</h2>
-    <ul>
-<li><a href="https://www.retaildive.com/news/top-retail-conferences-2026/761620/" target="_blank">Top retail conferences in 2026</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/at-home-exits-bankruptcy-most-stores/761572/" target="_blank">At Home set to emerge from bankruptcy with most of its stores</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/peloton-raises-membership-pricing-holidays/761567/" target="_blank">Peloton raises membership pricing ahead of holidays</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/nike-ceo-tangible-progress-turnaround-revenue-growth/761591/" target="_blank">Nike CEO touts ‘tangible progress’ as revenue rises 1% in Q1</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/more-than-a-quarter-of-consumers-plan-on-cutting-holiday-spending/761575/" target="_blank">More than a quarter of consumers plan to cut holiday spending</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/" target="_blank">Target plots retail, marketing blitz around ‘Stranger Things’ final season</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/pinterest-gen-z-searchers-retail-media-new-ad-offerings/761503/" target="_blank">Pinterest mobilizes Gen Z searchers, retail media with new ad offerings</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/journeys-owner-shuffles-brands-leadership/761452/" target="_blank">Journeys owner shuffles brands, leadership</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/stanley-launches-take-back-recycling-program/761459/" target="_blank">Stanley launches take-back program</a> <span class="muted">(Retail Dive)</span></li>
-<li><a href="https://www.retaildive.com/news/openai-chatgpt-instant-checkout-agentic-commerce-etsy-shopify/761442/" target="_blank">ChatGPT lets shoppers buy products within the platform</a> <span class="muted">(Retail Dive)</span></li>
+<div class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Retail Trends – Dashboard</h1>
+      <p class="desc">Daily retail headlines, keywords & brand mentions</p>
+    </div>
+    <div class="actions">
+      <a href="assets/headlines.json" download>JSON</a>
+      <button class="primary" onclick="location.reload()">Refresh</button>
+    </div>
+  </header>
 
+  <section class="grid">
+    <article class="card">
+      <h2>Top Keywords <span class="pill">Weekly</span></h2>
+      <div id="kw"><p class='note'>No keywords image yet. It will appear after the keywords task is added.</p></div>
+    </article>
+    <article class="card">
+      <h2>Brand Mentions <span class="pill">Weekly</span></h2>
+      <div id="brands"><p class='note'>No brands image yet. It will appear after the brands task is added.</p></div>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Latest Headlines</h2>
+    <ul id="headlines">
+      <li><a href="https://www.retaildive.com/news/top-retail-conferences-2026/761620/" target="_blank" rel="noopener">Top retail conferences in 2026</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/at-home-exits-bankruptcy-most-stores/761572/" target="_blank" rel="noopener">At Home set to emerge from bankruptcy with most of its stores</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/peloton-raises-membership-pricing-holidays/761567/" target="_blank" rel="noopener">Peloton raises membership pricing ahead of holidays</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/nike-ceo-tangible-progress-turnaround-revenue-growth/761591/" target="_blank" rel="noopener">Nike CEO touts ‘tangible progress’ as revenue rises 1% in Q1</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/more-than-a-quarter-of-consumers-plan-on-cutting-holiday-spending/761575/" target="_blank" rel="noopener">More than a quarter of consumers plan to cut holiday spending</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/" target="_blank" rel="noopener">Target plots retail, marketing blitz around ‘Stranger Things’ final season</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/pinterest-gen-z-searchers-retail-media-new-ad-offerings/761503/" target="_blank" rel="noopener">Pinterest mobilizes Gen Z searchers, retail media with new ad offerings</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/journeys-owner-shuffles-brands-leadership/761452/" target="_blank" rel="noopener">Journeys owner shuffles brands, leadership</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/stanley-launches-take-back-recycling-program/761459/" target="_blank" rel="noopener">Stanley launches take-back program</a> <span class="muted">(Retail Dive)</span></li>
+      <li><a href="https://www.retaildive.com/news/openai-chatgpt-instant-checkout-agentic-commerce-etsy-shopify/761442/" target="_blank" rel="noopener">ChatGPT lets shoppers buy products within the platform</a> <span class="muted">(Retail Dive)</span></li>
     </ul>
-  </div>
+  </section>
+
+  <details class="card">
+    <summary><b>About</b></summary>
+    <p class="note">Last updated: 2025-10-02 04:34:29 UTC. This dashboard refreshes automatically every 12 hours.</p>
+    <p class="note">Headlines are mirrored to <code>assets/headlines.json</code> for light front-end rendering.</p>
+  </details>
+
+  <p class="footer">© 2025 Retail Trends Bot</p>
+</div>
+
+<div id="visitor-count" style="position:fixed;right:12px;bottom:12px;background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;font-size:12px;color:#374151">Visitors: …</div>
+<script>
+  fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('visitor-count').innerText = "Visitors: " + data.value;
+    }).catch(()=>{});
+</script>
 </body>
 </html>
