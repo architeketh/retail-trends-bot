@@ -6,34 +6,41 @@ DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
 
+def esc(s: str) -> str:
+    return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Load headlines (array for fast render)
-articles = []
-src_json = DATA / "headlines.json"
-if src_json.exists():
+# Load categorized data (front file preferred; falls back to data/)
+cats = {}
+front = ASSETS / "categorized.json"
+back = DATA / "categorized.json"
+src_file = front if front.exists() else back
+if src_file.exists():
     try:
-        obj = json.loads(src_json.read_text(encoding="utf-8"))
-        articles = obj.get("articles", [])
+        cats = json.loads(src_file.read_text(encoding="utf-8"))
     except Exception as e:
-        print("WARN: could not parse data/headlines.json:", e)
+        print("WARN: could not parse categorized.json:", e)
+        cats = {}
 
-# Prepare a light JSON for the front-end (optional)
-(front_json := ASSETS / "headlines.json").write_text(
-    json.dumps(
-        [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in articles],
-        ensure_ascii=False, indent=2
-    ),
-    encoding="utf-8"
-)
-print(f"✓ Wrote {front_json.relative_to(ROOT)} ({len(articles)} items)")
+# Load headlines array for quick render if categories missing
+articles = []
+hjson = ASSETS / "headlines.json"
+if hjson.exists():
+    try:
+        articles = json.loads(hjson.read_text(encoding="utf-8"))
+    except Exception as e:
+        print("WARN: could not parse assets/headlines.json:", e)
 
 kw_img = (ASSETS / "keywords.png").exists()
 br_img = (ASSETS / "brands.png").exists()
 
-def esc(s: str) -> str:
-    return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+# Desired display order
+ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
+ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + \
+          [(k, v) for k, v in cats.items() if k not in ORDER]
 
+# Build pretty HTML at repo root
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -72,6 +79,7 @@ html = f"""<!doctype html>
     </div>
     <div class="actions">
       <a href="assets/headlines.json" download>JSON</a>
+      <a href="assets/categorized.json" download>Categories JSON</a>
       <button class="primary" onclick="location.reload()">Refresh</button>
     </div>
   </header>
@@ -79,37 +87,50 @@ html = f"""<!doctype html>
   <section class="grid">
     <article class="card">
       <h2>Top Keywords <span class="pill">Latest Run</span></h2>
-      <div id="kw">{"<img src='assets/keywords.png' alt='Top Keywords'/>" if kw_img else "<p class='note'>Run charts step to generate keywords.png.</p>"}</div>
+      <div id="kw">{"<img src='assets/keywords.png' alt='Top Keywords'/>" if kw_img else "<p class='note'>No keywords chart yet.</p>"}</div>
     </article>
     <article class="card">
       <h2>Brand Mentions <span class="pill">Latest Run</span></h2>
-      <div id="brands">{"<img src='assets/brands.png' alt='Brand Mentions'/>" if br_img else "<p class='note'>Run charts step to generate brands.png.</p>"}</div>
+      <div id="brands">{"<img src='assets/brands.png' alt='Brand Mentions'/>" if br_img else "<p class='note'>No brands chart yet.</p>"}</div>
     </article>
   </section>
 
   <section class="card" style="margin-top:16px">
-    <h2>Latest Headlines</h2>
-    <ul>
+    <h2>Headlines by Category</h2>
 """
 
-if articles:
-    for h in articles[:12]:
-        t = esc(h.get("title") or "(untitled)")
-        l = esc(h.get("link") or "#")
-        s = esc(h.get("source") or "")
-        html += f'      <li><a href="{l}" target="_blank" rel="noopener">{t}</a>'
-        if s: html += f' <span class="muted">({s})</span>'
-        html += "</li>\n"
+if ordered:
+    for cat, items in ordered:
+        html += f"    <h3 style='margin:14px 0 8px'>{esc(cat)} <span class='muted'>({len(items)})</span></h3>\n"
+        html += "    <ul>\n"
+        for a in items[:12]:
+            t = esc(a.get("title") or "(untitled)")
+            l = esc(a.get("link") or "#")
+            s = esc(a.get("source") or "")
+            html += f'      <li><a href="{l}" target="_blank" rel="noopener">{t}</a>'
+            if s: html += f' <span class="muted">({s})</span>'
+            html += "</li>\n"
+        html += "    </ul>\n"
 else:
-    html += "      <li class='note'>No headlines yet. Will appear after the fetch step runs successfully.</li>\n"
+    # fallback to flat list if categorization hasn't run yet
+    html += "    <ul>\n"
+    if articles:
+        for a in articles[:20]:
+            t = esc(a.get("title") or "(untitled)")
+            l = esc(a.get("link") or "#")
+            s = esc(a.get("source") or "")
+            html += f'      <li><a href="{l}" target="_blank" rel="noopener">{t}</a>'
+            if s: html += f' <span class="muted">({s})</span>'
+            html += "</li>\n"
+    else:
+        html += "      <li class='note'>No headlines available yet.</li>\n"
+    html += "    </ul>\n"
 
-html += f"""    </ul>
-  </section>
+html += f"""  </section>
 
   <details class="card">
     <summary><b>About</b></summary>
-    <p class="note">Last updated: {esc(now)}. This dashboard refreshes automatically every 12 hours.</p>
-    <p class="note">Headlines are mirrored to <code>assets/headlines.json</code> for light front-end rendering.</p>
+    <p class="note">Last updated: {esc(now)}. Auto-refreshes every 12 hours.</p>
   </details>
 
   <p class="footer">© {datetime.datetime.utcnow().year} Retail Trends Bot</p>
@@ -127,4 +148,4 @@ html += f"""    </ul>
 """
 
 (ROOT / "index.html").write_text(html, encoding="utf-8")
-print("✓ Wrote index.html at repo root")
+print("✓ Wrote index.html (with categorized sections)")
