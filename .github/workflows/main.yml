@@ -2,6 +2,8 @@ name: Retail Trends Bot
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"   # every 12 hours
   push:
     branches: [ main ]
 
@@ -12,11 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -25,17 +29,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build site
-        run: python bot/site_builder.py
+      - name: Run bot pipeline
+        run: |
+          python bot/fetch.py
+          python bot/site_builder.py
 
       - name: Commit site back to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A site
+          git add -A site data
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Auto-update site"
+            git commit -m "Auto-update site with latest headlines"
             git push
           fi
