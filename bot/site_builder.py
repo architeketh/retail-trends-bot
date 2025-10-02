@@ -1,35 +1,44 @@
 # bot/site_builder.py
 import pathlib, datetime, json
+
 ROOT = pathlib.Path(".")
 DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
 
-def esc(s:str)->str:
+def esc(s: str) -> str:
     return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# data
+# Load categorized data
 cats = {}
-src = ASSETS/"categorized.json"
-if not src.exists(): src = DATA/"categorized.json"
+src = ASSETS / "categorized.json"
+if not src.exists():
+    src = DATA / "categorized.json"
 if src.exists():
-    try: cats = json.loads(src.read_text(encoding="utf-8"))
-    except: cats = {}
+    try:
+        cats = json.loads(src.read_text(encoding="utf-8"))
+    except Exception:
+        cats = {}
 
+# Fallback headlines (if needed)
 articles = []
-hj = ASSETS/"headlines.json"
+hj = ASSETS / "headlines.json"
 if hj.exists():
-    try: articles = json.loads(hj.read_text(encoding="utf-8"))
-    except: pass
+    try:
+        articles = json.loads(hj.read_text(encoding="utf-8"))
+    except Exception:
+        pass
 
-# prefer SVG
-kw_src = "assets/keywords.svg" if (ASSETS/"keywords.svg").exists() else ("assets/keywords.png" if (ASSETS/"keywords.png").exists() else "")
-br_src = "assets/brands.svg"   if (ASSETS/"brands.svg").exists()   else ("assets/brands.png"   if (ASSETS/"brands.png").exists()   else "")
+# Prefer SVG charts, fallback to PNG
+kw_src = "assets/keywords.svg" if (ASSETS / "keywords.svg").exists() else (
+         "assets/keywords.png" if (ASSETS / "keywords.png").exists() else "")
+br_src = "assets/brands.svg" if (ASSETS / "brands.svg").exists() else (
+         "assets/brands.png" if (ASSETS / "brands.png").exists() else "")
 
 ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
-ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k,v in cats.items() if k not in ORDER]
+ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
 
 html = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -54,10 +63,10 @@ img{{max-width:100%;border-radius:8px}} .note{{color:#6b7280;font-size:14px}}
 
 <section class="grid">
   <article class="card"><h2>Top Keywords <span style="background:#eef2ff;color:#4338ca;border-radius:999px;padding:2px 8px;font-size:12px">7-day</span></h2>
-    <div>{"<img src='%s' alt='Top Keywords'/>"%kw_src if kw_src else "<p class='note'>No keywords chart yet.</p>"}</div>
+    <div>{('<img src="'+kw_src+'" alt="Top Keywords"/>') if kw_src else "<p class='note'>No keywords chart yet.</p>"}</div>
   </article>
   <article class="card"><h2>Brand Mentions <span style="background:#eef2ff;color:#4338ca;border-radius:999px;padding:2px 8px;font-size:12px">7-day</span></h2>
-    <div>{"<img src='%s' alt='Brand Mentions'/>"%br_src if br_src else "<p class='note'>No brands chart yet.</p>"}</div>
+    <div>{('<img src="'+br_src+'" alt="Brand Mentions"/>') if br_src else "<p class='note'>No brands chart yet.</p>"}</div>
   </article>
 </section>
 
@@ -68,8 +77,11 @@ if ordered:
     for cat, items in ordered:
         html += f"<h3 style='margin:14px 0 8px'>{esc(cat)} <span class='muted'>({len(items)})</span></h3><ul>"
         for a in items[:12]:
-            t=esc(a.get("title") or "(untitled)"); l=esc(a.get("link") or "#"); s=esc(a.get("source") or "")
-            html += f'<li><a href="{l}" target="_blank" rel="noopener">{t}</a>{(" <span class=\\"muted\\">("+s+")</span>") if s else ""}</li>'
+            t = esc(a.get("title") or "(untitled)")
+            l = esc(a.get("link") or "#")
+            s = esc(a.get("source") or "")
+            span = f' <span class="muted">({s})</span>' if s else ""
+            html += f'<li><a href="{l}" target="_blank" rel="noopener">{t}</a>{span}</li>'
         html += "</ul>"
 else:
     html += "<ul><li class='note'>No headlines available yet.</li></ul>"
@@ -78,5 +90,5 @@ html += f"""</section>
 <p class="muted" style="margin-top:12px">Last updated: {esc(now)}</p>
 </div></body></html>"""
 
-(ROOT/"index.html").write_text(html, encoding="utf-8")
+(ROOT / "index.html").write_text(html, encoding="utf-8")
 print("✓ Wrote index.html (prefers SVG charts)")
