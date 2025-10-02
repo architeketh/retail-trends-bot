@@ -1,10 +1,20 @@
-# bot/site_builder.py
-import pathlib, datetime
+import pathlib, datetime, json
 
+DATA = pathlib.Path("data")
 SITE = pathlib.Path("site")
 SITE.mkdir(parents=True, exist_ok=True)
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+# Try to load articles
+articles = []
+f = DATA / "headlines.json"
+if f.exists():
+    try:
+        obj = json.loads(f.read_text(encoding="utf-8"))
+        articles = obj.get("articles", [])
+    except Exception as e:
+        print("WARN: could not read headlines.json:", e)
 
 html = f"""<!doctype html>
 <html lang="en">
@@ -16,16 +26,40 @@ html = f"""<!doctype html>
     body {{ font-family: system-ui, sans-serif; margin: 2rem; }}
     .card {{ max-width: 800px; margin: auto; padding: 1.5rem;
              border: 1px solid #ccc; border-radius: 10px; }}
+    h2 {{ margin-top: 0 }}
+    ul {{ padding-left: 1.2rem }}
+    li {{ margin-bottom: 6px }}
+    .muted {{ color: #666; font-size: 0.9em }}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Retail Trends Bot</h1>
     <p><b>Last updated:</b> {now}</p>
-    <p>This is a clean reset. The bot is working — content will be added step by step.</p>
+  </div>
+  <div class="card">
+    <h2>Latest Headlines</h2>
+    <ul>
+"""
+
+if articles:
+    for art in articles[:10]:
+        title = art.get("title", "Untitled")
+        link = art.get("link", "#")
+        src = art.get("source", "")
+        html += f'<li><a href="{link}" target="_blank">{title}</a>'
+        if src:
+            html += f' <span class="muted">({src})</span>'
+        html += "</li>\n"
+else:
+    html += "<li class='muted'>No articles yet. Will appear after fetch.py runs.</li>"
+
+html += """
+    </ul>
   </div>
 </body>
-</html>"""
+</html>
+"""
 
 (SITE / "index.html").write_text(html, encoding="utf-8")
 print("Wrote site/index.html")
