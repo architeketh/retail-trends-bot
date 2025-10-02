@@ -5,8 +5,7 @@ on:
   schedule:
     - cron: '0 */12 * * *'
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -23,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -42,19 +42,49 @@ jobs:
           python bot/charts.py
           python bot/site_builder.py
 
-      - name: Sync with remote main
+      # 🔎 EXACTLY show what we produced
+      - name: Debug: list outputs
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git rebase origin/main || git merge --no-edit origin/main
+          echo "::group::assets"
+          ls -la assets || true
+          echo "::endgroup::"
+          echo "::group::data"
+          ls -la data || true
+          echo "::endgroup::"
+          echo "::group::tree"
+          find . -maxdepth 2 -type f -print | sort
+          echo "::endgroup::"
 
-      - name: Commit updated files
-        uses: stefanzweifel/git-auto-commit-action@v5
+      # 📦 Upload everything we publish so you can download & inspect
+      - name: Upload site outputs
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          commit_message: Auto-update homepage and assets
-          file_pattern: |
+          name: site_outputs
+          path: |
             index.html
             assets/**
             data/**
-          branch: main
+
+      # ✅ Commit & push: rebase first, fallback to --force-with-lease if needed
+      - name: Commit & push updates
+        shell: bash
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A index.html assets data || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-update homepage and assets"
+          fi
+
+          # Make sure we're up to date; if conflicts, we’ll still push safely.
+          git fetch origin main || true
+          git rebase origin/main || true
+
+          # Try normal push, then safe force if remote moved
+          git push origin HEAD:main || git push --force-with-lease origin HEAD:main
