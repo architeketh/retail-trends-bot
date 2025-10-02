@@ -3,9 +3,10 @@ name: Retail Trends Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */12 * * *"
+    - cron: '0 */12 * * *'
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -22,13 +23,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -37,31 +37,22 @@ jobs:
 
       - name: Run bot pipeline
         run: |
+          set -e
           python bot/fetch.py
           python bot/charts.py
           python bot/site_builder.py
 
-      - name: Sync with remote main (avoid non-fast-forward)
+      - name: Sync with remote main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git pull --rebase origin main || git pull origin main
-
-      - name: Debug: list outputs
-        run: |
-          echo "::group::assets"
-          ls -la assets || true
-          echo "::endgroup::"
-          echo "::group::data"
-          ls -la data || true
-          echo "::endgroup::"
-          ls -la index.html || true
+          git rebase origin/main || git merge --no-edit origin/main
 
       - name: Commit updated files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-update homepage and assets"
+          commit_message: Auto-update homepage and assets
           file_pattern: |
             index.html
             assets/**
