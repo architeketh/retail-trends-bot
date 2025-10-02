@@ -2,12 +2,11 @@
 import pathlib, datetime, json
 
 DATA = pathlib.Path("data")
-SITE = pathlib.Path("site")
-SITE.mkdir(parents=True, exist_ok=True)
+ROOT = pathlib.Path(".")   # write to repo root
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Try to load headlines
+# Load headlines if available
 articles = []
 f = DATA / "headlines.json"
 if f.exists():
@@ -17,7 +16,6 @@ if f.exists():
     except Exception as e:
         print("WARN: could not read headlines.json:", e)
 
-# Build HTML
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -54,7 +52,7 @@ if articles:
             html += f' <span class="muted">({src})</span>'
         html += "</li>\n"
 else:
-    html += "<li class='muted'>No articles yet. Will appear after fetch.py runs.</li>"
+    html += "<li class='muted'>No articles yet. Run fetch.py first.</li>"
 
 html += """
     </ul>
@@ -63,5 +61,5 @@ html += """
 </html>
 """
 
-(SITE / "index.html").write_text(html, encoding="utf-8")
-print("✅ Wrote site/index.html")
+(ROOT / "index.html").write_text(html, encoding="utf-8")
+print("✅ Wrote index.html at repo root")
