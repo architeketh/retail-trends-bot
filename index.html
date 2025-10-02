@@ -42,18 +42,18 @@
 
   <section class="grid">
     <article class="card">
-      <h2>Top Keywords <span class="pill">Weekly</span></h2>
-      <div id="kw"><p class='note'>No keywords image yet. It will appear after the keywords task is added.</p></div>
+      <h2>Top Keywords <span class="pill">Latest Run</span></h2>
+      <div id="kw"><p class='note'>Run charts step to generate keywords.png.</p></div>
     </article>
     <article class="card">
-      <h2>Brand Mentions <span class="pill">Weekly</span></h2>
-      <div id="brands"><p class='note'>No brands image yet. It will appear after the brands task is added.</p></div>
+      <h2>Brand Mentions <span class="pill">Latest Run</span></h2>
+      <div id="brands"><p class='note'>Run charts step to generate brands.png.</p></div>
     </article>
   </section>
 
   <section class="card" style="margin-top:16px">
     <h2>Latest Headlines</h2>
-    <ul id="headlines">
+    <ul>
       <li><a href="https://www.retaildive.com/news/top-retail-conferences-2026/761620/" target="_blank" rel="noopener">Top retail conferences in 2026</a> <span class="muted">(Retail Dive)</span></li>
       <li><a href="https://www.retaildive.com/news/at-home-exits-bankruptcy-most-stores/761572/" target="_blank" rel="noopener">At Home set to emerge from bankruptcy with most of its stores</a> <span class="muted">(Retail Dive)</span></li>
       <li><a href="https://www.retaildive.com/news/peloton-raises-membership-pricing-holidays/761567/" target="_blank" rel="noopener">Peloton raises membership pricing ahead of holidays</a> <span class="muted">(Retail Dive)</span></li>
@@ -71,7 +71,7 @@
 
   <details class="card">
     <summary><b>About</b></summary>
-    <p class="note">Last updated: 2025-10-02 04:42:53 UTC. This dashboard refreshes automatically every 12 hours.</p>
+    <p class="note">Last updated: 2025-10-02 04:43:24 UTC. This dashboard refreshes automatically every 12 hours.</p>
     <p class="note">Headlines are mirrored to <code>assets/headlines.json</code> for light front-end rendering.</p>
   </details>
 
@@ -82,9 +82,8 @@
 <script>
   fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
     .then(res => res.json())
-    .then(data => {
-      document.getElementById('visitor-count').innerText = "Visitors: " + data.value;
-    }).catch(()=>{});
+    .then(data => { document.getElementById('visitor-count').innerText = "Visitors: " + data.value; })
+    .catch(()=>{});
 </script>
 </body>
 </html>
