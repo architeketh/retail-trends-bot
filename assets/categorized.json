@@ -1,6 +1,5 @@
 {
-  "fetched_at": "2025-10-02T12:23:47.022368Z",
-  "articles": [
+  "Retail": [
     {
       "title": "Top retail conferences in 2026",
       "link": "https://www.retaildive.com/news/top-retail-conferences-2026/761620/",
@@ -13,6 +12,32 @@
       "published": "Wed, 01 Oct 2025 12:20:00 -0400",
       "source": "Retail Dive"
     },
+    {
+      "title": "Target plots retail, marketing blitz around ‘Stranger Things’ final season",
+      "link": "https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/",
+      "published": "Wed, 01 Oct 2025 09:51:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Pinterest mobilizes Gen Z searchers, retail media with new ad offerings",
+      "link": "https://www.retaildive.com/news/pinterest-gen-z-searchers-retail-media-new-ad-offerings/761503/",
+      "published": "Tue, 30 Sep 2025 15:56:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Grocery Outlet names new supply chain leader",
+      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
+      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Envive AI raises $15 million to expand AI platform for online retail",
+      "link": "https://www.digitalcommerce360.com/2025/09/29/envive-ai-15-million-series-a-funding/",
+      "published": "Mon, 29 Sep 2025 19:13:27 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
+  "Other": [
     {
       "title": "Peloton raises membership pricing ahead of holidays",
       "link": "https://www.retaildive.com/news/peloton-raises-membership-pricing-holidays/761567/",
@@ -32,18 +57,6 @@
       "source": "Retail Dive"
     },
     {
-      "title": "Target plots retail, marketing blitz around ‘Stranger Things’ final season",
-      "link": "https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/",
-      "published": "Wed, 01 Oct 2025 09:51:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Pinterest mobilizes Gen Z searchers, retail media with new ad offerings",
-      "link": "https://www.retaildive.com/news/pinterest-gen-z-searchers-retail-media-new-ad-offerings/761503/",
-      "published": "Tue, 30 Sep 2025 15:56:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
       "title": "Journeys owner shuffles brands, leadership",
       "link": "https://www.retaildive.com/news/journeys-owner-shuffles-brands-leadership/761452/",
       "published": "Tue, 30 Sep 2025 12:00:00 -0400",
@@ -56,21 +69,9 @@
       "source": "Retail Dive"
     },
     {
-      "title": "ChatGPT lets shoppers buy products within the platform",
-      "link": "https://www.retaildive.com/news/openai-chatgpt-instant-checkout-agentic-commerce-etsy-shopify/761442/",
-      "published": "Tue, 30 Sep 2025 11:30:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
       "title": "Major ports so far unscathed by Trump’s One Big Beautiful Bill Act",
       "link": "https://www.supplychaindive.com/news/ports-impacted-port-funding-dera-grant-one-big-beautiful-bill-act/766654/",
       "published": "Wed, 01 Oct 2025 14:01:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Poshmark taps USPS Ground Advantage for lower shipping rates",
-      "link": "https://www.supplychaindive.com/news/postal-service-ground-advantage-poshmark-shipping/760754/",
-      "published": "Wed, 01 Oct 2025 10:04:06 -0400",
       "source": "Supply Chain Dive"
     },
     {
@@ -86,18 +87,6 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "Grocery Outlet names new supply chain leader",
-      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
-      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Amazon Shipping preps higher peak season surcharges",
-      "link": "https://www.supplychaindive.com/news/amazon-shipping-2025-peak-season-surcharges/761427/",
-      "published": "Tue, 30 Sep 2025 10:38:25 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
       "title": "How truck tariffs might play out for the industry",
       "link": "https://www.supplychaindive.com/news/oct-1-truck-tariffs-parts-usmca-impact-trump-administration/761473/",
       "published": "Tue, 30 Sep 2025 10:26:32 -0400",
@@ -110,15 +99,37 @@
       "source": "Supply Chain Dive"
     },
     {
+      "title": "Conga to acquire PROS B2B software business",
+      "link": "https://www.digitalcommerce360.com/2025/10/01/conga-to-acquire-pros-b2b-software-business/",
+      "published": "Wed, 01 Oct 2025 18:47:54 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Cardinal Health plans automated pharmaceutical distribution hub",
+      "link": "https://www.digitalcommerce360.com/2025/09/30/cardinal-health-automated-pharmaceutical-distribution-hub-indiana/",
+      "published": "Tue, 30 Sep 2025 16:48:30 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
+  "Big Box": [
+    {
+      "title": "Target plots retail, marketing blitz around ‘Stranger Things’ final season",
+      "link": "https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/",
+      "published": "Wed, 01 Oct 2025 09:51:00 -0400",
+      "source": "Retail Dive"
+    }
+  ],
+  "AI": [
+    {
+      "title": "ChatGPT lets shoppers buy products within the platform",
+      "link": "https://www.retaildive.com/news/openai-chatgpt-instant-checkout-agentic-commerce-etsy-shopify/761442/",
+      "published": "Tue, 30 Sep 2025 11:30:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
       "title": "Kraft Heinz pilots AI agent to streamline ketchup production",
       "link": "https://www.supplychaindive.com/news/kraft-heinz-AI-agent-cookbook-ketchup-production/761254/",
       "published": "Tue, 30 Sep 2025 07:45:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Why this kids subscription box service shifted to Amazon Shipping",
-      "link": "https://www.supplychaindive.com/news/kiwico-amazon-shipping-accelerate/761030/",
-      "published": "Mon, 29 Sep 2025 10:29:11 -0400",
       "source": "Supply Chain Dive"
     },
     {
@@ -128,33 +139,15 @@
       "source": "Digital Commerce 360"
     },
     {
-      "title": "Conga to acquire PROS B2B software business",
-      "link": "https://www.digitalcommerce360.com/2025/10/01/conga-to-acquire-pros-b2b-software-business/",
-      "published": "Wed, 01 Oct 2025 18:47:54 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
       "title": "Salesforce’s 2025 holiday sales predictions center around AI, pricing",
       "link": "https://www.digitalcommerce360.com/2025/09/30/salesforce-final-holiday-sales-projections-2025/",
       "published": "Tue, 30 Sep 2025 20:52:04 +0000",
       "source": "Digital Commerce 360"
     },
     {
-      "title": "Hertz launches online car-buying platform",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/hertz-launches-online-car-buying-platform/",
-      "published": "Tue, 30 Sep 2025 17:17:55 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
       "title": "Report: B2B marketers lag on AI content creation",
       "link": "https://www.digitalcommerce360.com/2025/09/30/report-b2b-marketers-ai-content-creation-discovery/",
       "published": "Tue, 30 Sep 2025 17:04:49 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Cardinal Health plans automated pharmaceutical distribution hub",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/cardinal-health-automated-pharmaceutical-distribution-hub-indiana/",
-      "published": "Tue, 30 Sep 2025 16:48:30 +0000",
       "source": "Digital Commerce 360"
     },
     {
@@ -173,6 +166,58 @@
       "title": "Nokia names an Intel veteran to lead its new AI division",
       "link": "https://www.digitalcommerce360.com/2025/09/29/nokia-intel-hp-veterans-new-ai-division/",
       "published": "Mon, 29 Sep 2025 16:48:51 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "AI and digital platforms fuel Q3 growth for TD SYNNEX",
+      "link": "https://www.digitalcommerce360.com/2025/09/29/td-synnex-ai-digital-platforms-q3-fy25/",
+      "published": "Mon, 29 Sep 2025 14:20:57 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
+  "Supply Chain": [
+    {
+      "title": "Poshmark taps USPS Ground Advantage for lower shipping rates",
+      "link": "https://www.supplychaindive.com/news/postal-service-ground-advantage-poshmark-shipping/760754/",
+      "published": "Wed, 01 Oct 2025 10:04:06 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Grocery Outlet names new supply chain leader",
+      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
+      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Amazon Shipping preps higher peak season surcharges",
+      "link": "https://www.supplychaindive.com/news/amazon-shipping-2025-peak-season-surcharges/761427/",
+      "published": "Tue, 30 Sep 2025 10:38:25 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Why this kids subscription box service shifted to Amazon Shipping",
+      "link": "https://www.supplychaindive.com/news/kiwico-amazon-shipping-accelerate/761030/",
+      "published": "Mon, 29 Sep 2025 10:29:11 -0400",
+      "source": "Supply Chain Dive"
+    }
+  ],
+  "eCommerce": [
+    {
+      "title": "Hertz launches online car-buying platform",
+      "link": "https://www.digitalcommerce360.com/2025/09/30/hertz-launches-online-car-buying-platform/",
+      "published": "Tue, 30 Sep 2025 17:17:55 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "ChatGPT debuts new checkout experience with Etsy, Shopify merchants as early users",
+      "link": "https://www.digitalcommerce360.com/2025/09/30/chatgpt-debuts-checkout-experience-etsy-shopify-merchants/",
+      "published": "Tue, 30 Sep 2025 14:45:49 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Envive AI raises $15 million to expand AI platform for online retail",
+      "link": "https://www.digitalcommerce360.com/2025/09/29/envive-ai-15-million-series-a-funding/",
+      "published": "Mon, 29 Sep 2025 19:13:27 +0000",
       "source": "Digital Commerce 360"
     },
     {

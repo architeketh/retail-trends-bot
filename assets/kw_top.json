@@ -1,0 +1,50 @@
+[
+  {
+    "token": "ai",
+    "count": 8
+  },
+  {
+    "token": "platform",
+    "count": 3
+  },
+  {
+    "token": "shipping",
+    "count": 3
+  },
+  {
+    "token": "raises",
+    "count": 2
+  },
+  {
+    "token": "pricing",
+    "count": 2
+  },
+  {
+    "token": "holiday",
+    "count": 2
+  },
+  {
+    "token": "around",
+    "count": 2
+  },
+  {
+    "token": "season",
+    "count": 2
+  },
+  {
+    "token": "launches",
+    "count": 2
+  },
+  {
+    "token": "chatgpt",
+    "count": 2
+  },
+  {
+    "token": "tariff",
+    "count": 2
+  },
+  {
+    "token": "uncertainty",
+    "count": 2
+  }
+]

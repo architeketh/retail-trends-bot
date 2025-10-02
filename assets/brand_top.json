@@ -1,0 +1,22 @@
+[
+  {
+    "brand": "Amazon",
+    "count": 2
+  },
+  {
+    "brand": "Nike",
+    "count": 1
+  },
+  {
+    "brand": "Target",
+    "count": 1
+  },
+  {
+    "brand": "Etsy",
+    "count": 1
+  },
+  {
+    "brand": "Shopify",
+    "count": 1
+  }
+]
