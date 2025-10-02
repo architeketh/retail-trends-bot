@@ -2,31 +2,23 @@ name: Retail Trends Bot
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */12 * * *'
   push:
     branches: [ main ]
+  schedule:
+    - cron: '0 */12 * * *'
 
 permissions:
   contents: write
-
-concurrency:
-  group: retail-trends-bot
-  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -35,56 +27,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run bot pipeline
-        run: |
-          set -e
-          python bot/fetch.py
-          python bot/charts.py
-          python bot/site_builder.py
+      - name: Fetch headlines
+        run: python bot/fetch.py
 
-      # 🔎 EXACTLY show what we produced
-      - name: Debug: list outputs
+      - name: Build charts
+        run: python bot/charts.py
+
+      - name: Build site
+        run: python bot/site_builder.py
+
+      - name: Show outputs
         run: |
-          echo "::group::assets"
+          ls -la
           ls -la assets || true
-          echo "::endgroup::"
-          echo "::group::data"
           ls -la data || true
-          echo "::endgroup::"
-          echo "::group::tree"
-          find . -maxdepth 2 -type f -print | sort
-          echo "::endgroup::"
+          test -f index.html && echo "index.html exists"
 
-      # 📦 Upload everything we publish so you can download & inspect
-      - name: Upload site outputs
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: site_outputs
-          path: |
-            index.html
-            assets/**
-            data/**
-
-      # ✅ Commit & push: rebase first, fallback to --force-with-lease if needed
-      - name: Commit & push updates
-        shell: bash
+      - name: Commit and push
         run: |
-          set -e
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add -A index.html assets data || true
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Auto-update homepage and assets"
-          fi
-
-          # Make sure we're up to date; if conflicts, we’ll still push safely.
-          git fetch origin main || true
-          git rebase origin/main || true
-
-          # Try normal push, then safe force if remote moved
+          git add -A index.html assets data
+          git commit -m "Auto-update site" || echo "No changes to commit"
+          git pull --rebase origin main || true
           git push origin HEAD:main || git push --force-with-lease origin HEAD:main
