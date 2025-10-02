@@ -1,5 +1,5 @@
 # bot/charts.py
-import json, pathlib, re, collections, sys, traceback
+import json, pathlib, re, collections, datetime as dt, traceback
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -9,7 +9,8 @@ DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
 
-# ---- Stopwords / brand seeds ----
+TODAY = dt.date.today().isoformat()
+
 STOPWORDS = {
     "a","an","the","and","or","but","if","then","else","for","with","without","of","to","in","on","at","by","from","into","over","under",
     "is","are","was","were","be","being","been","do","does","did","done","have","has","had","having",
@@ -26,10 +27,8 @@ BRAND_SEED = {
     "Sephora","Ulta","Macy's","Nordstrom","Kohl's","TJX","TJ Maxx","Marshalls","Saks","Apple",
     "Shein","Temu","Wayfair","Etsy","eBay","Shopify","Instacart","DoorDash","Uber","FedEx","UPS",
 }
-
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’\-&]+")
 
-# ---- Categories (simple keyword rules) ----
 CATEGORY_RULES = {
     "Retail": [r"\bretail(er|ing)?\b", r"\bstore(s)?\b", r"\bchain(s)?\b", r"\bmall(s)?\b", r"\bdepartment store(s)?\b"],
     "eCommerce": [r"\be-?commerce\b", r"\bonline\b", r"\bshopify\b", r"\bmarketplace\b", r"\bdigital\b"],
@@ -55,13 +54,12 @@ def tokenize(text: str):
 def load_articles():
     src = DATA / "headlines.json"
     if not src.exists():
-        print("charts.py: no data/headlines.json; writing placeholders.")
         return []
     try:
         obj = json.loads(src.read_text(encoding="utf-8"))
         return obj.get("articles", [])
     except Exception:
-        print("charts.py: failed to parse headlines.json:\n", traceback.format_exc())
+        print("charts.py: failed to parse headlines.json\n", traceback.format_exc())
         return []
 
 def save_json(path: pathlib.Path, payload):
@@ -69,7 +67,6 @@ def save_json(path: pathlib.Path, payload):
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 def plot_bar(pairs, title, outfile):
-    # Always create an image, even if empty
     labels = [p[0] for p in pairs][::-1]
     values = [p[1] for p in pairs][::-1]
     plt.figure(figsize=(8, 4.8))
@@ -80,7 +77,7 @@ def plot_bar(pairs, title, outfile):
         for i, b in enumerate(bars):
             w = b.get_width()
             plt.text(w + (vmax * 0.02 if vmax else 0.2),
-                     b.get_y()+b.get_height()/2, str(values[i]),
+                     b.get_y() + b.get_height()/2, str(values[i]),
                      va="center", fontsize=9)
     else:
         plt.text(0.5, 0.5, "No data yet", ha="center", va="center", fontsize=14)
@@ -92,44 +89,71 @@ def plot_bar(pairs, title, outfile):
     plt.close()
     print(f"✓ Wrote {out}")
 
+def aggregate_7d(history: dict):
+    """Return total counts for keys across the last 7 days (inclusive)."""
+    last7 = set((dt.date.today() - dt.timedelta(days=i)).isoformat() for i in range(7))
+    totals = collections.Counter()
+    for day, counts in history.items():
+        if day in last7:
+            totals.update(counts)
+    return totals
+
 def main():
-    try:
-        arts = load_articles()
+    arts = load_articles()
 
-        # Mirror simple headlines array for front-end
-        front = [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in arts]
-        save_json(ASSETS / "headlines.json", front)
+    # Front-end headlines mirror
+    front = [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in arts]
+    save_json(ASSETS / "headlines.json", front)
 
-        # Keyword & brand counts
-        word_counts = collections.Counter()
-        brand_counts = collections.Counter()
-        for a in arts:
-            title = a.get("title", "")
-            for tok in tokenize(title):
-                word_counts[tok] += 1
-            lt = (title or "").lower()
-            for b in BRAND_SEED:
-                if b.lower() in lt:
-                    brand_counts[b] += 1
+    # Raw counts for this run
+    day_kw = collections.Counter()
+    day_br = collections.Counter()
 
-        plot_bar(word_counts.most_common(12), "Top Keywords (latest run)", "keywords.png")
-        plot_bar(brand_counts.most_common(12), "Brand Mentions (latest run)", "brands.png")
+    for a in arts:
+        title = a.get("title", "")
+        for tok in tokenize(title):
+            day_kw[tok] += 1
+        lt = (title or "").lower()
+        for b in BRAND_SEED:
+            if b.lower() in lt:
+                day_br[b] += 1
 
-        # Categorize
-        cats = {}
-        for a in arts:
-            for c in categorize(a.get("title","")):
-                cats.setdefault(c, []).append(a)
+    # ---- Persist history (keep last 30 days) ----
+    kw_hist_path = DATA / "history_keywords.json"
+    br_hist_path = DATA / "history_brands.json"
+    kw_hist = json.loads(kw_hist_path.read_text(encoding="utf-8")) if kw_hist_path.exists() else {}
+    br_hist = json.loads(br_hist_path.read_text(encoding="utf-8")) if br_hist_path.exists() else {}
 
-        save_json(DATA / "categorized.json", cats)
-        save_json(ASSETS / "categorized.json", cats)
-        print("✓ Wrote categorized JSONs")
+    kw_hist[TODAY] = day_kw
+    br_hist[TODAY] = day_br
 
-    except Exception:
-        print("charts.py: unexpected error:\n", traceback.format_exc())
-        # Still ensure placeholder images exist so the page isn't blank
-        plot_bar([], "Top Keywords (latest run)", "keywords.png")
-        plot_bar([], "Brand Mentions (latest run)", "brands.png")
+    # Convert Counters to dicts and trim to last 30 days
+    def trim_last_30(h: dict):
+        days = sorted(h.keys())[-30:]
+        return {d: {k:int(v) for k,v in h[d].items()} for d in days}
+
+    kw_hist = trim_last_30(kw_hist)
+    br_hist = trim_last_30(br_hist)
+
+    save_json(kw_hist_path, kw_hist)
+    save_json(br_hist_path, br_hist)
+
+    # ---- 7-day totals → charts ----
+    kw7 = aggregate_7d(kw_hist).most_common(12)
+    br7 = aggregate_7d(br_hist).most_common(12)
+
+    plot_bar(kw7, "Top Keywords (last 7 days)", "keywords.png")
+    plot_bar(br7, "Brand Mentions (last 7 days)", "brands.png")
+
+    # ---- Categorize and export ----
+    cats = {}
+    for a in arts:
+        for c in categorize(a.get("title","")):
+            cats.setdefault(c, []).append(a)
+
+    save_json(DATA / "categorized.json", cats)
+    save_json(ASSETS / "categorized.json", cats)
+    print("✓ Categorized & wrote JSON")
 
 if __name__ == "__main__":
     main()
