@@ -7,7 +7,7 @@ SITE.mkdir(parents=True, exist_ok=True)
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Load fetched headlines
+# Try to load headlines
 articles = []
 f = DATA / "headlines.json"
 if f.exists():
@@ -45,7 +45,7 @@ html = f"""<!doctype html>
 """
 
 if articles:
-    for art in articles[:10]:  # top 10 headlines
+    for art in articles[:10]:
         title = art.get("title", "Untitled")
         link = art.get("link", "#")
         src = art.get("source", "")
@@ -54,7 +54,7 @@ if articles:
             html += f' <span class="muted">({src})</span>'
         html += "</li>\n"
 else:
-    html += "<li class='muted'>No articles yet. Run fetch.py first.</li>"
+    html += "<li class='muted'>No articles yet. Will appear after fetch.py runs.</li>"
 
 html += """
     </ul>
@@ -64,4 +64,4 @@ html += """
 """
 
 (SITE / "index.html").write_text(html, encoding="utf-8")
-print("Wrote site/index.html")
+print("✅ Wrote site/index.html")
