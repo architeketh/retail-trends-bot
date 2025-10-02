@@ -2,6 +2,14 @@
   "today": [
     {
       "brand": "Home Depot",
+      "count": 2
+    },
+    {
+      "brand": "Walmart",
+      "count": 2
+    },
+    {
+      "brand": "Target",
       "count": 1
     },
     {
@@ -9,29 +17,21 @@
       "count": 1
     },
     {
-      "brand": "Target",
-      "count": 1
-    },
-    {
-      "brand": "Walmart",
-      "count": 1
-    },
-    {
       "brand": "Amazon",
-      "count": 1
-    },
-    {
-      "brand": "Shopify",
-      "count": 1
-    },
-    {
-      "brand": "Etsy",
       "count": 1
     }
   ],
-  "week": [
+  "wtd": [
     {
       "brand": "Home Depot",
+      "count": 2
+    },
+    {
+      "brand": "Walmart",
+      "count": 2
+    },
+    {
+      "brand": "Target",
       "count": 1
     },
     {
@@ -39,29 +39,21 @@
       "count": 1
     },
     {
-      "brand": "Target",
-      "count": 1
-    },
-    {
-      "brand": "Walmart",
-      "count": 1
-    },
-    {
       "brand": "Amazon",
-      "count": 1
-    },
-    {
-      "brand": "Shopify",
-      "count": 1
-    },
-    {
-      "brand": "Etsy",
       "count": 1
     }
   ],
   "mtd": [
     {
       "brand": "Home Depot",
+      "count": 2
+    },
+    {
+      "brand": "Walmart",
+      "count": 2
+    },
+    {
+      "brand": "Target",
       "count": 1
     },
     {
@@ -69,29 +61,21 @@
       "count": 1
     },
     {
-      "brand": "Target",
-      "count": 1
-    },
-    {
-      "brand": "Walmart",
-      "count": 1
-    },
-    {
       "brand": "Amazon",
-      "count": 1
-    },
-    {
-      "brand": "Shopify",
-      "count": 1
-    },
-    {
-      "brand": "Etsy",
       "count": 1
     }
   ],
   "ytd": [
     {
       "brand": "Home Depot",
+      "count": 2
+    },
+    {
+      "brand": "Walmart",
+      "count": 2
+    },
+    {
+      "brand": "Target",
       "count": 1
     },
     {
@@ -99,23 +83,7 @@
       "count": 1
     },
     {
-      "brand": "Target",
-      "count": 1
-    },
-    {
-      "brand": "Walmart",
-      "count": 1
-    },
-    {
       "brand": "Amazon",
-      "count": 1
-    },
-    {
-      "brand": "Shopify",
-      "count": 1
-    },
-    {
-      "brand": "Etsy",
       "count": 1
     }
   ]

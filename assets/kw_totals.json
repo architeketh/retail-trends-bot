@@ -2,7 +2,15 @@
   "today": [
     {
       "token": "ai",
-      "count": 7
+      "count": 4
+    },
+    {
+      "token": "holiday",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 3
     },
     {
       "token": "supply",
@@ -13,11 +21,31 @@
       "count": 3
     },
     {
-      "token": "home",
+      "token": "center",
+      "count": 3
+    },
+    {
+      "token": "consumers",
+      "count": 2
+    },
+    {
+      "token": "plan",
+      "count": 2
+    },
+    {
+      "token": "depot",
       "count": 2
     },
     {
       "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "project",
+      "count": 2
+    },
+    {
+      "token": "planning",
       "count": 2
     },
     {
@@ -29,62 +57,42 @@
       "count": 2
     },
     {
-      "token": "raises",
-      "count": 2
-    },
-    {
       "token": "pricing",
       "count": 2
     },
     {
-      "token": "holiday",
+      "token": "walmart",
       "count": 2
     },
     {
-      "token": "around",
+      "token": "north",
       "count": 2
     },
     {
-      "token": "season",
+      "token": "carolina",
       "count": 2
     },
     {
-      "token": "center",
+      "token": "fulfillment",
       "count": 2
     },
     {
       "token": "shipping",
       "count": 2
-    },
-    {
-      "token": "tariff",
-      "count": 2
-    },
-    {
-      "token": "uncertainty",
-      "count": 2
-    },
-    {
-      "token": "names",
-      "count": 2
-    },
-    {
-      "token": "platform",
-      "count": 2
-    },
-    {
-      "token": "former",
-      "count": 1
-    },
-    {
-      "token": "macy’s",
-      "count": 1
     }
   ],
-  "week": [
+  "wtd": [
     {
       "token": "ai",
-      "count": 7
+      "count": 4
+    },
+    {
+      "token": "holiday",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 3
     },
     {
       "token": "supply",
@@ -95,11 +103,31 @@
       "count": 3
     },
     {
-      "token": "home",
+      "token": "center",
+      "count": 3
+    },
+    {
+      "token": "consumers",
+      "count": 2
+    },
+    {
+      "token": "plan",
+      "count": 2
+    },
+    {
+      "token": "depot",
       "count": 2
     },
     {
       "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "project",
+      "count": 2
+    },
+    {
+      "token": "planning",
       "count": 2
     },
     {
@@ -111,62 +139,42 @@
       "count": 2
     },
     {
-      "token": "raises",
-      "count": 2
-    },
-    {
       "token": "pricing",
       "count": 2
     },
     {
-      "token": "holiday",
+      "token": "walmart",
       "count": 2
     },
     {
-      "token": "around",
+      "token": "north",
       "count": 2
     },
     {
-      "token": "season",
+      "token": "carolina",
       "count": 2
     },
     {
-      "token": "center",
+      "token": "fulfillment",
       "count": 2
     },
     {
       "token": "shipping",
       "count": 2
-    },
-    {
-      "token": "tariff",
-      "count": 2
-    },
-    {
-      "token": "uncertainty",
-      "count": 2
-    },
-    {
-      "token": "names",
-      "count": 2
-    },
-    {
-      "token": "platform",
-      "count": 2
-    },
-    {
-      "token": "former",
-      "count": 1
-    },
-    {
-      "token": "macy’s",
-      "count": 1
     }
   ],
   "mtd": [
     {
       "token": "ai",
-      "count": 7
+      "count": 4
+    },
+    {
+      "token": "holiday",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 3
     },
     {
       "token": "supply",
@@ -177,11 +185,31 @@
       "count": 3
     },
     {
-      "token": "home",
+      "token": "center",
+      "count": 3
+    },
+    {
+      "token": "consumers",
+      "count": 2
+    },
+    {
+      "token": "plan",
+      "count": 2
+    },
+    {
+      "token": "depot",
       "count": 2
     },
     {
       "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "project",
+      "count": 2
+    },
+    {
+      "token": "planning",
       "count": 2
     },
     {
@@ -193,62 +221,42 @@
       "count": 2
     },
     {
-      "token": "raises",
-      "count": 2
-    },
-    {
       "token": "pricing",
       "count": 2
     },
     {
-      "token": "holiday",
+      "token": "walmart",
       "count": 2
     },
     {
-      "token": "around",
+      "token": "north",
       "count": 2
     },
     {
-      "token": "season",
+      "token": "carolina",
       "count": 2
     },
     {
-      "token": "center",
+      "token": "fulfillment",
       "count": 2
     },
     {
       "token": "shipping",
       "count": 2
-    },
-    {
-      "token": "tariff",
-      "count": 2
-    },
-    {
-      "token": "uncertainty",
-      "count": 2
-    },
-    {
-      "token": "names",
-      "count": 2
-    },
-    {
-      "token": "platform",
-      "count": 2
-    },
-    {
-      "token": "former",
-      "count": 1
-    },
-    {
-      "token": "macy’s",
-      "count": 1
     }
   ],
   "ytd": [
     {
       "token": "ai",
-      "count": 7
+      "count": 4
+    },
+    {
+      "token": "holiday",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 3
     },
     {
       "token": "supply",
@@ -259,11 +267,31 @@
       "count": 3
     },
     {
-      "token": "home",
+      "token": "center",
+      "count": 3
+    },
+    {
+      "token": "consumers",
+      "count": 2
+    },
+    {
+      "token": "plan",
+      "count": 2
+    },
+    {
+      "token": "depot",
       "count": 2
     },
     {
       "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "project",
+      "count": 2
+    },
+    {
+      "token": "planning",
       "count": 2
     },
     {
@@ -275,56 +303,28 @@
       "count": 2
     },
     {
-      "token": "raises",
-      "count": 2
-    },
-    {
       "token": "pricing",
       "count": 2
     },
     {
-      "token": "holiday",
+      "token": "walmart",
       "count": 2
     },
     {
-      "token": "around",
+      "token": "north",
       "count": 2
     },
     {
-      "token": "season",
+      "token": "carolina",
       "count": 2
     },
     {
-      "token": "center",
+      "token": "fulfillment",
       "count": 2
     },
     {
       "token": "shipping",
       "count": 2
-    },
-    {
-      "token": "tariff",
-      "count": 2
-    },
-    {
-      "token": "uncertainty",
-      "count": 2
-    },
-    {
-      "token": "names",
-      "count": 2
-    },
-    {
-      "token": "platform",
-      "count": 2
-    },
-    {
-      "token": "former",
-      "count": 1
-    },
-    {
-      "token": "macy’s",
-      "count": 1
     }
   ]
 }

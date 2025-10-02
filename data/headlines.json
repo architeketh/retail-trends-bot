@@ -1,6 +1,18 @@
 {
-  "fetched_at": "2025-10-02T16:15:22.030979Z",
+  "fetched_at": "2025-10-02T19:36:42.283275Z",
   "articles": [
+    {
+      "title": "One-third of consumers plan to use AI for holiday shopping",
+      "link": "https://www.retaildive.com/news/consumers-ai-shopping-tools-holidays-retail/801800/",
+      "published": "Thu, 02 Oct 2025 13:34:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Target shareholder group proposes independent board chair policy",
+      "link": "https://www.retaildive.com/news/target-ceo-brian-cornell-executive-chair-board-shareholder-policy-proposal/801794/",
+      "published": "Thu, 02 Oct 2025 12:28:00 -0400",
+      "source": "Retail Dive"
+    },
     {
       "title": "Former Macy’s merchant heads to Five Below",
       "link": "https://www.retaildive.com/news/macys-chief-merchant-michelle-israel-five-below-cfo/801774/",
@@ -50,16 +62,10 @@
       "source": "Retail Dive"
     },
     {
-      "title": "Target plots retail, marketing blitz around ‘Stranger Things’ final season",
-      "link": "https://www.retaildive.com/news/target-marketing-stranger-things-final-season/761565/",
-      "published": "Wed, 01 Oct 2025 09:51:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Pinterest mobilizes Gen Z searchers, retail media with new ad offerings",
-      "link": "https://www.retaildive.com/news/pinterest-gen-z-searchers-retail-media-new-ad-offerings/761503/",
-      "published": "Tue, 30 Sep 2025 15:56:00 -0400",
-      "source": "Retail Dive"
+      "title": "Hormel Foods further optimizes manufacturing footprint",
+      "link": "https://www.supplychaindive.com/news/hormel-advances-supply-chain-modernization-key-projects-systems/761415/",
+      "published": "Thu, 02 Oct 2025 15:00:00 -0400",
+      "source": "Supply Chain Dive"
     },
     {
       "title": "Top supply chain conferences to keep on your radar in 2026",
@@ -116,10 +122,28 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "How truck tariffs might play out for the industry",
-      "link": "https://www.supplychaindive.com/news/oct-1-truck-tariffs-parts-usmca-impact-trump-administration/761473/",
-      "published": "Tue, 30 Sep 2025 10:26:32 -0400",
-      "source": "Supply Chain Dive"
+      "title": "Home Depot pushes deeper into B2B ecommerce with digital project planning",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/home-depot-b2b-ecommerce-digital-project-planning/",
+      "published": "Thu, 02 Oct 2025 18:58:50 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Ecommerce Trends: Why people abandon carts",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/why-people-abandon-shopping-carts/",
+      "published": "Thu, 02 Oct 2025 18:42:55 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Walmart to build a $300 million North Carolina fulfillment center",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/walmart-build-300-million-north-carolina-fulfillment-center/",
+      "published": "Thu, 02 Oct 2025 18:39:19 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Expanding to Canada? 6 Things You Need From Your 3PL Partner",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/expanding-to-canada-6-things-you-need-from-your-3pl-partner/",
+      "published": "Thu, 02 Oct 2025 16:42:49 +0000",
+      "source": "Digital Commerce 360"
     },
     {
       "title": "Procurement teams widely adopt AI, but few achieve maturity",
@@ -155,30 +179,6 @@
       "title": "Cardinal Health plans automated pharmaceutical distribution hub",
       "link": "https://www.digitalcommerce360.com/2025/09/30/cardinal-health-automated-pharmaceutical-distribution-hub-indiana/",
       "published": "Tue, 30 Sep 2025 16:48:30 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "ChatGPT debuts new checkout experience with Etsy, Shopify merchants as early users",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/chatgpt-debuts-checkout-experience-etsy-shopify-merchants/",
-      "published": "Tue, 30 Sep 2025 14:45:49 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Envive AI raises $15 million to expand AI platform for online retail",
-      "link": "https://www.digitalcommerce360.com/2025/09/29/envive-ai-15-million-series-a-funding/",
-      "published": "Mon, 29 Sep 2025 19:13:27 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Nokia names an Intel veteran to lead its new AI division",
-      "link": "https://www.digitalcommerce360.com/2025/09/29/nokia-intel-hp-veterans-new-ai-division/",
-      "published": "Mon, 29 Sep 2025 16:48:51 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "AI and digital platforms fuel Q3 growth for TD SYNNEX",
-      "link": "https://www.digitalcommerce360.com/2025/09/29/td-synnex-ai-digital-platforms-q3-fy25/",
-      "published": "Mon, 29 Sep 2025 14:20:57 +0000",
       "source": "Digital Commerce 360"
     }
   ]
