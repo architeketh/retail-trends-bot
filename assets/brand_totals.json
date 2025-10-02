@@ -1,15 +1,15 @@
 {
   "today": [
     {
-      "brand": "Amazon",
-      "count": 2
-    },
-    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Amazon",
       "count": 1
     },
     {
@@ -23,15 +23,15 @@
   ],
   "week": [
     {
-      "brand": "Amazon",
-      "count": 2
-    },
-    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Amazon",
       "count": 1
     },
     {
@@ -45,15 +45,15 @@
   ],
   "mtd": [
     {
-      "brand": "Amazon",
-      "count": 2
-    },
-    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Amazon",
       "count": 1
     },
     {
@@ -67,15 +67,15 @@
   ],
   "ytd": [
     {
-      "brand": "Amazon",
-      "count": 2
-    },
-    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Amazon",
       "count": 1
     },
     {
