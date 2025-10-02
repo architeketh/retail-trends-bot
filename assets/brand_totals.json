@@ -1,11 +1,19 @@
 {
   "today": [
     {
+      "brand": "Home Depot",
+      "count": 1
+    },
+    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Walmart",
       "count": 1
     },
     {
@@ -23,11 +31,19 @@
   ],
   "week": [
     {
+      "brand": "Home Depot",
+      "count": 1
+    },
+    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Walmart",
       "count": 1
     },
     {
@@ -45,11 +61,19 @@
   ],
   "mtd": [
     {
+      "brand": "Home Depot",
+      "count": 1
+    },
+    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Walmart",
       "count": 1
     },
     {
@@ -67,11 +91,19 @@
   ],
   "ytd": [
     {
+      "brand": "Home Depot",
+      "count": 1
+    },
+    {
       "brand": "Nike",
       "count": 1
     },
     {
       "brand": "Target",
+      "count": 1
+    },
+    {
+      "brand": "Walmart",
       "count": 1
     },
     {

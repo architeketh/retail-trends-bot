@@ -2,7 +2,31 @@
   "today": [
     {
       "token": "ai",
-      "count": 8
+      "count": 7
+    },
+    {
+      "token": "supply",
+      "count": 3
+    },
+    {
+      "token": "chain",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 2
+    },
+    {
+      "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 2
+    },
+    {
+      "token": "conferences",
+      "count": 2
     },
     {
       "token": "raises",
@@ -25,15 +49,7 @@
       "count": 2
     },
     {
-      "token": "launches",
-      "count": 2
-    },
-    {
-      "token": "supply",
-      "count": 2
-    },
-    {
-      "token": "chain",
+      "token": "center",
       "count": 2
     },
     {
@@ -53,38 +69,46 @@
       "count": 2
     },
     {
-      "token": "tariffs",
-      "count": 2
-    },
-    {
       "token": "platform",
       "count": 2
     },
     {
-      "token": "inside",
+      "token": "depot",
       "count": 1
     },
     {
-      "token": "victoria’s",
-      "count": 1
-    },
-    {
-      "token": "secret’s",
-      "count": 1
-    },
-    {
-      "token": "dc",
-      "count": 1
-    },
-    {
-      "token": "store",
+      "token": "releases",
       "count": 1
     }
   ],
   "week": [
     {
       "token": "ai",
-      "count": 8
+      "count": 7
+    },
+    {
+      "token": "supply",
+      "count": 3
+    },
+    {
+      "token": "chain",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 2
+    },
+    {
+      "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 2
+    },
+    {
+      "token": "conferences",
+      "count": 2
     },
     {
       "token": "raises",
@@ -107,15 +131,7 @@
       "count": 2
     },
     {
-      "token": "launches",
-      "count": 2
-    },
-    {
-      "token": "supply",
-      "count": 2
-    },
-    {
-      "token": "chain",
+      "token": "center",
       "count": 2
     },
     {
@@ -135,38 +151,46 @@
       "count": 2
     },
     {
-      "token": "tariffs",
-      "count": 2
-    },
-    {
       "token": "platform",
       "count": 2
     },
     {
-      "token": "inside",
+      "token": "depot",
       "count": 1
     },
     {
-      "token": "victoria’s",
-      "count": 1
-    },
-    {
-      "token": "secret’s",
-      "count": 1
-    },
-    {
-      "token": "dc",
-      "count": 1
-    },
-    {
-      "token": "store",
+      "token": "releases",
       "count": 1
     }
   ],
   "mtd": [
     {
       "token": "ai",
-      "count": 8
+      "count": 7
+    },
+    {
+      "token": "supply",
+      "count": 3
+    },
+    {
+      "token": "chain",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 2
+    },
+    {
+      "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 2
+    },
+    {
+      "token": "conferences",
+      "count": 2
     },
     {
       "token": "raises",
@@ -189,15 +213,7 @@
       "count": 2
     },
     {
-      "token": "launches",
-      "count": 2
-    },
-    {
-      "token": "supply",
-      "count": 2
-    },
-    {
-      "token": "chain",
+      "token": "center",
       "count": 2
     },
     {
@@ -217,38 +233,46 @@
       "count": 2
     },
     {
-      "token": "tariffs",
-      "count": 2
-    },
-    {
       "token": "platform",
       "count": 2
     },
     {
-      "token": "inside",
+      "token": "depot",
       "count": 1
     },
     {
-      "token": "victoria’s",
-      "count": 1
-    },
-    {
-      "token": "secret’s",
-      "count": 1
-    },
-    {
-      "token": "dc",
-      "count": 1
-    },
-    {
-      "token": "store",
+      "token": "releases",
       "count": 1
     }
   ],
   "ytd": [
     {
       "token": "ai",
-      "count": 8
+      "count": 7
+    },
+    {
+      "token": "supply",
+      "count": 3
+    },
+    {
+      "token": "chain",
+      "count": 3
+    },
+    {
+      "token": "home",
+      "count": 2
+    },
+    {
+      "token": "digital",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 2
+    },
+    {
+      "token": "conferences",
+      "count": 2
     },
     {
       "token": "raises",
@@ -271,15 +295,7 @@
       "count": 2
     },
     {
-      "token": "launches",
-      "count": 2
-    },
-    {
-      "token": "supply",
-      "count": 2
-    },
-    {
-      "token": "chain",
+      "token": "center",
       "count": 2
     },
     {
@@ -299,31 +315,15 @@
       "count": 2
     },
     {
-      "token": "tariffs",
-      "count": 2
-    },
-    {
       "token": "platform",
       "count": 2
     },
     {
-      "token": "inside",
+      "token": "depot",
       "count": 1
     },
     {
-      "token": "victoria’s",
-      "count": 1
-    },
-    {
-      "token": "secret’s",
-      "count": 1
-    },
-    {
-      "token": "dc",
-      "count": 1
-    },
-    {
-      "token": "store",
+      "token": "releases",
       "count": 1
     }
   ]
