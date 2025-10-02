@@ -1,0 +1,330 @@
+{
+  "today": [
+    {
+      "token": "ai",
+      "count": 8
+    },
+    {
+      "token": "platform",
+      "count": 3
+    },
+    {
+      "token": "shipping",
+      "count": 3
+    },
+    {
+      "token": "raises",
+      "count": 2
+    },
+    {
+      "token": "pricing",
+      "count": 2
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "around",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "launches",
+      "count": 2
+    },
+    {
+      "token": "chatgpt",
+      "count": 2
+    },
+    {
+      "token": "tariff",
+      "count": 2
+    },
+    {
+      "token": "uncertainty",
+      "count": 2
+    },
+    {
+      "token": "names",
+      "count": 2
+    },
+    {
+      "token": "amazon",
+      "count": 2
+    },
+    {
+      "token": "tariffs",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 1
+    },
+    {
+      "token": "conferences",
+      "count": 1
+    },
+    {
+      "token": "home",
+      "count": 1
+    },
+    {
+      "token": "set",
+      "count": 1
+    },
+    {
+      "token": "emerge",
+      "count": 1
+    }
+  ],
+  "week": [
+    {
+      "token": "ai",
+      "count": 8
+    },
+    {
+      "token": "platform",
+      "count": 3
+    },
+    {
+      "token": "shipping",
+      "count": 3
+    },
+    {
+      "token": "raises",
+      "count": 2
+    },
+    {
+      "token": "pricing",
+      "count": 2
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "around",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "launches",
+      "count": 2
+    },
+    {
+      "token": "chatgpt",
+      "count": 2
+    },
+    {
+      "token": "tariff",
+      "count": 2
+    },
+    {
+      "token": "uncertainty",
+      "count": 2
+    },
+    {
+      "token": "names",
+      "count": 2
+    },
+    {
+      "token": "amazon",
+      "count": 2
+    },
+    {
+      "token": "tariffs",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 1
+    },
+    {
+      "token": "conferences",
+      "count": 1
+    },
+    {
+      "token": "home",
+      "count": 1
+    },
+    {
+      "token": "set",
+      "count": 1
+    },
+    {
+      "token": "emerge",
+      "count": 1
+    }
+  ],
+  "mtd": [
+    {
+      "token": "ai",
+      "count": 8
+    },
+    {
+      "token": "platform",
+      "count": 3
+    },
+    {
+      "token": "shipping",
+      "count": 3
+    },
+    {
+      "token": "raises",
+      "count": 2
+    },
+    {
+      "token": "pricing",
+      "count": 2
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "around",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "launches",
+      "count": 2
+    },
+    {
+      "token": "chatgpt",
+      "count": 2
+    },
+    {
+      "token": "tariff",
+      "count": 2
+    },
+    {
+      "token": "uncertainty",
+      "count": 2
+    },
+    {
+      "token": "names",
+      "count": 2
+    },
+    {
+      "token": "amazon",
+      "count": 2
+    },
+    {
+      "token": "tariffs",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 1
+    },
+    {
+      "token": "conferences",
+      "count": 1
+    },
+    {
+      "token": "home",
+      "count": 1
+    },
+    {
+      "token": "set",
+      "count": 1
+    },
+    {
+      "token": "emerge",
+      "count": 1
+    }
+  ],
+  "ytd": [
+    {
+      "token": "ai",
+      "count": 8
+    },
+    {
+      "token": "platform",
+      "count": 3
+    },
+    {
+      "token": "shipping",
+      "count": 3
+    },
+    {
+      "token": "raises",
+      "count": 2
+    },
+    {
+      "token": "pricing",
+      "count": 2
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "around",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "launches",
+      "count": 2
+    },
+    {
+      "token": "chatgpt",
+      "count": 2
+    },
+    {
+      "token": "tariff",
+      "count": 2
+    },
+    {
+      "token": "uncertainty",
+      "count": 2
+    },
+    {
+      "token": "names",
+      "count": 2
+    },
+    {
+      "token": "amazon",
+      "count": 2
+    },
+    {
+      "token": "tariffs",
+      "count": 2
+    },
+    {
+      "token": "top",
+      "count": 1
+    },
+    {
+      "token": "conferences",
+      "count": 1
+    },
+    {
+      "token": "home",
+      "count": 1
+    },
+    {
+      "token": "set",
+      "count": 1
+    },
+    {
+      "token": "emerge",
+      "count": 1
+    }
+  ]
+}
