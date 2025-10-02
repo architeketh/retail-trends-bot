@@ -1,5 +1,5 @@
 # bot/site_builder.py
-import pathlib, datetime, json, shutil
+import pathlib, datetime, json
 
 ROOT = pathlib.Path(".")
 DATA = ROOT / "data"
@@ -8,7 +8,7 @@ ASSETS.mkdir(parents=True, exist_ok=True)
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-# Load fetched headlines (if available)
+# Load headlines (array for fast render)
 articles = []
 src_json = DATA / "headlines.json"
 if src_json.exists():
@@ -18,21 +18,22 @@ if src_json.exists():
     except Exception as e:
         print("WARN: could not parse data/headlines.json:", e)
 
-# Mirror headlines to /assets/headlines.json (array for front-end convenience)
-dest_json = ASSETS / "headlines.json"
-try:
-    dest_payload = [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in articles]
-    dest_json.write_text(json.dumps(dest_payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"✓ Wrote assets/headlines.json ({len(dest_payload)} items)")
-except Exception as e:
-    print("WARN: could not write assets/headlines.json:", e)
+# Prepare a light JSON for the front-end (optional)
+(front_json := ASSETS / "headlines.json").write_text(
+    json.dumps(
+        [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in articles],
+        ensure_ascii=False, indent=2
+    ),
+    encoding="utf-8"
+)
+print(f"✓ Wrote {front_json.relative_to(ROOT)} ({len(articles)} items)")
 
-# If you later render charts to images (keywords.png / brands.png), place them in /assets/
-# Here we just reference them if they exist, otherwise show a friendly note.
-keywords_img_exists = (ASSETS / "keywords.png").exists()
-brands_img_exists = (ASSETS / "brands.png").exists()
+kw_img = (ASSETS / "keywords.png").exists()
+br_img = (ASSETS / "brands.png").exists()
 
-# Build attractive HTML at repo root
+def esc(s: str) -> str:
+    return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -77,40 +78,37 @@ html = f"""<!doctype html>
 
   <section class="grid">
     <article class="card">
-      <h2>Top Keywords <span class="pill">Weekly</span></h2>
-      <div id="kw">{"<img src='assets/keywords.png' alt='Top Keywords'/>" if keywords_img_exists else "<p class='note'>No keywords image yet. It will appear after the keywords task is added.</p>"}</div>
+      <h2>Top Keywords <span class="pill">Latest Run</span></h2>
+      <div id="kw">{"<img src='assets/keywords.png' alt='Top Keywords'/>" if kw_img else "<p class='note'>Run charts step to generate keywords.png.</p>"}</div>
     </article>
     <article class="card">
-      <h2>Brand Mentions <span class="pill">Weekly</span></h2>
-      <div id="brands">{"<img src='assets/brands.png' alt='Brand Mentions'/>" if brands_img_exists else "<p class='note'>No brands image yet. It will appear after the brands task is added.</p>"}</div>
+      <h2>Brand Mentions <span class="pill">Latest Run</span></h2>
+      <div id="brands">{"<img src='assets/brands.png' alt='Brand Mentions'/>" if br_img else "<p class='note'>Run charts step to generate brands.png.</p>"}</div>
     </article>
   </section>
 
   <section class="card" style="margin-top:16px">
     <h2>Latest Headlines</h2>
-    <ul id="headlines">
+    <ul>
 """
 
-# Server-side render top 12 for instant paint; front-end JS enhances from assets/headlines.json
 if articles:
     for h in articles[:12]:
-        title = (h.get("title") or "(untitled)").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-        link  = (h.get("link")  or "#").replace('"', "&quot;")
-        src   = (h.get("source") or "")
-        html += f'      <li><a href="{link}" target="_blank" rel="noopener">{title}</a>'
-        if src:
-            src_clean = src.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-            html += f' <span class="muted">({src_clean})</span>'
+        t = esc(h.get("title") or "(untitled)")
+        l = esc(h.get("link") or "#")
+        s = esc(h.get("source") or "")
+        html += f'      <li><a href="{l}" target="_blank" rel="noopener">{t}</a>'
+        if s: html += f' <span class="muted">({s})</span>'
         html += "</li>\n"
 else:
-    html += "      <li class='note'>No headlines yet. They will appear after the fetch step runs successfully.</li>\n"
+    html += "      <li class='note'>No headlines yet. Will appear after the fetch step runs successfully.</li>\n"
 
 html += f"""    </ul>
   </section>
 
   <details class="card">
     <summary><b>About</b></summary>
-    <p class="note">Last updated: {now}. This dashboard refreshes automatically every 12 hours.</p>
+    <p class="note">Last updated: {esc(now)}. This dashboard refreshes automatically every 12 hours.</p>
     <p class="note">Headlines are mirrored to <code>assets/headlines.json</code> for light front-end rendering.</p>
   </details>
 
@@ -121,9 +119,8 @@ html += f"""    </ul>
 <script>
   fetch('https://api.countapi.xyz/hit/architeketh/retail-trends')
     .then(res => res.json())
-    .then(data => {{
-      document.getElementById('visitor-count').innerText = "Visitors: " + data.value;
-    }}).catch(()=>{{}});
+    .then(data => {{ document.getElementById('visitor-count').innerText = "Visitors: " + data.value; }})
+    .catch(()=>{{}});
 </script>
 </body>
 </html>
