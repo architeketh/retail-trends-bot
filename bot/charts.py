@@ -9,6 +9,7 @@ DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
 
+
 TODAY = dt.date.today().isoformat()
 
 STOPWORDS = {
