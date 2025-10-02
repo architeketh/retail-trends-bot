@@ -1,5 +1,5 @@
 # bot/charts.py
-import json, pathlib, re, collections, datetime as dt, traceback
+import json, pathlib, re, collections, datetime as dt, traceback, base64
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -8,7 +8,6 @@ ROOT = pathlib.Path(".")
 DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
-
 
 TODAY = dt.date.today().isoformat()
 
@@ -65,7 +64,7 @@ def save_json(path: pathlib.Path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-def save_fig(outfile_no_ext:str):
+def save_fig_basics(outfile_no_ext:str):
     """Save current matplotlib figure as both SVG and PNG."""
     svg = ASSETS / f"{outfile_no_ext}.svg"
     png = ASSETS / f"{outfile_no_ext}.png"
@@ -92,7 +91,7 @@ def plot_bar(pairs, title, outfile_no_ext):
         plt.axis("off")
     plt.title(title)
     plt.tight_layout()
-    save_fig(outfile_no_ext)
+    save_fig_basics(outfile_no_ext)
 
 def aggregate_7d(history: dict):
     last7 = set((dt.date.today() - dt.timedelta(days=i)).isoformat() for i in range(7))
@@ -105,7 +104,7 @@ def aggregate_7d(history: dict):
 def main():
     arts = load_articles()
 
-    # headlines mirror
+    # Front-end headlines mirror
     front = [{"title": a.get("title",""), "link": a.get("link",""), "source": a.get("source","")} for a in arts]
     save_json(ASSETS/"headlines.json", front)
 
@@ -135,8 +134,15 @@ def main():
     save_json(kw_hist_path, kw_hist); save_json(br_hist_path, br_hist)
 
     # charts = last 7 days
-    kw7 = aggregate_7d(kw_hist).most_common(12)
-    br7 = aggregate_7d(br_hist).most_common(12)
+    kw7_counter = aggregate_7d(kw_hist)
+    br7_counter = aggregate_7d(br_hist)
+    kw7 = kw7_counter.most_common(12)
+    br7 = br7_counter.most_common(12)
+
+    # write top counts JSON for the page (and for debugging)
+    save_json(ASSETS/"kw_top.json", [{"token":k, "count":v} for k,v in kw7])
+    save_json(ASSETS/"brand_top.json", [{"brand":k, "count":v} for k,v in br7])
+
     plot_bar(kw7, "Top Keywords (last 7 days)", "keywords")
     plot_bar(br7, "Brand Mentions (last 7 days)", "brands")
 
