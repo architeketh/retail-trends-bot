@@ -1,6 +1,12 @@
 {
   "Retail": [
     {
+      "title": "Inside Victoria’s Secret’s new DC store",
+      "link": "https://www.retaildive.com/news/inside-victorias-secrets-georgetown-dc-store/801757/",
+      "published": "Thu, 02 Oct 2025 10:52:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
       "title": "Top retail conferences in 2026",
       "link": "https://www.retaildive.com/news/top-retail-conferences-2026/761620/",
       "published": "Wed, 01 Oct 2025 15:42:00 -0400",
@@ -101,13 +107,33 @@
       "source": "Retail Dive"
     }
   ],
-  "AI": [
+  "Supply Chain": [
     {
-      "title": "ChatGPT lets shoppers buy products within the platform",
-      "link": "https://www.retaildive.com/news/openai-chatgpt-instant-checkout-agentic-commerce-etsy-shopify/761442/",
-      "published": "Tue, 30 Sep 2025 11:30:00 -0400",
-      "source": "Retail Dive"
+      "title": "General Mills to close 3 Missouri plants as part of supply chain restructuring",
+      "link": "https://www.supplychaindive.com/news/general-mills-to-close-3-plants-as-part-of-supply-chain-resturcting/801776/",
+      "published": "Thu, 02 Oct 2025 09:32:49 -0400",
+      "source": "Supply Chain Dive"
     },
+    {
+      "title": "Poshmark taps USPS Ground Advantage for lower shipping rates",
+      "link": "https://www.supplychaindive.com/news/postal-service-ground-advantage-poshmark-shipping/760754/",
+      "published": "Wed, 01 Oct 2025 10:04:06 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Grocery Outlet names new supply chain leader",
+      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
+      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Amazon Shipping preps higher peak season surcharges",
+      "link": "https://www.supplychaindive.com/news/amazon-shipping-2025-peak-season-surcharges/761427/",
+      "published": "Tue, 30 Sep 2025 10:38:25 -0400",
+      "source": "Supply Chain Dive"
+    }
+  ],
+  "AI": [
     {
       "title": "Kraft Heinz pilots AI agent to streamline ketchup production",
       "link": "https://www.supplychaindive.com/news/kraft-heinz-AI-agent-cookbook-ketchup-production/761254/",
@@ -143,32 +169,6 @@
       "link": "https://www.digitalcommerce360.com/2025/09/29/td-synnex-ai-digital-platforms-q3-fy25/",
       "published": "Mon, 29 Sep 2025 14:20:57 +0000",
       "source": "Digital Commerce 360"
-    }
-  ],
-  "Supply Chain": [
-    {
-      "title": "General Mills to close 3 Missouri plants as part of supply chain restructuring",
-      "link": "https://www.supplychaindive.com/news/general-mills-to-close-3-plants-as-part-of-supply-chain-resturcting/801776/",
-      "published": "Thu, 02 Oct 2025 09:32:49 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Poshmark taps USPS Ground Advantage for lower shipping rates",
-      "link": "https://www.supplychaindive.com/news/postal-service-ground-advantage-poshmark-shipping/760754/",
-      "published": "Wed, 01 Oct 2025 10:04:06 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Grocery Outlet names new supply chain leader",
-      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
-      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Amazon Shipping preps higher peak season surcharges",
-      "link": "https://www.supplychaindive.com/news/amazon-shipping-2025-peak-season-surcharges/761427/",
-      "published": "Tue, 30 Sep 2025 10:38:25 -0400",
-      "source": "Supply Chain Dive"
     }
   ],
   "eCommerce": [
