@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: retail-trends-bot
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,6 +41,21 @@ jobs:
           python bot/charts.py
           python bot/site_builder.py
 
+      # Make sure our local branch includes any new remote commits
+      - name: Sync with remote main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          # rebase preferred; fall back to merge if needed
+          git pull --rebase origin main || git pull origin main
+
+      - name: Debug: list outputs
+        run: |
+          echo "::group::assets"; ls -la assets || true; echo "::endgroup::"
+          echo "::group::data";   ls -la data   || true; echo "::endgroup::"
+          ls -la index.html || true
+
       - name: Commit updated files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -45,3 +64,4 @@ jobs:
             index.html
             assets/**
             data/**
+          branch: ${{ github.ref_name }}
