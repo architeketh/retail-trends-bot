@@ -355,3 +355,21 @@ for d, payload in arch_items:
 arch += '<p><a href="index.html">← Back to dashboard</a></p></div></body></html>'
 (ROOT/"archive.html").write_text(arch, encoding="utf-8")
 print("✓ Wrote archive.html")
+
+
+# Persist daily summary
+sum_path = DATA / "summaries.json"
+all_summaries = {}
+if sum_path.exists():
+    try:
+        all_summaries = json.loads(sum_path.read_text(encoding="utf-8"))
+    except Exception:
+        all_summaries = {}
+
+if today not in all_summaries:
+    all_summaries[today] = {
+        "generated_at": now,
+        "by_category": {cat: natural_sentence(cat, items) for cat, items in ordered}
+    }
+
+sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
