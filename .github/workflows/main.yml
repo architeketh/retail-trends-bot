@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 */12 * * *'   # every 12 hours
 
 permissions:
   contents: write
@@ -14,11 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -38,16 +40,18 @@ jobs:
 
       - name: Show outputs
         run: |
-          ls -la
-          ls -la assets || true
-          ls -la data || true
-          test -f index.html && echo "index.html exists"
+          echo "::group::Root"; ls -la; echo "::endgroup::"
+          echo "::group::Assets"; ls -la assets || true; echo "::endgroup::"
+          echo "::group::Data"; ls -la data || true; echo "::endgroup::"
+          test -f index.html && echo "✓ index.html exists"
+          test -f archive.html && echo "✓ archive.html exists"
+          test -f data/summaries.json && echo "✓ summaries.json exists"
 
       - name: Commit and push
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A index.html assets data
-          git commit -m "Auto-update site" || echo "No changes to commit"
+          git add -A index.html archive.html assets data
+          git commit -m "Auto-update site and archive" || echo "No changes to commit"
           git pull --rebase origin main || true
           git push origin HEAD:main || git push --force-with-lease origin HEAD:main
