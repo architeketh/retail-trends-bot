@@ -24,67 +24,67 @@
   "wtd": [
     {
       "brand": "Home Depot",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Walmart",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Target",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Nike",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Amazon",
-      "count": 1
+      "count": 2
     }
   ],
   "mtd": [
     {
       "brand": "Home Depot",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Walmart",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Target",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Nike",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Amazon",
-      "count": 1
+      "count": 2
     }
   ],
   "ytd": [
     {
       "brand": "Home Depot",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Walmart",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "Target",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Nike",
-      "count": 1
+      "count": 2
     },
     {
       "brand": "Amazon",
-      "count": 1
+      "count": 2
     }
   ]
 }
