@@ -1,4 +1,104 @@
 {
+  "Other": [
+    {
+      "title": "Will shoppers still follow where athleisure leads?",
+      "link": "https://www.retaildive.com/news/athleisure-category-expansions-lululemon-vuori-alo-yoga-outdoor-voices/801716/",
+      "published": "Fri, 03 Oct 2025 16:58:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Staples launches first ‘Easy Deal Days’ ahead of the holidays",
+      "link": "https://www.retaildive.com/news/staples-easy-deal-days-holiday-sales-event/801895/",
+      "published": "Fri, 03 Oct 2025 12:03:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "The Weekly Closeout: Ashley Graham’s J.C. Penney collection hits stores, Etsy moves to the NYSE",
+      "link": "https://www.retaildive.com/news/ashley-graham-jc-penney-etsy-nyse-rei-strategy/801879/",
+      "published": "Fri, 03 Oct 2025 11:46:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Amazon debuts single-tap ‘Add to Delivery’ function",
+      "link": "https://www.retaildive.com/news/amazon-single-tap-add-to-delivery-order-function/801865/",
+      "published": "Fri, 03 Oct 2025 11:30:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Former Macy’s merchant heads to Five Below",
+      "link": "https://www.retaildive.com/news/macys-chief-merchant-michelle-israel-five-below-cfo/801774/",
+      "published": "Thu, 02 Oct 2025 12:04:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Port of Long Beach CEO to retire",
+      "link": "https://www.supplychaindive.com/news/port-long-beach-ceo-mario-cordero-retires-end-of-2025/801924/",
+      "published": "Fri, 03 Oct 2025 13:23:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "A matcha shortage is coming for social media’s latest obsession",
+      "link": "https://www.supplychaindive.com/news/matcha-shortage-social-medias-latest-obsession/761258/",
+      "published": "Fri, 03 Oct 2025 10:43:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "DHL hiring more customs specialists as trade flows shift",
+      "link": "https://www.supplychaindive.com/news/dhl-customs-hiring-express-global-forwarding/761370/",
+      "published": "Fri, 03 Oct 2025 10:05:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "What Amazon shippers should prioritize this peak season",
+      "link": "https://www.supplychaindive.com/news/3-tips-amazon-shippers-peak-season-fba/761387/",
+      "published": "Fri, 03 Oct 2025 09:00:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Hormel Foods further optimizes manufacturing footprint",
+      "link": "https://www.supplychaindive.com/news/hormel-advances-supply-chain-modernization-key-projects-systems/761415/",
+      "published": "Thu, 02 Oct 2025 15:00:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Major ports so far unscathed by Trump’s One Big Beautiful Bill Act",
+      "link": "https://www.supplychaindive.com/news/ports-impacted-port-funding-dera-grant-one-big-beautiful-bill-act/766654/",
+      "published": "Wed, 01 Oct 2025 14:01:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Kroger adds DoorDash delivery for thousands of its stores",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/kroger-adds-doordash-delivery-for-thousands-of-its-stores/",
+      "published": "Fri, 03 Oct 2025 18:04:17 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Farmers Business Network spins off crop protection arm",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/farmers-business-network-spins-off-crop-protection-arm/",
+      "published": "Fri, 03 Oct 2025 15:53:58 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Expanding to Canada? 6 Things You Need From Your 3PL Partner",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/expanding-to-canada-6-things-you-need-from-your-3pl-partner/",
+      "published": "Thu, 02 Oct 2025 16:42:49 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
+  "Retail": [
+    {
+      "title": "Jordan’s first US World of Flight store is in Philadelphia",
+      "link": "https://www.retaildive.com/news/jordan-basketball-first-usa-world-of-flight-store-philadelphia-rittenhouse-square/801907/",
+      "published": "Fri, 03 Oct 2025 11:44:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Inside Victoria’s Secret’s new DC store",
+      "link": "https://www.retaildive.com/news/inside-victorias-secrets-georgetown-dc-store/801757/",
+      "published": "Thu, 02 Oct 2025 10:52:00 -0400",
+      "source": "Retail Dive"
+    }
+  ],
   "AI": [
     {
       "title": "One-third of consumers plan to use AI for holiday shopping",
@@ -7,21 +107,21 @@
       "source": "Retail Dive"
     },
     {
+      "title": "MAI launches AI agents for digital ads with $25 million investment",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/mai-launches-ai-agents-for-digital-ads-with-25-million-investment/",
+      "published": "Fri, 03 Oct 2025 17:13:45 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "63% of SMEs are looking to use AI for Global Trade: Here’s how you can get in on the action",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/63-of-smes-are-looking-to-use-ai-for-global-trade-heres-how-you-can-get-in-on-the-action/",
+      "published": "Fri, 03 Oct 2025 14:43:08 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
       "title": "Procurement teams widely adopt AI, but few achieve maturity",
       "link": "https://www.digitalcommerce360.com/2025/10/01/procurement-teams-widely-adopt-ai-but-few-achieve-maturity/",
       "published": "Wed, 01 Oct 2025 18:59:07 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Salesforce’s 2025 holiday sales predictions center around AI, pricing",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/salesforce-final-holiday-sales-projections-2025/",
-      "published": "Tue, 30 Sep 2025 20:52:04 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Report: B2B marketers lag on AI content creation",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/report-b2b-marketers-ai-content-creation-discovery/",
-      "published": "Tue, 30 Sep 2025 17:04:49 +0000",
       "source": "Digital Commerce 360"
     }
   ],
@@ -57,94 +157,6 @@
       "source": "Digital Commerce 360"
     }
   ],
-  "Other": [
-    {
-      "title": "Former Macy’s merchant heads to Five Below",
-      "link": "https://www.retaildive.com/news/macys-chief-merchant-michelle-israel-five-below-cfo/801774/",
-      "published": "Thu, 02 Oct 2025 12:04:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "At Home set to emerge from bankruptcy with most of its stores",
-      "link": "https://www.retaildive.com/news/at-home-exits-bankruptcy-most-stores/761572/",
-      "published": "Wed, 01 Oct 2025 12:20:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Peloton raises membership pricing ahead of holidays",
-      "link": "https://www.retaildive.com/news/peloton-raises-membership-pricing-holidays/761567/",
-      "published": "Wed, 01 Oct 2025 12:15:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Nike CEO touts ‘tangible progress’ as revenue rises 1% in Q1",
-      "link": "https://www.retaildive.com/news/nike-ceo-tangible-progress-turnaround-revenue-growth/761591/",
-      "published": "Wed, 01 Oct 2025 12:04:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "More than a quarter of consumers plan to cut holiday spending",
-      "link": "https://www.retaildive.com/news/more-than-a-quarter-of-consumers-plan-on-cutting-holiday-spending/761575/",
-      "published": "Wed, 01 Oct 2025 11:29:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Hormel Foods further optimizes manufacturing footprint",
-      "link": "https://www.supplychaindive.com/news/hormel-advances-supply-chain-modernization-key-projects-systems/761415/",
-      "published": "Thu, 02 Oct 2025 15:00:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Major ports so far unscathed by Trump’s One Big Beautiful Bill Act",
-      "link": "https://www.supplychaindive.com/news/ports-impacted-port-funding-dera-grant-one-big-beautiful-bill-act/766654/",
-      "published": "Wed, 01 Oct 2025 14:01:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Section 232 probe reignites tariff uncertainty for medtech firms",
-      "link": "https://www.supplychaindive.com/news/section-232-tariff-uncertainty-medtech/761260/",
-      "published": "Wed, 01 Oct 2025 09:11:50 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "‘Not a good sign.’ Weak demand continues amid tariff uncertainty: PMI",
-      "link": "https://www.supplychaindive.com/news/pmi-september-2025-tariffs-weak-demand/761637/",
-      "published": "Wed, 01 Oct 2025 08:55:57 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Expanding to Canada? 6 Things You Need From Your 3PL Partner",
-      "link": "https://www.digitalcommerce360.com/2025/10/02/expanding-to-canada-6-things-you-need-from-your-3pl-partner/",
-      "published": "Thu, 02 Oct 2025 16:42:49 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Conga to acquire PROS B2B software business",
-      "link": "https://www.digitalcommerce360.com/2025/10/01/conga-to-acquire-pros-b2b-software-business/",
-      "published": "Wed, 01 Oct 2025 18:47:54 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Cardinal Health plans automated pharmaceutical distribution hub",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/cardinal-health-automated-pharmaceutical-distribution-hub-indiana/",
-      "published": "Tue, 30 Sep 2025 16:48:30 +0000",
-      "source": "Digital Commerce 360"
-    }
-  ],
-  "Retail": [
-    {
-      "title": "Inside Victoria’s Secret’s new DC store",
-      "link": "https://www.retaildive.com/news/inside-victorias-secrets-georgetown-dc-store/801757/",
-      "published": "Thu, 02 Oct 2025 10:52:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Top retail conferences in 2026",
-      "link": "https://www.retaildive.com/news/top-retail-conferences-2026/761620/",
-      "published": "Wed, 01 Oct 2025 15:42:00 -0400",
-      "source": "Retail Dive"
-    }
-  ],
   "Supply Chain": [
     {
       "title": "Top supply chain conferences to keep on your radar in 2026",
@@ -165,16 +177,10 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "Grocery Outlet names new supply chain leader",
-      "link": "https://www.supplychaindive.com/news/grocery-outlet-new-supply-chain-exec-scott-fremont/761259/",
-      "published": "Tue, 30 Sep 2025 14:19:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Amazon Shipping preps higher peak season surcharges",
-      "link": "https://www.supplychaindive.com/news/amazon-shipping-2025-peak-season-surcharges/761427/",
-      "published": "Tue, 30 Sep 2025 10:38:25 -0400",
-      "source": "Supply Chain Dive"
+      "title": "DoorDash debuts new fulfillment services and delivery robot for retailers",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/doordash-dot-delivery-robot/",
+      "published": "Fri, 03 Oct 2025 21:23:33 +0000",
+      "source": "Digital Commerce 360"
     }
   ],
   "eCommerce": [
@@ -182,12 +188,6 @@
       "title": "Ecommerce Trends: Why people abandon carts",
       "link": "https://www.digitalcommerce360.com/2025/10/02/why-people-abandon-shopping-carts/",
       "published": "Thu, 02 Oct 2025 18:42:55 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Hertz launches online car-buying platform",
-      "link": "https://www.digitalcommerce360.com/2025/09/30/hertz-launches-online-car-buying-platform/",
-      "published": "Tue, 30 Sep 2025 17:17:55 +0000",
       "source": "Digital Commerce 360"
     }
   ]

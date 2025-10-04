@@ -5,39 +5,51 @@
       "count": 4
     },
     {
-      "token": "holiday",
+      "token": "delivery",
       "count": 3
     },
     {
-      "token": "home",
+      "token": "digital",
       "count": 3
     },
     {
-      "token": "supply",
+      "token": "fulfillment",
       "count": 3
     },
     {
-      "token": "chain",
-      "count": 3
-    },
-    {
-      "token": "center",
-      "count": 3
-    },
-    {
-      "token": "consumers",
+      "token": "launches",
       "count": 2
     },
     {
-      "token": "plan",
+      "token": "first",
+      "count": 2
+    },
+    {
+      "token": "stores",
+      "count": 2
+    },
+    {
+      "token": "store",
+      "count": 2
+    },
+    {
+      "token": "amazon",
+      "count": 2
+    },
+    {
+      "token": "debuts",
+      "count": 2
+    },
+    {
+      "token": "use",
+      "count": 2
+    },
+    {
+      "token": "home",
       "count": 2
     },
     {
       "token": "depot",
-      "count": 2
-    },
-    {
-      "token": "digital",
       "count": 2
     },
     {
@@ -49,15 +61,15 @@
       "count": 2
     },
     {
-      "token": "top",
+      "token": "trade",
       "count": 2
     },
     {
-      "token": "conferences",
+      "token": "supply",
       "count": 2
     },
     {
-      "token": "pricing",
+      "token": "chain",
       "count": 2
     },
     {
@@ -66,264 +78,252 @@
     },
     {
       "token": "north",
-      "count": 2
-    },
-    {
-      "token": "carolina",
-      "count": 2
-    },
-    {
-      "token": "fulfillment",
-      "count": 2
-    },
-    {
-      "token": "shipping",
       "count": 2
     }
   ],
   "wtd": [
     {
       "token": "ai",
+      "count": 12
+    },
+    {
+      "token": "home",
+      "count": 8
+    },
+    {
+      "token": "supply",
+      "count": 8
+    },
+    {
+      "token": "chain",
+      "count": 8
+    },
+    {
+      "token": "center",
       "count": 8
     },
     {
       "token": "holiday",
+      "count": 7
+    },
+    {
+      "token": "digital",
+      "count": 7
+    },
+    {
+      "token": "fulfillment",
+      "count": 7
+    },
+    {
+      "token": "depot",
       "count": 6
     },
     {
-      "token": "home",
+      "token": "project",
       "count": 6
     },
     {
-      "token": "supply",
+      "token": "planning",
       "count": 6
     },
     {
-      "token": "chain",
+      "token": "walmart",
       "count": 6
     },
     {
-      "token": "center",
+      "token": "north",
+      "count": 6
+    },
+    {
+      "token": "carolina",
       "count": 6
     },
     {
       "token": "consumers",
-      "count": 4
+      "count": 5
     },
     {
       "token": "plan",
-      "count": 4
-    },
-    {
-      "token": "depot",
-      "count": 4
-    },
-    {
-      "token": "digital",
-      "count": 4
-    },
-    {
-      "token": "project",
-      "count": 4
-    },
-    {
-      "token": "planning",
-      "count": 4
+      "count": 5
     },
     {
       "token": "top",
-      "count": 4
+      "count": 5
     },
     {
       "token": "conferences",
-      "count": 4
-    },
-    {
-      "token": "pricing",
-      "count": 4
-    },
-    {
-      "token": "walmart",
-      "count": 4
-    },
-    {
-      "token": "north",
-      "count": 4
-    },
-    {
-      "token": "carolina",
-      "count": 4
-    },
-    {
-      "token": "fulfillment",
-      "count": 4
+      "count": 5
     },
     {
       "token": "shipping",
+      "count": 5
+    },
+    {
+      "token": "use",
       "count": 4
     }
   ],
   "mtd": [
     {
       "token": "ai",
+      "count": 12
+    },
+    {
+      "token": "home",
+      "count": 8
+    },
+    {
+      "token": "supply",
+      "count": 8
+    },
+    {
+      "token": "chain",
+      "count": 8
+    },
+    {
+      "token": "center",
       "count": 8
     },
     {
       "token": "holiday",
+      "count": 7
+    },
+    {
+      "token": "digital",
+      "count": 7
+    },
+    {
+      "token": "fulfillment",
+      "count": 7
+    },
+    {
+      "token": "depot",
       "count": 6
     },
     {
-      "token": "home",
+      "token": "project",
       "count": 6
     },
     {
-      "token": "supply",
+      "token": "planning",
       "count": 6
     },
     {
-      "token": "chain",
+      "token": "walmart",
       "count": 6
     },
     {
-      "token": "center",
+      "token": "north",
+      "count": 6
+    },
+    {
+      "token": "carolina",
       "count": 6
     },
     {
       "token": "consumers",
-      "count": 4
+      "count": 5
     },
     {
       "token": "plan",
-      "count": 4
-    },
-    {
-      "token": "depot",
-      "count": 4
-    },
-    {
-      "token": "digital",
-      "count": 4
-    },
-    {
-      "token": "project",
-      "count": 4
-    },
-    {
-      "token": "planning",
-      "count": 4
+      "count": 5
     },
     {
       "token": "top",
-      "count": 4
+      "count": 5
     },
     {
       "token": "conferences",
-      "count": 4
-    },
-    {
-      "token": "pricing",
-      "count": 4
-    },
-    {
-      "token": "walmart",
-      "count": 4
-    },
-    {
-      "token": "north",
-      "count": 4
-    },
-    {
-      "token": "carolina",
-      "count": 4
-    },
-    {
-      "token": "fulfillment",
-      "count": 4
+      "count": 5
     },
     {
       "token": "shipping",
+      "count": 5
+    },
+    {
+      "token": "use",
       "count": 4
     }
   ],
   "ytd": [
     {
       "token": "ai",
+      "count": 12
+    },
+    {
+      "token": "home",
+      "count": 8
+    },
+    {
+      "token": "supply",
+      "count": 8
+    },
+    {
+      "token": "chain",
+      "count": 8
+    },
+    {
+      "token": "center",
       "count": 8
     },
     {
       "token": "holiday",
+      "count": 7
+    },
+    {
+      "token": "digital",
+      "count": 7
+    },
+    {
+      "token": "fulfillment",
+      "count": 7
+    },
+    {
+      "token": "depot",
       "count": 6
     },
     {
-      "token": "home",
+      "token": "project",
       "count": 6
     },
     {
-      "token": "supply",
+      "token": "planning",
       "count": 6
     },
     {
-      "token": "chain",
+      "token": "walmart",
       "count": 6
     },
     {
-      "token": "center",
+      "token": "north",
+      "count": 6
+    },
+    {
+      "token": "carolina",
       "count": 6
     },
     {
       "token": "consumers",
-      "count": 4
+      "count": 5
     },
     {
       "token": "plan",
-      "count": 4
-    },
-    {
-      "token": "depot",
-      "count": 4
-    },
-    {
-      "token": "digital",
-      "count": 4
-    },
-    {
-      "token": "project",
-      "count": 4
-    },
-    {
-      "token": "planning",
-      "count": 4
+      "count": 5
     },
     {
       "token": "top",
-      "count": 4
+      "count": 5
     },
     {
       "token": "conferences",
-      "count": 4
-    },
-    {
-      "token": "pricing",
-      "count": 4
-    },
-    {
-      "token": "walmart",
-      "count": 4
-    },
-    {
-      "token": "north",
-      "count": 4
-    },
-    {
-      "token": "carolina",
-      "count": 4
-    },
-    {
-      "token": "fulfillment",
-      "count": 4
+      "count": 5
     },
     {
       "token": "shipping",
+      "count": 5
+    },
+    {
+      "token": "use",
       "count": 4
     }
   ]

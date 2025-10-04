@@ -1,6 +1,10 @@
 {
   "today": [
     {
+      "brand": "Amazon",
+      "count": 2
+    },
+    {
       "brand": "Home Depot",
       "count": 2
     },
@@ -9,82 +13,122 @@
       "count": 2
     },
     {
+      "brand": "DoorDash",
+      "count": 2
+    },
+    {
+      "brand": "Etsy",
+      "count": 1
+    },
+    {
       "brand": "Target",
       "count": 1
     },
     {
-      "brand": "Nike",
-      "count": 1
-    },
-    {
-      "brand": "Amazon",
+      "brand": "Kroger",
       "count": 1
     }
   ],
   "wtd": [
     {
       "brand": "Home Depot",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Walmart",
+      "count": 6
+    },
+    {
+      "brand": "Amazon",
       "count": 4
     },
     {
       "brand": "Target",
-      "count": 2
+      "count": 3
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "Amazon",
+      "brand": "DoorDash",
       "count": 2
+    },
+    {
+      "brand": "Etsy",
+      "count": 1
+    },
+    {
+      "brand": "Kroger",
+      "count": 1
     }
   ],
   "mtd": [
     {
       "brand": "Home Depot",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Walmart",
+      "count": 6
+    },
+    {
+      "brand": "Amazon",
       "count": 4
     },
     {
       "brand": "Target",
-      "count": 2
+      "count": 3
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "Amazon",
+      "brand": "DoorDash",
       "count": 2
+    },
+    {
+      "brand": "Etsy",
+      "count": 1
+    },
+    {
+      "brand": "Kroger",
+      "count": 1
     }
   ],
   "ytd": [
     {
       "brand": "Home Depot",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Walmart",
+      "count": 6
+    },
+    {
+      "brand": "Amazon",
       "count": 4
     },
     {
       "brand": "Target",
-      "count": 2
+      "count": 3
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "Amazon",
+      "brand": "DoorDash",
       "count": 2
+    },
+    {
+      "brand": "Etsy",
+      "count": 1
+    },
+    {
+      "brand": "Kroger",
+      "count": 1
     }
   ]
 }
