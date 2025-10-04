@@ -12,7 +12,7 @@ def esc(s: str) -> str:
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 today = datetime.date.today().isoformat()
 
-# ---------- Load data ----------
+# ---------- Load categorized & articles ----------
 cats = {}
 cpath = ASSETS / "categorized.json"
 if not cpath.exists():
@@ -31,6 +31,7 @@ if hpath.exists():
     except Exception:
         pass
 
+# ---------- Load totals for charts (already produced by charts.py) ----------
 kw_tot = {}
 br_tot = {}
 kwt = ASSETS / "kw_totals.json"
@@ -42,7 +43,26 @@ if brt.exists():
     try: br_tot = json.loads(brt.read_text(encoding="utf-8"))
     except Exception: pass
 
-# ---------- Natural AI-ish summary per category ----------
+# ---------- Pull TODAY’s signals from history (so summaries evolve daily) ----------
+today_kw = []
+today_br = []
+try:
+    hk = json.loads((DATA / "history_keywords.json").read_text(encoding="utf-8"))
+    hb = json.loads((DATA / "history_brands.json").read_text(encoding="utf-8"))
+    if today in hk:
+        today_kw = sorted(hk[today].items(), key=lambda kv: kv[1], reverse=True)
+    if today in hb:
+        today_br = sorted(hb[today].items(), key=lambda kv: kv[1], reverse=True)
+except Exception:
+    pass
+
+TOP_TODAY_KW = [k for k,_ in today_kw[:8]]  # widen context a bit
+TOP_TODAY_BR = [b for b,_ in today_br[:8]]
+
+# ---------- Helpers ----------
+ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
+ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
+
 BRAND_SEED = {
     "Amazon","Walmart","Target","Costco","Best Buy","Home Depot","Lowe's","Lowe’s","Kroger","Aldi",
     "Tesco","Carrefour","IKEA","H&M","Zara","Nike","Adidas","Lululemon","Gap","Old Navy",
@@ -57,71 +77,12 @@ STOPWORDS = {
 }
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’\-&]+")
 
-def top_brands(items, k=2):
-    c = Counter()
-    for a in items:
-        t = (a.get("title") or "").lower()
-        for b in BRAND_SEED:
-            if b.lower() in t:
-                c[b] += 1
-    return [b for b,_ in c.most_common(k)]
-
-def top_terms(items, k=3):
-    c = Counter()
-    for a in items:
-        t = (a.get("title") or "")
-        for m in WORD_RE.finditer(t):
-            w = m.group(0).strip("’'\"-–—").lower()
-            if w and w not in STOPWORDS and w not in {x.lower() for x in BRAND_SEED}:
-                c[w] += 1
-    return [w for w,_ in c.most_common(k)]
-
-def natural_sentence(cat: str, items: list) -> str:
-    if not items:
-        return f"{cat}: No notable coverage today."
-    n = len(items)
-    brands = top_brands(items, k=2)
-    terms = top_terms(items, k=3)
-    parts = [f"In {cat.lower()}, we tracked {n} stor{'y' if n==1 else 'ies'}"]
-    if brands:
-        parts.append(f"with attention on {', '.join(brands)}")
-    if terms:
-        # keep keyword phrasing natural
-        parts.append(f"and themes like {', '.join(terms)}")
-    sent = " ".join(parts) + "."
-    # example headline
-    ex = (items[0].get("title") or "").strip()
-    if ex:
-        sent += f' Example: “{ex}”.'
-    # Capitalize first letter
-    return sent[0].upper() + sent[1:]
-
-ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
-ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
-ai_lines = [natural_sentence(cat, items) for cat, items in ordered]
-
-# Persist daily summary & build archive later
-sum_path = DATA / "summaries.json"
-all_summaries = {}
-if sum_path.exists():
-    try: all_summaries = json.loads(sum_path.read_text(encoding="utf-8"))
-    except Exception: all_summaries = {}
-all_summaries[today] = {
-    "generated_at": now,
-    "by_category": {cat: natural_sentence(cat, items) for cat, items in ordered}
-}
-sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
-
-# ---------- Helpers for charts / totals ----------
 def chart_src(name: str) -> str:
     psvg = ASSETS / f"{name}.svg"
     ppng = ASSETS / f"{name}.png"
     if psvg.exists(): return f"assets/{name}.svg"
     if ppng.exists(): return f"assets/{name}.png"
     return ""
-
-def totals_sum(items, label_key):
-    return sum(int(x.get("count", 0)) for x in (items or []))
 
 def nice_list(items, label_key, limit=10):
     if not items: return "<span class='note'>—</span>"
@@ -138,6 +99,63 @@ def section_chart_row(title: str, img: str, side_list: list, label_key: str):
   {right}
 </article>"""
 
+# ---------- Category-aware brand/term picking using TODAY's signals ----------
+def cat_brands_today(items, top_today_br):
+    c = Counter()
+    for a in items:
+        t = (a.get("title") or "").lower()
+        for b in top_today_br:
+            if b.lower() in t:
+                c[b] += 1
+    return [b for b,_ in c.most_common(2)]
+
+def cat_terms_today(items, top_today_kw):
+    c = Counter()
+    top_set = set(top_today_kw)
+    for a in items:
+        t = (a.get("title") or "")
+        for m in WORD_RE.finditer(t):
+            w = m.group(0).strip("’'\"-–—").lower()
+            if w and w in top_set and w not in {x.lower() for x in BRAND_SEED} and w not in STOPWORDS:
+                c[w] += 1
+    return [w for w,_ in c.most_common(3)]
+
+def natural_sentence(cat: str, items: list) -> str:
+    if not items:
+        return f"{cat}: No notable coverage today."
+    n = len(items)
+    b = cat_brands_today(items, TOP_TODAY_BR)
+    k = cat_terms_today(items, TOP_TODAY_KW)
+    parts = [f"In {cat.lower()}, {n} stor{'y' if n==1 else 'ies'} stood out"]
+    if b:
+        parts.append(f"with attention on {', '.join(b)}")
+    if k:
+        parts.append(f"and themes like {', '.join(k)}")
+    sent = " ".join(parts) + "."
+    ex = (items[0].get("title") or "").strip()
+    if ex:
+        sent += f' Example: “{ex}”.'
+    return sent[0].upper() + sent[1:]
+
+ai_lines = [natural_sentence(cat, items) for cat, items in ordered]
+
+# ---------- Persist daily summary ONCE; don't overwrite previous days ----------
+sum_path = DATA / "summaries.json"
+all_summaries = {}
+if sum_path.exists():
+    try: all_summaries = json.loads(sum_path.read_text(encoding="utf-8"))
+    except Exception: all_summaries = {}
+
+if today not in all_summaries:
+    all_summaries[today] = {
+        "generated_at": now,
+        "by_category": {cat: natural_sentence(cat, items) for cat, items in ordered}
+    }
+    sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
+else:
+    # keep existing text as-is; don't rewrite past days
+    pass
+
 # ---------- Build index.html ----------
 html = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -148,28 +166,21 @@ html = f"""<!doctype html><html lang="en"><head>
 body{{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}}
 a, a:visited{{color:#ffffff;text-decoration:none}}
 a:hover{{text-decoration:underline;filter:brightness(1.05)}}
-
 .wrap{{max-width:1200px;margin:0 auto;padding:22px 14px}}
 @media(min-width:768px){{.wrap{{padding:26px 18px}}}}
-
-.hero{{
-  border:1px solid var(--stroke);border-radius:16px;padding:22px;margin-bottom:18px;
-  background: linear-gradient(135deg,#0ea5e9 0%, #7c3aed 40%, #22c55e 75%, #ef4444 100%);
-}}
+.hero{{border:1px solid var(--stroke);border-radius:16px;padding:22px;margin-bottom:18px;
+  background: linear-gradient(135deg,#0ea5e9 0%, #7c3aed 40%, #22c55e 75%, #ef4444 100%);}}
 .hero h1{{margin:0 0 8px 0;font-size:28px;letter-spacing:.4px}}
 @media(min-width:768px){{.hero h1{{font-size:32px}}}}
 .hero p{{margin:0;color:#f1f5f9}}
-
 .grid2{{display:grid;gap:12px}}
 @media(min-width:900px){{.grid2{{grid-template-columns:1fr 1fr;gap:16px}}}}
-
 .card{{background:var(--card);border:1px solid var(--stroke);border-radius:12px;padding:14px}}
 @media(min-width:768px){{.card{{padding:16px}}}}
 h2{{margin:0 0 10px 0;font-size:18px}}
 .muted{{color:var(--muted)}} .small{{font-size:12px}} .note{{color:var(--muted)}}
 ul{{margin:0;padding-left:18px}} li{{margin:6px 0}}
 img{{max-width:100%;border-radius:10px}}
-
 .cat h3{{margin:14px 0 8px}}
 .footer{{margin-top:16px;color:var(--muted);font-size:12px}}
 .badge{{display:inline-block;background:#1f2937;color:#a7f3d0;border:1px solid #1f2a44;border-radius:999px;padding:2px 8px;font-size:12px}}
@@ -191,9 +202,7 @@ img{{max-width:100%;border-radius:10px}}
   <div class="chips">
 """
 
-# Quick nav
-ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
-ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
+# Quick nav chips
 for name in ORDER:
     if cats.get(name):
         slug = "cat-" + name.lower().replace(" ", "-")
@@ -206,7 +215,8 @@ html += """  </div>
   <h2>Daily AI Summary</h2>
   <ul>
 """
-for line in ai_lines:
+for cat, items in ordered:
+    line = natural_sentence(cat, items)
     html += f"    <li>{esc(line)}</li>\n"
 html += """  </ul>
 </section>
@@ -221,7 +231,7 @@ html += """  </ul>
         <tbody>
 """
 
-# Category totals table
+# Category totals
 total_articles = 0
 for cat, items in ordered:
     cnt = len(items); total_articles += cnt
@@ -276,7 +286,7 @@ html += """</section>
 
 <section class="grid2" style="margin-top:16px">
 """
-# WTD (resets weekly)
+# WTD charts
 html += section_chart_row("Top Keywords — Week-to-date", chart_src("keywords_wtd"), kw_tot.get("wtd", []), "token")
 html += section_chart_row("Brand Mentions — Week-to-date", chart_src("brands_wtd"), br_tot.get("wtd", []), "brand")
 
@@ -302,7 +312,7 @@ html += """</section>
   <h2>Headlines by Category</h2>
 """
 
-# Category sections (anchors)
+# Category sections
 if ordered:
     for cat, items in ordered:
         slug = "cat-" + cat.lower().replace(" ", "-")
@@ -317,7 +327,7 @@ if ordered:
 else:
     html += "<p class='note'>No categorized headlines yet.</p>"
 
-# Archive link at very bottom
+# Footer & archive link
 html += f"""
 </section>
 
@@ -326,10 +336,16 @@ html += f"""
 """
 
 (ROOT / "index.html").write_text(html, encoding="utf-8")
-print("✓ Wrote index.html (natural AI summary + WTD labels + archive link)")
+print("✓ Wrote index.html (daily summary uses TODAY's signals; archive-safe)")
 
 # ---------- Build archive.html from data/summaries.json ----------
-arch_items = sorted(all_summaries.items(), key=lambda kv: kv[0], reverse=True)
+# (Always read what's saved; don't regenerate text for past days.)
+try:
+    saved = json.loads((DATA / "summaries.json").read_text(encoding="utf-8"))
+except Exception:
+    saved = {}
+
+arch_items = sorted(saved.items(), key=lambda kv: kv[0], reverse=True)
 arch = """<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Daily Summary Archive – Retail Trends</title>
@@ -343,33 +359,16 @@ a:hover{text-decoration:underline}
 .muted{color:#cbd5e1}
 </style></head><body><div class="wrap">
 <h1>Daily Summary Archive</h1>
-<p class="muted">One-paragraph summaries saved each day.</p>
+<p class="muted">Saved one-paragraph summaries by date.</p>
 """
 for d, payload in arch_items:
     arch += f'<div class="card"><h3>{d}</h3>\n<ul>'
+    by_cat = payload.get("by_category", {})
     for cat in ORDER:
-        line = payload.get("by_category", {}).get(cat)
+        line = by_cat.get(cat)
         if line:
             arch += f"<li>{esc(line)}</li>"
     arch += "</ul></div>\n"
 arch += '<p><a href="index.html">← Back to dashboard</a></p></div></body></html>'
 (ROOT/"archive.html").write_text(arch, encoding="utf-8")
 print("✓ Wrote archive.html")
-
-
-# Persist daily summary
-sum_path = DATA / "summaries.json"
-all_summaries = {}
-if sum_path.exists():
-    try:
-        all_summaries = json.loads(sum_path.read_text(encoding="utf-8"))
-    except Exception:
-        all_summaries = {}
-
-if today not in all_summaries:
-    all_summaries[today] = {
-        "generated_at": now,
-        "by_category": {cat: natural_sentence(cat, items) for cat, items in ordered}
-    }
-
-sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
