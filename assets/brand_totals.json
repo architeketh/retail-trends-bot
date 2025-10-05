@@ -32,103 +32,103 @@
   "wtd": [
     {
       "brand": "Home Depot",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Walmart",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Amazon",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Target",
-      "count": 3
+      "count": 4
+    },
+    {
+      "brand": "DoorDash",
+      "count": 4
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "DoorDash",
+      "brand": "Etsy",
       "count": 2
     },
     {
-      "brand": "Etsy",
-      "count": 1
-    },
-    {
       "brand": "Kroger",
-      "count": 1
+      "count": 2
     }
   ],
   "mtd": [
     {
       "brand": "Home Depot",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Walmart",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Amazon",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Target",
-      "count": 3
+      "count": 4
+    },
+    {
+      "brand": "DoorDash",
+      "count": 4
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "DoorDash",
+      "brand": "Etsy",
       "count": 2
     },
     {
-      "brand": "Etsy",
-      "count": 1
-    },
-    {
       "brand": "Kroger",
-      "count": 1
+      "count": 2
     }
   ],
   "ytd": [
     {
       "brand": "Home Depot",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Walmart",
-      "count": 6
+      "count": 8
     },
     {
       "brand": "Amazon",
-      "count": 4
+      "count": 6
     },
     {
       "brand": "Target",
-      "count": 3
+      "count": 4
+    },
+    {
+      "brand": "DoorDash",
+      "count": 4
     },
     {
       "brand": "Nike",
       "count": 2
     },
     {
-      "brand": "DoorDash",
+      "brand": "Etsy",
       "count": 2
     },
     {
-      "brand": "Etsy",
-      "count": 1
-    },
-    {
       "brand": "Kroger",
-      "count": 1
+      "count": 2
     }
   ]
 }

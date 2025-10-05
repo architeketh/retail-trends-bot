@@ -31,5 +31,16 @@
       "Big Box": "In big box, we tracked 5 stories with attention on Home Depot, Walmart and themes like home, depot, digital. Example: “Target shareholder group proposes independent board chair policy”.",
       "Other": "In other, we tracked 14 stories with attention on Amazon, Etsy and themes like stores, delivery, shoppers. Example: “Will shoppers still follow where athleisure leads?”."
     }
+  },
+  "2025-10-05": {
+    "generated_at": "2025-10-05 03:17 UTC",
+    "by_category": {
+      "Retail": "In retail, 2 stories stood out and themes like store, first. Example: “Jordan’s first US World of Flight store is in Philadelphia”.",
+      "eCommerce": "In ecommerce, 1 story stood out. Example: “Ecommerce Trends: Why people abandon carts”.",
+      "AI": "In ai, 4 stories stood out and themes like ai, launches, digital. Example: “One-third of consumers plan to use AI for holiday shopping”.",
+      "Supply Chain": "In supply chain, 4 stories stood out with attention on DoorDash and themes like fulfillment, delivery. Example: “Top supply chain conferences to keep on your radar in 2026”.",
+      "Big Box": "In big box, 5 stories stood out with attention on Home Depot, Walmart and themes like digital, fulfillment. Example: “Target shareholder group proposes independent board chair policy”.",
+      "Other": "In other, 14 stories stood out with attention on Amazon, Etsy and themes like stores, delivery, launches. Example: “Will shoppers still follow where athleisure leads?”."
+    }
   }
 }
