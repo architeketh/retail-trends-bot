@@ -1,57 +1,70 @@
-name: Retail Trends Bot
+name: Retail Trends — Build & Publish (GitHub Pages)
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
+  workflow_dispatch:
   schedule:
-    - cron: '0 */12 * * *'   # every 12 hours
+    - cron: "0 12 * * *"   # daily at 12:00 UTC (~07:00 America/Chicago during DST)
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Fetch headlines
-        run: python bot/fetch.py
-
-      - name: Build charts
-        run: python bot/charts.py
-
-      - name: Build site
-        run: python bot/site_builder.py
-
-      - name: Show outputs
+      # Optional: your data collection and preprocessing steps
+      - name: Fetch sources (optional)
         run: |
-          echo "::group::Root"; ls -la; echo "::endgroup::"
-          echo "::group::Assets"; ls -la assets || true; echo "::endgroup::"
-          echo "::group::Data"; ls -la data || true; echo "::endgroup::"
-          test -f index.html && echo "✓ index.html exists"
-          test -f archive.html && echo "✓ archive.html exists"
-          test -f data/summaries.json && echo "✓ summaries.json exists"
+          if [ -f bot/fetch.py ]; then python bot/fetch.py || true; fi
 
-      - name: Commit and push
+      - name: Summarize (optional)
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A index.html archive.html assets data
-          git commit -m "Auto-update site and archive" || echo "No changes to commit"
-          git pull --rebase origin main || true
-          git push origin HEAD:main || git push --force-with-lease origin HEAD:main
+          if [ -f bot/summarize.py ]; then python bot/summarize.py || true; fi
+
+      - name: Build site (writes to site/)
+        run: |
+          python bot/site_builder.py
+
+      - name: Verify site contents
+        run: |
+          ls -la site
+          test -s site/index.html
+          test -s site/archive.html
+
+      - name: Upload artifact (Pages)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
