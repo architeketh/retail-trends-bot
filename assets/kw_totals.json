@@ -9,8 +9,8 @@
       "count": 4
     },
     {
-      "token": "ai",
-      "count": 4
+      "token": "stores",
+      "count": 3
     },
     {
       "token": "peak",
@@ -29,8 +29,24 @@
       "count": 3
     },
     {
+      "token": "ai",
+      "count": 3
+    },
+    {
       "token": "digital",
       "count": 3
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "shoppers",
+      "count": 2
+    },
+    {
+      "token": "cut",
+      "count": 2
     },
     {
       "token": "shippers",
@@ -49,15 +65,7 @@
       "count": 2
     },
     {
-      "token": "stores",
-      "count": 2
-    },
-    {
       "token": "debuts",
-      "count": 2
-    },
-    {
-      "token": "use",
       "count": 2
     },
     {
@@ -71,14 +79,6 @@
     {
       "token": "network",
       "count": 2
-    },
-    {
-      "token": "doordash",
-      "count": 2
-    },
-    {
-      "token": "incentives",
-      "count": 1
     }
   ],
   "wtd": [
@@ -91,8 +91,8 @@
       "count": 4
     },
     {
-      "token": "ai",
-      "count": 4
+      "token": "stores",
+      "count": 3
     },
     {
       "token": "peak",
@@ -111,8 +111,24 @@
       "count": 3
     },
     {
+      "token": "ai",
+      "count": 3
+    },
+    {
       "token": "digital",
       "count": 3
+    },
+    {
+      "token": "holiday",
+      "count": 2
+    },
+    {
+      "token": "shoppers",
+      "count": 2
+    },
+    {
+      "token": "cut",
+      "count": 2
     },
     {
       "token": "shippers",
@@ -131,15 +147,7 @@
       "count": 2
     },
     {
-      "token": "stores",
-      "count": 2
-    },
-    {
       "token": "debuts",
-      "count": 2
-    },
-    {
-      "token": "use",
       "count": 2
     },
     {
@@ -153,20 +161,12 @@
     {
       "token": "network",
       "count": 2
-    },
-    {
-      "token": "doordash",
-      "count": 2
-    },
-    {
-      "token": "incentives",
-      "count": 1
     }
   ],
   "mtd": [
     {
       "token": "ai",
-      "count": 20
+      "count": 19
     },
     {
       "token": "digital",
@@ -189,6 +189,10 @@
       "count": 11
     },
     {
+      "token": "holiday",
+      "count": 10
+    },
+    {
       "token": "chain",
       "count": 10
     },
@@ -199,10 +203,6 @@
     {
       "token": "delivery",
       "count": 10
-    },
-    {
-      "token": "holiday",
-      "count": 9
     },
     {
       "token": "depot",
@@ -217,16 +217,12 @@
       "count": 9
     },
     {
-      "token": "launches",
+      "token": "stores",
       "count": 9
     },
     {
-      "token": "use",
-      "count": 8
-    },
-    {
-      "token": "stores",
-      "count": 8
+      "token": "launches",
+      "count": 9
     },
     {
       "token": "walmart",
@@ -241,14 +237,18 @@
       "count": 8
     },
     {
-      "token": "consumers",
+      "token": "use",
+      "count": 7
+    },
+    {
+      "token": "store",
       "count": 7
     }
   ],
   "ytd": [
     {
       "token": "ai",
-      "count": 20
+      "count": 19
     },
     {
       "token": "digital",
@@ -271,6 +271,10 @@
       "count": 11
     },
     {
+      "token": "holiday",
+      "count": 10
+    },
+    {
       "token": "chain",
       "count": 10
     },
@@ -281,10 +285,6 @@
     {
       "token": "delivery",
       "count": 10
-    },
-    {
-      "token": "holiday",
-      "count": 9
     },
     {
       "token": "depot",
@@ -299,16 +299,12 @@
       "count": 9
     },
     {
-      "token": "launches",
+      "token": "stores",
       "count": 9
     },
     {
-      "token": "use",
-      "count": 8
-    },
-    {
-      "token": "stores",
-      "count": 8
+      "token": "launches",
+      "count": 9
     },
     {
       "token": "walmart",
@@ -323,7 +319,11 @@
       "count": 8
     },
     {
-      "token": "consumers",
+      "token": "use",
+      "count": 7
+    },
+    {
+      "token": "store",
       "count": 7
     }
   ]

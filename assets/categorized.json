@@ -1,5 +1,37 @@
 {
+  "eCommerce": [
+    {
+      "title": "Online holiday discounts expected to remain flat",
+      "link": "https://www.retaildive.com/news/online-holiday-discounts-remain-flat-adobe/802022/",
+      "published": "Mon, 06 Oct 2025 12:32:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Roadrunner launches AI delivery system to speed up ecommerce logistics",
+      "link": "https://www.digitalcommerce360.com/2025/10/06/roadrunner-launches-ai-delivery-system-to-speed-up-ecommerce-delivery/",
+      "published": "Mon, 06 Oct 2025 14:52:50 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Ecommerce Trends: Why people abandon carts",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/why-people-abandon-shopping-carts/",
+      "published": "Thu, 02 Oct 2025 18:42:55 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
   "Other": [
+    {
+      "title": "Gen Z shoppers to cut holiday gifting budgets",
+      "link": "https://www.retaildive.com/news/gen-z-shoppers-cut-gift-budgets-pwc-holiday/802055/",
+      "published": "Mon, 06 Oct 2025 11:52:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Rite Aid closes all stores",
+      "link": "https://www.retaildive.com/news/rite-aid-pharmacy-closes-all-stores-bankruptcy/802012/",
+      "published": "Mon, 06 Oct 2025 10:42:00 -0400",
+      "source": "Retail Dive"
+    },
     {
       "title": "What Amazon shippers should prioritize this peak season",
       "link": "https://www.retaildive.com/news/3-tips-amazon-shippers-peak-season-fba/802005/",
@@ -28,12 +60,6 @@
       "title": "Amazon debuts single-tap ‘Add to Delivery’ function",
       "link": "https://www.retaildive.com/news/amazon-single-tap-add-to-delivery-order-function/801865/",
       "published": "Fri, 03 Oct 2025 11:30:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Former Macy’s merchant heads to Five Below",
-      "link": "https://www.retaildive.com/news/macys-chief-merchant-michelle-israel-five-below-cfo/801774/",
-      "published": "Thu, 02 Oct 2025 12:04:00 -0400",
       "source": "Retail Dive"
     },
     {
@@ -117,40 +143,6 @@
       "source": "Retail Dive"
     }
   ],
-  "AI": [
-    {
-      "title": "One-third of consumers plan to use AI for holiday shopping",
-      "link": "https://www.retaildive.com/news/consumers-ai-shopping-tools-holidays-retail/801800/",
-      "published": "Thu, 02 Oct 2025 13:34:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "MAI launches AI agents for digital ads with $25 million investment",
-      "link": "https://www.digitalcommerce360.com/2025/10/03/mai-launches-ai-agents-for-digital-ads-with-25-million-investment/",
-      "published": "Fri, 03 Oct 2025 17:13:45 +0000",
-      "source": "Digital Commerce 360"
-    },
-    {
-      "title": "63% of SMEs are looking to use AI for Global Trade: Here’s how you can get in on the action",
-      "link": "https://www.digitalcommerce360.com/2025/10/03/63-of-smes-are-looking-to-use-ai-for-global-trade-heres-how-you-can-get-in-on-the-action/",
-      "published": "Fri, 03 Oct 2025 14:43:08 +0000",
-      "source": "Digital Commerce 360"
-    }
-  ],
-  "Big Box": [
-    {
-      "title": "Target shareholder group proposes independent board chair policy",
-      "link": "https://www.retaildive.com/news/target-ceo-brian-cornell-executive-chair-board-shareholder-policy-proposal/801794/",
-      "published": "Thu, 02 Oct 2025 12:28:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Home Depot pushes deeper into B2B ecommerce with digital project planning",
-      "link": "https://www.digitalcommerce360.com/2025/10/02/home-depot-b2b-ecommerce-digital-project-planning/",
-      "published": "Thu, 02 Oct 2025 18:58:50 +0000",
-      "source": "Digital Commerce 360"
-    }
-  ],
   "Supply Chain": [
     {
       "title": "Amazon plans next Indiana fulfillment center",
@@ -177,17 +169,25 @@
       "source": "Digital Commerce 360"
     }
   ],
-  "eCommerce": [
+  "AI": [
     {
-      "title": "Roadrunner launches AI delivery system to speed up ecommerce logistics",
-      "link": "https://www.digitalcommerce360.com/2025/10/06/roadrunner-launches-ai-delivery-system-to-speed-up-ecommerce-delivery/",
-      "published": "Mon, 06 Oct 2025 14:52:50 +0000",
+      "title": "MAI launches AI agents for digital ads with $25 million investment",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/mai-launches-ai-agents-for-digital-ads-with-25-million-investment/",
+      "published": "Fri, 03 Oct 2025 17:13:45 +0000",
       "source": "Digital Commerce 360"
     },
     {
-      "title": "Ecommerce Trends: Why people abandon carts",
-      "link": "https://www.digitalcommerce360.com/2025/10/02/why-people-abandon-shopping-carts/",
-      "published": "Thu, 02 Oct 2025 18:42:55 +0000",
+      "title": "63% of SMEs are looking to use AI for Global Trade: Here’s how you can get in on the action",
+      "link": "https://www.digitalcommerce360.com/2025/10/03/63-of-smes-are-looking-to-use-ai-for-global-trade-heres-how-you-can-get-in-on-the-action/",
+      "published": "Fri, 03 Oct 2025 14:43:08 +0000",
+      "source": "Digital Commerce 360"
+    }
+  ],
+  "Big Box": [
+    {
+      "title": "Home Depot pushes deeper into B2B ecommerce with digital project planning",
+      "link": "https://www.digitalcommerce360.com/2025/10/02/home-depot-b2b-ecommerce-digital-project-planning/",
+      "published": "Thu, 02 Oct 2025 18:58:50 +0000",
       "source": "Digital Commerce 360"
     }
   ]
