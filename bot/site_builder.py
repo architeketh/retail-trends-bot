@@ -8,6 +8,7 @@ ASSETS = ROOT / "assets"
 SITE = ROOT / "site"
 SITE_ASSETS = SITE / "assets"
 
+
 for p in (DATA, ASSETS, SITE_ASSETS):
     p.mkdir(parents=True, exist_ok=True)
 
