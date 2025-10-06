@@ -1,13 +1,34 @@
 # bot/site_builder.py
-import pathlib, json, datetime, re, random
-from collections import Counter
+import pathlib, json, datetime, re, random, shutil
 
+# --- Paths ---
 ROOT = pathlib.Path(".")
-DATA, ASSETS = ROOT / "data", ROOT / "assets"
-DATA.mkdir(exist_ok=True); ASSETS.mkdir(exist_ok=True)
+DATA = ROOT / "data"
+ASSETS = ROOT / "assets"
+SITE = ROOT / "site"
+SITE_ASSETS = SITE / "assets"
+
+DATA.mkdir(exist_ok=True)
+ASSETS.mkdir(exist_ok=True)
+SITE.mkdir(exist_ok=True)
+SITE_ASSETS.mkdir(parents=True, exist_ok=True)
 
 def esc(s: str) -> str:
     return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+
+def copy_into_site_assets(rel_path: pathlib.Path) -> str:
+    """
+    Ensure an asset under ASSETS/ is present under site/assets/ for publishing.
+    Returns the web-relative path to use in HTML (e.g., 'assets/foo.png').
+    """
+    src = ASSETS / rel_path
+    dst = SITE_ASSETS / rel_path
+    if src.exists():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if not dst.exists() or src.stat().st_mtime > dst.stat().st_mtime:
+            shutil.copy2(src, dst)
+        return f"assets/{rel_path.as_posix()}"
+    return ""
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 today = datetime.date.today().isoformat()
@@ -17,7 +38,8 @@ cats = {}
 for p in (ASSETS/"categorized.json", DATA/"categorized.json"):
     if p.exists():
         try:
-            cats = json.loads(p.read_text(encoding="utf-8")); break
+            cats = json.loads(p.read_text(encoding="utf-8"))
+            break
         except Exception:
             cats = {}
             break
@@ -31,7 +53,8 @@ try:
     if (ASSETS/"brand_totals.json").exists():
         br_tot = json.loads((ASSETS/"brand_totals.json").read_text(encoding="utf-8"))
 except Exception:
-    kw_tot = {}; br_tot = {}
+    kw_tot = {}
+    br_tot = {}
 
 # -------- Build TODAY signals (history -> totals fallback) --------
 today_kw = []
@@ -39,8 +62,10 @@ today_br = []
 try:
     hk = json.loads((DATA/"history_keywords.json").read_text(encoding="utf-8"))
     hb = json.loads((DATA/"history_brands.json").read_text(encoding="utf-8"))
-    if today in hk: today_kw = sorted(hk[today].items(), key=lambda kv: kv[1], reverse=True)
-    if today in hb: today_br = sorted(hb[today].items(), key=lambda kv: kv[1], reverse=True)
+    if today in hk:
+        today_kw = sorted(hk[today].items(), key=lambda kv: kv[1], reverse=True)
+    if today in hb:
+        today_br = sorted(hb[today].items(), key=lambda kv: kv[1], reverse=True)
 except Exception:
     pass
 
@@ -92,9 +117,8 @@ elif brands_txt:
 elif terms_txt:
     sentence = f"{random.choice(lead_phrases)} {terms_txt}, {random.choice(trend_phrases)} retail, eCommerce, and AI."
 
-# FINAL BACKSTOP: build a sentence from category counts so it's never blank
+# FINAL BACKSTOP
 if not sentence:
-    # compute category counts from categorized list if available
     ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
     cat_counts = [(c, len(cats.get(c, []))) for c in ORDER if cats.get(c)]
     cat_counts = sorted(cat_counts, key=lambda x: x[1], reverse=True)
@@ -123,7 +147,6 @@ if today not in all_summaries:
         "top_brands": TOP_TODAY_BR,
     }
 else:
-    # if a previous run wrote an empty summary, backfill it (do not alter non-empty text)
     if not all_summaries[today].get("summary"):
         all_summaries[today]["summary"] = daily_summary_sentence
         all_summaries[today]["generated_at"] = now
@@ -132,26 +155,49 @@ sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), enc
 
 # -------- Helpers for HTML --------
 def chart_src(name: str) -> str:
+    """Find a chart image in assets and copy to site/assets."""
     for ext in ("svg","png"):
-        p = ASSETS/f"{name}.{ext}"
-        if p.exists(): return f"assets/{name}.{ext}"
+        rel = pathlib.Path(f"{name}.{ext}")
+        src = ASSETS / rel
+        if src.exists():
+            return copy_into_site_assets(rel)
     return ""
 
-def nice_list(items, label_key, limit=10):
-    if not items: return "<span class='note'>—</span>"
-    return ", ".join(f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})" for x in items[:limit])
-
 def latest_hero():
-    img = ROOT/"assets"/"hero"/"latest.jpg"
-    meta = ROOT/"assets"/"hero"/"latest.json"
-    if img.exists():
+    """Return (src_url, meta_dict) for a hero image if present, and copy it."""
+    img_rel = pathlib.Path("hero/latest.jpg")
+    meta_path = ASSETS / "hero" / "latest.json"
+    if (ASSETS / img_rel).exists():
+        url = copy_into_site_assets(img_rel)
         info = {}
-        if meta.exists():
-            try: info = json.loads(meta.read_text(encoding="utf-8"))
-            except Exception: info = {}
-        return "assets/hero/latest.jpg", info
+        if meta_path.exists():
+            try:
+                info = json.loads(meta_path.read_text(encoding="utf-8"))
+            except Exception:
+                info = {}
+        return url, info
     return "", {}
 
+def nice_list(items, label_key, limit=10):
+    if not items:
+        return "<span class='note'>—</span>"
+    # Accept dict rows like {"token": "...", "count": n}
+    return ", ".join(
+        f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})"
+        for x in items[:limit]
+    )
+
+def totals_block(title: str, data: dict, key: str, label_key: str):
+    lst = data.get(key, []) if data else []
+    total = sum(int(x.get("count", 0)) for x in lst)
+    top = nice_list(lst, label_key)
+    return (
+        f"<h3 style='margin:12px 0 6px 0'>{esc(title)}</h3>"
+        + f"<div class='kv'><div class='muted'>Total mentions</div><div><b>{total}</b></div></div>"
+        + f"<div class='small'><span class='muted'>Top:</span> {top}</div>"
+    )
+
+# Category ordering
 ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
 ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
 
@@ -216,42 +262,36 @@ html.append("<section class='card'><h2>Daily AI Summary</h2>")
 html.append(f"<p>{esc(daily_summary_sentence)}</p></section>")
 
 # Totals
-def nice_list(items, label_key, limit=10):
-    if not items: return "<span class='note'>—</span>"
-    return ", ".join(f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})" for x in items[:limit])
+def totals_group():
+    out = []
+    out.append("<section class='card'><h2>Totals</h2><div class='totals'>")
+    # Articles by category
+    out.append("<div><h3 style='margin:0 0 8px 0'>Articles by Category</h3><table class='table'><thead><tr><th>Category</th><th>Articles</th></tr></thead><tbody>")
+    total_articles = 0
+    for cat, items in ordered:
+        cnt = len(items); total_articles += cnt
+        slug = "cat-" + cat.lower().replace(" ", "-")
+        out.append(f"<tr><td><a href='#{esc(slug)}'>{esc(cat)}</a></td><td>{cnt}</td></tr>")
+    out.append(f"<tr><td><b>Total</b></td><td><b>{total_articles}</b></td></tr></tbody></table></div>")
 
+    # Keyword totals
+    out.append("<div><h3 style='margin:0 0 8px 0'>Keyword Mentions</h3>")
+    out.append(totals_block("Today", kw_tot, "today", "token"))
+    out.append(totals_block("Week-to-date", kw_tot, "wtd", "token"))
+    out.append(totals_block("Month-to-date", kw_tot, "mtd", "token"))
+    out.append(totals_block("Year-to-date", kw_tot, "ytd", "token"))
+    out.append("</div>")
 
-def totals_block(title: str, data: dict, key: str, label_key: str):
-    lst = data.get(key, []) if data else []
-    total = sum(int(x.get('count',0)) for x in lst)
-    top = nice_list(lst, label_key)
-    return (f"<h3 style='margin:12px 0 6px 0'>{esc(title)}</h3>" +
-            f\"<div class='kv'><div class='muted'>Total mentions</div><div><b>{total}</b></div></div>\" +
-            f\"<div class='small'><span class='muted'>Top:</span> {top}</div>\")
+    # Brand totals
+    out.append("<div><h3 style='margin:0 0 8px 0'>Brand Mentions</h3>")
+    out.append(totals_block("Today", br_tot, "today", "brand"))
+    out.append(totals_block("Week-to-date", br_tot, "wtd", "brand"))
+    out.append(totals_block("Month-to-date", br_tot, "mtd", "brand"))
+    out.append(totals_block("Year-to-date", br_tot, "ytd", "brand"))
+    out.append("</div></div></section>")
+    return "".join(out)
 
-# Category totals table
-ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
-ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
-
-html.append("<section class='card'><h2>Totals</h2><div class='totals'>")
-html.append("<div><h3 style='margin:0 0 8px 0'>Articles by Category</h3><table class='table'><thead><tr><th>Category</th><th>Articles</th></tr></thead><tbody>")
-total_articles = 0
-for cat, items in ordered:
-    cnt = len(items); total_articles += cnt
-    slug = "cat-" + cat.lower().replace(" ", "-")
-    html.append(f"<tr><td><a href='#{esc(slug)}'>{esc(cat)}</a></td><td>{cnt}</td></tr>")
-html.append(f"<tr><td><b>Total</b></td><td><b>{total_articles}</b></td></tr></tbody></table></div>")
-html.append("<div><h3 style='margin:0 0 8px 0'>Keyword Mentions</h3>")
-html.append(totals_block("Today", kw_tot, "today", "token"))
-html.append(totals_block("Week-to-date", kw_tot, "wtd", "token"))
-html.append(totals_block("Month-to-date", kw_tot, "mtd", "token"))
-html.append(totals_block("Year-to-date", kw_tot, "ytd", "token"))
-html.append("</div><div><h3 style='margin:0 0 8px 0'>Brand Mentions</h3>")
-html.append(totals_block("Today", br_tot, "today", "brand"))
-html.append(totals_block("Week-to-date", br_tot, "wtd", "brand"))
-html.append(totals_block("Month-to-date", br_tot, "mtd", "brand"))
-html.append(totals_block("Year-to-date", br_tot, "ytd", "brand"))
-html.append("</div></div></section>")
+html.append(totals_group())
 
 # Charts rows
 def chart_row(title, key, lst, label_key):
@@ -290,11 +330,12 @@ if ordered:
         html.append("</ul>")
 else:
     html.append("<p class='note'>No categorized headlines yet.</p>")
-html.append(f"</section><p class='footer'>Last updated {esc(now)} · © {datetime.datetime.utcnow().year} Retail Trends Bot · <a href='archive.html'>Daily Summary Archive</a></p>")
+year_now = datetime.datetime.utcnow().year
+html.append(f"</section><p class='footer'>Last updated {esc(now)} · © {year_now} Retail Trends Bot · <a href='archive.html'>Daily Summary Archive</a></p>")
 html.append("</div></body></html>")
 
-(ROOT/"index.html").write_text("".join(html), encoding="utf-8")
-print("✓ Wrote index.html")
+(SITE/"index.html").write_text("".join(html), encoding="utf-8")
+print("✓ Wrote site/index.html")
 
 # -------- Build archive.html from saved summaries --------
 try:
@@ -316,5 +357,5 @@ for d, payload in sorted(saved.items(), key=lambda kv: kv[0], reverse=True):
     line = payload.get("summary","")
     arch.append(f"<div class='card'><h3>{esc(d)}</h3><p>{esc(line)}</p></div>")
 arch.append("<p><a href='index.html'>← Back to dashboard</a></p></div></body></html>")
-(ROOT/"archive.html").write_text("".join(arch), encoding="utf-8")
-print("✓ Wrote archive.html")
+(SITE/"archive.html").write_text("".join(arch), encoding="utf-8")
+print("✓ Wrote site/archive.html")
