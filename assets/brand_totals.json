@@ -2,11 +2,7 @@
   "today": [
     {
       "brand": "Amazon",
-      "count": 2
-    },
-    {
-      "brand": "Home Depot",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "DoorDash",
@@ -25,18 +21,14 @@
       "count": 1
     },
     {
-      "brand": "Walmart",
+      "brand": "Home Depot",
       "count": 1
     }
   ],
   "wtd": [
     {
       "brand": "Amazon",
-      "count": 2
-    },
-    {
-      "brand": "Home Depot",
-      "count": 2
+      "count": 4
     },
     {
       "brand": "DoorDash",
@@ -55,21 +47,21 @@
       "count": 1
     },
     {
-      "brand": "Walmart",
+      "brand": "Home Depot",
       "count": 1
     }
   ],
   "mtd": [
     {
-      "brand": "Home Depot",
+      "brand": "Amazon",
       "count": 10
     },
     {
-      "brand": "Walmart",
+      "brand": "Home Depot",
       "count": 9
     },
     {
-      "brand": "Amazon",
+      "brand": "Walmart",
       "count": 8
     },
     {
@@ -95,15 +87,15 @@
   ],
   "ytd": [
     {
-      "brand": "Home Depot",
+      "brand": "Amazon",
       "count": 10
     },
     {
-      "brand": "Walmart",
+      "brand": "Home Depot",
       "count": 9
     },
     {
-      "brand": "Amazon",
+      "brand": "Walmart",
       "count": 8
     },
     {

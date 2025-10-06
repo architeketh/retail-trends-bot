@@ -1,19 +1,11 @@
 {
-  "Retail": [
+  "Other": [
     {
-      "title": "Incentives marketing: The next frontier for retail loyalty",
-      "link": "https://www.retaildive.com/spons/incentives-marketing-the-next-frontier-for-retail-loyalty/761516/",
-      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "title": "What Amazon shippers should prioritize this peak season",
+      "link": "https://www.retaildive.com/news/3-tips-amazon-shippers-peak-season-fba/802005/",
+      "published": "Mon, 06 Oct 2025 09:58:00 -0400",
       "source": "Retail Dive"
     },
-    {
-      "title": "Jordan’s first US World of Flight store is in Philadelphia",
-      "link": "https://www.retaildive.com/news/jordan-basketball-first-usa-world-of-flight-store-philadelphia-rittenhouse-square/801907/",
-      "published": "Fri, 03 Oct 2025 11:44:00 -0400",
-      "source": "Retail Dive"
-    }
-  ],
-  "Other": [
     {
       "title": "Will shoppers still follow where athleisure leads?",
       "link": "https://www.retaildive.com/news/athleisure-category-expansions-lululemon-vuori-alo-yoga-outdoor-voices/801716/",
@@ -43,6 +35,18 @@
       "link": "https://www.retaildive.com/news/macys-chief-merchant-michelle-israel-five-below-cfo/801774/",
       "published": "Thu, 02 Oct 2025 12:04:00 -0400",
       "source": "Retail Dive"
+    },
+    {
+      "title": "American Eagle eyes 60% cut in tariff costs from mitigation measures",
+      "link": "https://www.supplychaindive.com/news/american-eagle-strategic-measures-slash-tariff-impact/801756/",
+      "published": "Mon, 06 Oct 2025 10:41:15 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "Anheuser-Busch invests $7.4M to expand Michelob Ultra production",
+      "link": "https://www.supplychaindive.com/news/anheuser-busch-los-angeles-brewery-investment-michelob-ultra/761349/",
+      "published": "Mon, 06 Oct 2025 09:41:00 -0400",
+      "source": "Supply Chain Dive"
     },
     {
       "title": "Solving the peak season puzzle: empowering your people",
@@ -75,10 +79,16 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "Hormel Foods further optimizes manufacturing footprint",
-      "link": "https://www.supplychaindive.com/news/hormel-advances-supply-chain-modernization-key-projects-systems/761415/",
-      "published": "Thu, 02 Oct 2025 15:00:00 -0400",
-      "source": "Supply Chain Dive"
+      "title": "Dollar Tree expands distribution network in Arizona and Oklahoma",
+      "link": "https://www.digitalcommerce360.com/2025/10/06/dollar-tree-expands-distribution-network-in-arizona-and-oklahoma/",
+      "published": "Mon, 06 Oct 2025 14:54:20 +0000",
+      "source": "Digital Commerce 360"
+    },
+    {
+      "title": "Omnichannel B2B buyers want their digital voices heard",
+      "link": "https://www.digitalcommerce360.com/2025/10/06/omnichannel-b2b-buyers-want-their-digital-voices-heard/",
+      "published": "Mon, 06 Oct 2025 14:50:20 +0000",
+      "source": "Digital Commerce 360"
     },
     {
       "title": "Kroger adds DoorDash delivery for thousands of its stores",
@@ -91,12 +101,20 @@
       "link": "https://www.digitalcommerce360.com/2025/10/03/farmers-business-network-spins-off-crop-protection-arm/",
       "published": "Fri, 03 Oct 2025 15:53:58 +0000",
       "source": "Digital Commerce 360"
+    }
+  ],
+  "Retail": [
+    {
+      "title": "Incentives marketing: The next frontier for retail loyalty",
+      "link": "https://www.retaildive.com/spons/incentives-marketing-the-next-frontier-for-retail-loyalty/761516/",
+      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "source": "Retail Dive"
     },
     {
-      "title": "Expanding to Canada? 6 Things You Need From Your 3PL Partner",
-      "link": "https://www.digitalcommerce360.com/2025/10/02/expanding-to-canada-6-things-you-need-from-your-3pl-partner/",
-      "published": "Thu, 02 Oct 2025 16:42:49 +0000",
-      "source": "Digital Commerce 360"
+      "title": "Jordan’s first US World of Flight store is in Philadelphia",
+      "link": "https://www.retaildive.com/news/jordan-basketball-first-usa-world-of-flight-store-philadelphia-rittenhouse-square/801907/",
+      "published": "Fri, 03 Oct 2025 11:44:00 -0400",
+      "source": "Retail Dive"
     }
   ],
   "AI": [
@@ -117,12 +135,6 @@
       "link": "https://www.digitalcommerce360.com/2025/10/03/63-of-smes-are-looking-to-use-ai-for-global-trade-heres-how-you-can-get-in-on-the-action/",
       "published": "Fri, 03 Oct 2025 14:43:08 +0000",
       "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Procurement teams widely adopt AI, but few achieve maturity",
-      "link": "https://www.digitalcommerce360.com/2025/10/01/procurement-teams-widely-adopt-ai-but-few-achieve-maturity/",
-      "published": "Wed, 01 Oct 2025 18:59:07 +0000",
-      "source": "Digital Commerce 360"
     }
   ],
   "Big Box": [
@@ -133,25 +145,19 @@
       "source": "Retail Dive"
     },
     {
-      "title": "Home Depot releases digital Project Planning tool for pro customers",
-      "link": "https://www.retaildive.com/news/home-depot-digital-project-planning-tool-pro-customers/761497/",
-      "published": "Thu, 02 Oct 2025 11:09:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
       "title": "Home Depot pushes deeper into B2B ecommerce with digital project planning",
       "link": "https://www.digitalcommerce360.com/2025/10/02/home-depot-b2b-ecommerce-digital-project-planning/",
       "published": "Thu, 02 Oct 2025 18:58:50 +0000",
       "source": "Digital Commerce 360"
-    },
-    {
-      "title": "Walmart to build a $300 million North Carolina fulfillment center",
-      "link": "https://www.digitalcommerce360.com/2025/10/02/walmart-build-300-million-north-carolina-fulfillment-center/",
-      "published": "Thu, 02 Oct 2025 18:39:19 +0000",
-      "source": "Digital Commerce 360"
     }
   ],
   "Supply Chain": [
+    {
+      "title": "Amazon plans next Indiana fulfillment center",
+      "link": "https://www.supplychaindive.com/news/amazon-plans-fulfillment-centers-indiana/801728/",
+      "published": "Mon, 06 Oct 2025 08:17:00 -0400",
+      "source": "Supply Chain Dive"
+    },
     {
       "title": "Navigating a new era of fulfillment",
       "link": "https://www.supplychaindive.com/spons/navigating-a-new-era-of-fulfillment/801793/",
@@ -165,18 +171,6 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "Top supply chain conferences to keep on your radar in 2026",
-      "link": "https://www.supplychaindive.com/news/top-supply-chain-conferences-2026/761302/",
-      "published": "Thu, 02 Oct 2025 11:10:46 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "General Mills to close 3 Missouri plants as part of supply chain restructuring",
-      "link": "https://www.supplychaindive.com/news/general-mills-to-close-3-plants-as-part-of-supply-chain-resturcting/801776/",
-      "published": "Thu, 02 Oct 2025 09:32:49 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
       "title": "DoorDash debuts new fulfillment services and delivery robot for retailers",
       "link": "https://www.digitalcommerce360.com/2025/10/03/doordash-dot-delivery-robot/",
       "published": "Fri, 03 Oct 2025 21:23:33 +0000",
@@ -184,6 +178,12 @@
     }
   ],
   "eCommerce": [
+    {
+      "title": "Roadrunner launches AI delivery system to speed up ecommerce logistics",
+      "link": "https://www.digitalcommerce360.com/2025/10/06/roadrunner-launches-ai-delivery-system-to-speed-up-ecommerce-delivery/",
+      "published": "Mon, 06 Oct 2025 14:52:50 +0000",
+      "source": "Digital Commerce 360"
+    },
     {
       "title": "Ecommerce Trends: Why people abandon carts",
       "link": "https://www.digitalcommerce360.com/2025/10/02/why-people-abandon-shopping-carts/",

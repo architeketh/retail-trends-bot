@@ -1,15 +1,27 @@
 {
   "today": [
     {
-      "token": "ai",
+      "token": "amazon",
       "count": 4
     },
     {
       "token": "delivery",
+      "count": 4
+    },
+    {
+      "token": "ai",
+      "count": 4
+    },
+    {
+      "token": "peak",
       "count": 3
     },
     {
-      "token": "digital",
+      "token": "season",
+      "count": 3
+    },
+    {
+      "token": "launches",
       "count": 3
     },
     {
@@ -17,11 +29,19 @@
       "count": 3
     },
     {
-      "token": "supply",
+      "token": "digital",
       "count": 3
     },
     {
-      "token": "launches",
+      "token": "shippers",
+      "count": 2
+    },
+    {
+      "token": "prioritize",
+      "count": 2
+    },
+    {
+      "token": "next",
       "count": 2
     },
     {
@@ -33,39 +53,11 @@
       "count": 2
     },
     {
-      "token": "amazon",
-      "count": 2
-    },
-    {
       "token": "debuts",
       "count": 2
     },
     {
       "token": "use",
-      "count": 2
-    },
-    {
-      "token": "home",
-      "count": 2
-    },
-    {
-      "token": "depot",
-      "count": 2
-    },
-    {
-      "token": "project",
-      "count": 2
-    },
-    {
-      "token": "planning",
-      "count": 2
-    },
-    {
-      "token": "peak",
-      "count": 2
-    },
-    {
-      "token": "season",
       "count": 2
     },
     {
@@ -77,21 +69,41 @@
       "count": 2
     },
     {
-      "token": "chain",
+      "token": "network",
       "count": 2
+    },
+    {
+      "token": "doordash",
+      "count": 2
+    },
+    {
+      "token": "incentives",
+      "count": 1
     }
   ],
   "wtd": [
     {
-      "token": "ai",
+      "token": "amazon",
       "count": 4
     },
     {
       "token": "delivery",
+      "count": 4
+    },
+    {
+      "token": "ai",
+      "count": 4
+    },
+    {
+      "token": "peak",
       "count": 3
     },
     {
-      "token": "digital",
+      "token": "season",
+      "count": 3
+    },
+    {
+      "token": "launches",
       "count": 3
     },
     {
@@ -99,11 +111,19 @@
       "count": 3
     },
     {
-      "token": "supply",
+      "token": "digital",
       "count": 3
     },
     {
-      "token": "launches",
+      "token": "shippers",
+      "count": 2
+    },
+    {
+      "token": "prioritize",
+      "count": 2
+    },
+    {
+      "token": "next",
       "count": 2
     },
     {
@@ -115,39 +135,11 @@
       "count": 2
     },
     {
-      "token": "amazon",
-      "count": 2
-    },
-    {
       "token": "debuts",
       "count": 2
     },
     {
       "token": "use",
-      "count": 2
-    },
-    {
-      "token": "home",
-      "count": 2
-    },
-    {
-      "token": "depot",
-      "count": 2
-    },
-    {
-      "token": "project",
-      "count": 2
-    },
-    {
-      "token": "planning",
-      "count": 2
-    },
-    {
-      "token": "peak",
-      "count": 2
-    },
-    {
-      "token": "season",
       "count": 2
     },
     {
@@ -159,8 +151,16 @@
       "count": 2
     },
     {
-      "token": "chain",
+      "token": "network",
       "count": 2
+    },
+    {
+      "token": "doordash",
+      "count": 2
+    },
+    {
+      "token": "incentives",
+      "count": 1
     }
   ],
   "mtd": [
@@ -173,35 +173,31 @@
       "count": 13
     },
     {
-      "token": "supply",
-      "count": 13
-    },
-    {
       "token": "fulfillment",
       "count": 13
     },
     {
       "token": "home",
-      "count": 12
+      "count": 11
     },
     {
-      "token": "chain",
-      "count": 12
+      "token": "supply",
+      "count": 11
     },
     {
       "token": "center",
       "count": 11
     },
     {
-      "token": "depot",
+      "token": "chain",
       "count": 10
     },
     {
-      "token": "project",
+      "token": "amazon",
       "count": 10
     },
     {
-      "token": "planning",
+      "token": "delivery",
       "count": 10
     },
     {
@@ -209,19 +205,19 @@
       "count": 9
     },
     {
-      "token": "walmart",
+      "token": "depot",
       "count": 9
     },
     {
-      "token": "north",
+      "token": "project",
       "count": 9
     },
     {
-      "token": "carolina",
+      "token": "planning",
       "count": 9
     },
     {
-      "token": "delivery",
+      "token": "launches",
       "count": 9
     },
     {
@@ -233,16 +229,20 @@
       "count": 8
     },
     {
-      "token": "amazon",
+      "token": "walmart",
       "count": 8
     },
     {
-      "token": "million",
+      "token": "north",
       "count": 8
     },
     {
-      "token": "launches",
+      "token": "carolina",
       "count": 8
+    },
+    {
+      "token": "consumers",
+      "count": 7
     }
   ],
   "ytd": [
@@ -255,35 +255,31 @@
       "count": 13
     },
     {
-      "token": "supply",
-      "count": 13
-    },
-    {
       "token": "fulfillment",
       "count": 13
     },
     {
       "token": "home",
-      "count": 12
+      "count": 11
     },
     {
-      "token": "chain",
-      "count": 12
+      "token": "supply",
+      "count": 11
     },
     {
       "token": "center",
       "count": 11
     },
     {
-      "token": "depot",
+      "token": "chain",
       "count": 10
     },
     {
-      "token": "project",
+      "token": "amazon",
       "count": 10
     },
     {
-      "token": "planning",
+      "token": "delivery",
       "count": 10
     },
     {
@@ -291,19 +287,19 @@
       "count": 9
     },
     {
-      "token": "walmart",
+      "token": "depot",
       "count": 9
     },
     {
-      "token": "north",
+      "token": "project",
       "count": 9
     },
     {
-      "token": "carolina",
+      "token": "planning",
       "count": 9
     },
     {
-      "token": "delivery",
+      "token": "launches",
       "count": 9
     },
     {
@@ -315,16 +311,20 @@
       "count": 8
     },
     {
-      "token": "amazon",
+      "token": "walmart",
       "count": 8
     },
     {
-      "token": "million",
+      "token": "north",
       "count": 8
     },
     {
-      "token": "launches",
+      "token": "carolina",
       "count": 8
+    },
+    {
+      "token": "consumers",
+      "count": 7
     }
   ]
 }
