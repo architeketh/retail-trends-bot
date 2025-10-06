@@ -31,103 +31,99 @@
   ],
   "wtd": [
     {
+      "brand": "Amazon",
+      "count": 2
+    },
+    {
       "brand": "Home Depot",
-      "count": 8
+      "count": 2
     },
     {
       "brand": "Walmart",
-      "count": 8
-    },
-    {
-      "brand": "Amazon",
-      "count": 6
-    },
-    {
-      "brand": "Target",
-      "count": 4
+      "count": 2
     },
     {
       "brand": "DoorDash",
-      "count": 4
-    },
-    {
-      "brand": "Nike",
       "count": 2
     },
     {
       "brand": "Etsy",
-      "count": 2
+      "count": 1
+    },
+    {
+      "brand": "Target",
+      "count": 1
     },
     {
       "brand": "Kroger",
-      "count": 2
+      "count": 1
     }
   ],
   "mtd": [
     {
       "brand": "Home Depot",
-      "count": 8
+      "count": 10
     },
     {
       "brand": "Walmart",
-      "count": 8
+      "count": 10
     },
     {
       "brand": "Amazon",
+      "count": 8
+    },
+    {
+      "brand": "DoorDash",
       "count": 6
     },
     {
       "brand": "Target",
-      "count": 4
-    },
-    {
-      "brand": "DoorDash",
-      "count": 4
-    },
-    {
-      "brand": "Nike",
-      "count": 2
+      "count": 5
     },
     {
       "brand": "Etsy",
-      "count": 2
+      "count": 3
     },
     {
       "brand": "Kroger",
+      "count": 3
+    },
+    {
+      "brand": "Nike",
       "count": 2
     }
   ],
   "ytd": [
     {
       "brand": "Home Depot",
-      "count": 8
+      "count": 10
     },
     {
       "brand": "Walmart",
-      "count": 8
+      "count": 10
     },
     {
       "brand": "Amazon",
+      "count": 8
+    },
+    {
+      "brand": "DoorDash",
       "count": 6
     },
     {
       "brand": "Target",
-      "count": 4
-    },
-    {
-      "brand": "DoorDash",
-      "count": 4
-    },
-    {
-      "brand": "Nike",
-      "count": 2
+      "count": 5
     },
     {
       "brand": "Etsy",
-      "count": 2
+      "count": 3
     },
     {
       "brand": "Kroger",
+      "count": 3
+    },
+    {
+      "brand": "Nike",
       "count": 2
     }
   ]

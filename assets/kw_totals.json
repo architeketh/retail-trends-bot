@@ -84,247 +84,247 @@
   "wtd": [
     {
       "token": "ai",
-      "count": 16
+      "count": 4
     },
     {
-      "token": "home",
-      "count": 10
+      "token": "delivery",
+      "count": 3
     },
     {
       "token": "digital",
-      "count": 10
-    },
-    {
-      "token": "supply",
-      "count": 10
-    },
-    {
-      "token": "chain",
-      "count": 10
+      "count": 3
     },
     {
       "token": "fulfillment",
-      "count": 10
+      "count": 3
     },
     {
-      "token": "center",
-      "count": 10
+      "token": "launches",
+      "count": 2
     },
     {
-      "token": "holiday",
-      "count": 8
+      "token": "first",
+      "count": 2
     },
     {
-      "token": "depot",
-      "count": 8
-    },
-    {
-      "token": "project",
-      "count": 8
-    },
-    {
-      "token": "planning",
-      "count": 8
-    },
-    {
-      "token": "walmart",
-      "count": 8
-    },
-    {
-      "token": "north",
-      "count": 8
-    },
-    {
-      "token": "carolina",
-      "count": 8
-    },
-    {
-      "token": "consumers",
-      "count": 6
-    },
-    {
-      "token": "plan",
-      "count": 6
-    },
-    {
-      "token": "use",
-      "count": 6
+      "token": "stores",
+      "count": 2
     },
     {
       "token": "store",
-      "count": 6
+      "count": 2
     },
     {
-      "token": "top",
-      "count": 6
+      "token": "amazon",
+      "count": 2
     },
     {
-      "token": "conferences",
-      "count": 6
+      "token": "debuts",
+      "count": 2
+    },
+    {
+      "token": "use",
+      "count": 2
+    },
+    {
+      "token": "home",
+      "count": 2
+    },
+    {
+      "token": "depot",
+      "count": 2
+    },
+    {
+      "token": "project",
+      "count": 2
+    },
+    {
+      "token": "planning",
+      "count": 2
+    },
+    {
+      "token": "trade",
+      "count": 2
+    },
+    {
+      "token": "supply",
+      "count": 2
+    },
+    {
+      "token": "chain",
+      "count": 2
+    },
+    {
+      "token": "walmart",
+      "count": 2
+    },
+    {
+      "token": "north",
+      "count": 2
     }
   ],
   "mtd": [
     {
       "token": "ai",
-      "count": 16
-    },
-    {
-      "token": "home",
-      "count": 10
+      "count": 20
     },
     {
       "token": "digital",
-      "count": 10
-    },
-    {
-      "token": "supply",
-      "count": 10
-    },
-    {
-      "token": "chain",
-      "count": 10
+      "count": 13
     },
     {
       "token": "fulfillment",
-      "count": 10
+      "count": 13
+    },
+    {
+      "token": "home",
+      "count": 12
+    },
+    {
+      "token": "supply",
+      "count": 12
+    },
+    {
+      "token": "chain",
+      "count": 12
     },
     {
       "token": "center",
+      "count": 12
+    },
+    {
+      "token": "depot",
+      "count": 10
+    },
+    {
+      "token": "project",
+      "count": 10
+    },
+    {
+      "token": "planning",
+      "count": 10
+    },
+    {
+      "token": "walmart",
+      "count": 10
+    },
+    {
+      "token": "north",
+      "count": 10
+    },
+    {
+      "token": "carolina",
       "count": 10
     },
     {
       "token": "holiday",
-      "count": 8
+      "count": 9
     },
     {
-      "token": "depot",
-      "count": 8
-    },
-    {
-      "token": "project",
-      "count": 8
-    },
-    {
-      "token": "planning",
-      "count": 8
-    },
-    {
-      "token": "walmart",
-      "count": 8
-    },
-    {
-      "token": "north",
-      "count": 8
-    },
-    {
-      "token": "carolina",
-      "count": 8
-    },
-    {
-      "token": "consumers",
-      "count": 6
-    },
-    {
-      "token": "plan",
-      "count": 6
+      "token": "delivery",
+      "count": 9
     },
     {
       "token": "use",
-      "count": 6
+      "count": 8
     },
     {
       "token": "store",
-      "count": 6
+      "count": 8
     },
     {
-      "token": "top",
-      "count": 6
+      "token": "stores",
+      "count": 8
     },
     {
-      "token": "conferences",
-      "count": 6
+      "token": "amazon",
+      "count": 8
+    },
+    {
+      "token": "million",
+      "count": 8
     }
   ],
   "ytd": [
     {
       "token": "ai",
-      "count": 16
-    },
-    {
-      "token": "home",
-      "count": 10
+      "count": 20
     },
     {
       "token": "digital",
-      "count": 10
-    },
-    {
-      "token": "supply",
-      "count": 10
-    },
-    {
-      "token": "chain",
-      "count": 10
+      "count": 13
     },
     {
       "token": "fulfillment",
-      "count": 10
+      "count": 13
+    },
+    {
+      "token": "home",
+      "count": 12
+    },
+    {
+      "token": "supply",
+      "count": 12
+    },
+    {
+      "token": "chain",
+      "count": 12
     },
     {
       "token": "center",
+      "count": 12
+    },
+    {
+      "token": "depot",
+      "count": 10
+    },
+    {
+      "token": "project",
+      "count": 10
+    },
+    {
+      "token": "planning",
+      "count": 10
+    },
+    {
+      "token": "walmart",
+      "count": 10
+    },
+    {
+      "token": "north",
+      "count": 10
+    },
+    {
+      "token": "carolina",
       "count": 10
     },
     {
       "token": "holiday",
-      "count": 8
+      "count": 9
     },
     {
-      "token": "depot",
-      "count": 8
-    },
-    {
-      "token": "project",
-      "count": 8
-    },
-    {
-      "token": "planning",
-      "count": 8
-    },
-    {
-      "token": "walmart",
-      "count": 8
-    },
-    {
-      "token": "north",
-      "count": 8
-    },
-    {
-      "token": "carolina",
-      "count": 8
-    },
-    {
-      "token": "consumers",
-      "count": 6
-    },
-    {
-      "token": "plan",
-      "count": 6
+      "token": "delivery",
+      "count": 9
     },
     {
       "token": "use",
-      "count": 6
+      "count": 8
     },
     {
       "token": "store",
-      "count": 6
+      "count": 8
     },
     {
-      "token": "top",
-      "count": 6
+      "token": "stores",
+      "count": 8
     },
     {
-      "token": "conferences",
-      "count": 6
+      "token": "amazon",
+      "count": 8
+    },
+    {
+      "token": "million",
+      "count": 8
     }
   ]
 }
