@@ -3,3 +3,4 @@ beautifulsoup4>=4.12
 Pillow>=10.0
 numpy>=1.26
 matplotlib>=3.8
+feedparser>=6.0
