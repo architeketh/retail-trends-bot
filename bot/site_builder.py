@@ -218,7 +218,8 @@ html.append(f"<p>{esc(daily_summary_sentence)}</p></section>")
 # Totals
 def nice_list(items, label_key, limit=10):
     if not items: return "<span class='note'>—</span>"
-    return ", ".join(f\"{esc(x.get(label_key,''))} ({int(x.get('count',0))})\" for x in items[:limit])
+    return ", ".join(f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})" for x in items[:limit])
+
 
 def totals_block(title: str, data: dict, key: str, label_key: str):
     lst = data.get(key, []) if data else []
