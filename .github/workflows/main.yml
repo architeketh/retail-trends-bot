@@ -32,6 +32,9 @@ jobs:
       - name: Fetch headlines
         run: python bot/fetch.py
 
+      - name: Generate daily hero from article
+        run: python bot/hero_from_articles.py
+
       - name: Build charts
         run: python bot/charts.py
 
@@ -40,9 +43,9 @@ jobs:
 
       - name: Show outputs
         run: |
-          echo "::group::Root"; ls -la; echo "::endgroup::"
           echo "::group::Assets"; ls -la assets || true; echo "::endgroup::"
           echo "::group::Data"; ls -la data || true; echo "::endgroup::"
+          echo "::group::Root"; ls -la; echo "::endgroup::"
           test -f index.html && echo "✓ index.html exists"
           test -f archive.html && echo "✓ archive.html exists"
           test -f data/summaries.json && echo "✓ summaries.json exists"
@@ -52,6 +55,6 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A index.html archive.html assets data
-          git commit -m "Auto-update site and archive" || echo "No changes to commit"
+          git commit -m "Auto-update site (hero + charts + archive)" || echo "No changes to commit"
           git pull --rebase origin main || true
           git push origin HEAD:main || git push --force-with-lease origin HEAD:main
