@@ -17,6 +17,10 @@
       "count": 3
     },
     {
+      "token": "supply",
+      "count": 3
+    },
+    {
       "token": "launches",
       "count": 2
     },
@@ -26,10 +30,6 @@
     },
     {
       "token": "stores",
-      "count": 2
-    },
-    {
-      "token": "store",
       "count": 2
     },
     {
@@ -61,23 +61,23 @@
       "count": 2
     },
     {
+      "token": "peak",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "people",
+      "count": 2
+    },
+    {
       "token": "trade",
       "count": 2
     },
     {
-      "token": "supply",
-      "count": 2
-    },
-    {
       "token": "chain",
-      "count": 2
-    },
-    {
-      "token": "walmart",
-      "count": 2
-    },
-    {
-      "token": "north",
       "count": 2
     }
   ],
@@ -99,6 +99,10 @@
       "count": 3
     },
     {
+      "token": "supply",
+      "count": 3
+    },
+    {
       "token": "launches",
       "count": 2
     },
@@ -108,10 +112,6 @@
     },
     {
       "token": "stores",
-      "count": 2
-    },
-    {
-      "token": "store",
       "count": 2
     },
     {
@@ -143,23 +143,23 @@
       "count": 2
     },
     {
+      "token": "peak",
+      "count": 2
+    },
+    {
+      "token": "season",
+      "count": 2
+    },
+    {
+      "token": "people",
+      "count": 2
+    },
+    {
       "token": "trade",
       "count": 2
     },
     {
-      "token": "supply",
-      "count": 2
-    },
-    {
       "token": "chain",
-      "count": 2
-    },
-    {
-      "token": "walmart",
-      "count": 2
-    },
-    {
-      "token": "north",
       "count": 2
     }
   ],
@@ -173,6 +173,10 @@
       "count": 13
     },
     {
+      "token": "supply",
+      "count": 13
+    },
+    {
       "token": "fulfillment",
       "count": 13
     },
@@ -181,16 +185,12 @@
       "count": 12
     },
     {
-      "token": "supply",
-      "count": 12
-    },
-    {
       "token": "chain",
       "count": 12
     },
     {
       "token": "center",
-      "count": 12
+      "count": 11
     },
     {
       "token": "depot",
@@ -205,19 +205,19 @@
       "count": 10
     },
     {
+      "token": "holiday",
+      "count": 9
+    },
+    {
       "token": "walmart",
-      "count": 10
+      "count": 9
     },
     {
       "token": "north",
-      "count": 10
+      "count": 9
     },
     {
       "token": "carolina",
-      "count": 10
-    },
-    {
-      "token": "holiday",
       "count": 9
     },
     {
@@ -226,10 +226,6 @@
     },
     {
       "token": "use",
-      "count": 8
-    },
-    {
-      "token": "store",
       "count": 8
     },
     {
@@ -242,6 +238,10 @@
     },
     {
       "token": "million",
+      "count": 8
+    },
+    {
+      "token": "launches",
       "count": 8
     }
   ],
@@ -255,6 +255,10 @@
       "count": 13
     },
     {
+      "token": "supply",
+      "count": 13
+    },
+    {
       "token": "fulfillment",
       "count": 13
     },
@@ -263,16 +267,12 @@
       "count": 12
     },
     {
-      "token": "supply",
-      "count": 12
-    },
-    {
       "token": "chain",
       "count": 12
     },
     {
       "token": "center",
-      "count": 12
+      "count": 11
     },
     {
       "token": "depot",
@@ -287,19 +287,19 @@
       "count": 10
     },
     {
+      "token": "holiday",
+      "count": 9
+    },
+    {
       "token": "walmart",
-      "count": 10
+      "count": 9
     },
     {
       "token": "north",
-      "count": 10
+      "count": 9
     },
     {
       "token": "carolina",
-      "count": 10
-    },
-    {
-      "token": "holiday",
       "count": 9
     },
     {
@@ -308,10 +308,6 @@
     },
     {
       "token": "use",
-      "count": 8
-    },
-    {
-      "token": "store",
       "count": 8
     },
     {
@@ -324,6 +320,10 @@
     },
     {
       "token": "million",
+      "count": 8
+    },
+    {
+      "token": "launches",
       "count": 8
     }
   ]

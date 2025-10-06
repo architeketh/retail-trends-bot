@@ -1,4 +1,18 @@
 {
+  "Retail": [
+    {
+      "title": "Incentives marketing: The next frontier for retail loyalty",
+      "link": "https://www.retaildive.com/spons/incentives-marketing-the-next-frontier-for-retail-loyalty/761516/",
+      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "source": "Retail Dive"
+    },
+    {
+      "title": "Jordan’s first US World of Flight store is in Philadelphia",
+      "link": "https://www.retaildive.com/news/jordan-basketball-first-usa-world-of-flight-store-philadelphia-rittenhouse-square/801907/",
+      "published": "Fri, 03 Oct 2025 11:44:00 -0400",
+      "source": "Retail Dive"
+    }
+  ],
   "Other": [
     {
       "title": "Will shoppers still follow where athleisure leads?",
@@ -31,6 +45,12 @@
       "source": "Retail Dive"
     },
     {
+      "title": "Solving the peak season puzzle: empowering your people",
+      "link": "https://www.supplychaindive.com/spons/solving-the-peak-season-puzzle-empowering-your-people/801833/",
+      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
       "title": "Port of Long Beach CEO to retire",
       "link": "https://www.supplychaindive.com/news/port-long-beach-ceo-mario-cordero-retires-end-of-2025/801924/",
       "published": "Fri, 03 Oct 2025 13:23:00 -0400",
@@ -61,12 +81,6 @@
       "source": "Supply Chain Dive"
     },
     {
-      "title": "Major ports so far unscathed by Trump’s One Big Beautiful Bill Act",
-      "link": "https://www.supplychaindive.com/news/ports-impacted-port-funding-dera-grant-one-big-beautiful-bill-act/766654/",
-      "published": "Wed, 01 Oct 2025 14:01:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
       "title": "Kroger adds DoorDash delivery for thousands of its stores",
       "link": "https://www.digitalcommerce360.com/2025/10/03/kroger-adds-doordash-delivery-for-thousands-of-its-stores/",
       "published": "Fri, 03 Oct 2025 18:04:17 +0000",
@@ -83,20 +97,6 @@
       "link": "https://www.digitalcommerce360.com/2025/10/02/expanding-to-canada-6-things-you-need-from-your-3pl-partner/",
       "published": "Thu, 02 Oct 2025 16:42:49 +0000",
       "source": "Digital Commerce 360"
-    }
-  ],
-  "Retail": [
-    {
-      "title": "Jordan’s first US World of Flight store is in Philadelphia",
-      "link": "https://www.retaildive.com/news/jordan-basketball-first-usa-world-of-flight-store-philadelphia-rittenhouse-square/801907/",
-      "published": "Fri, 03 Oct 2025 11:44:00 -0400",
-      "source": "Retail Dive"
-    },
-    {
-      "title": "Inside Victoria’s Secret’s new DC store",
-      "link": "https://www.retaildive.com/news/inside-victorias-secrets-georgetown-dc-store/801757/",
-      "published": "Thu, 02 Oct 2025 10:52:00 -0400",
-      "source": "Retail Dive"
     }
   ],
   "AI": [
@@ -139,12 +139,6 @@
       "source": "Retail Dive"
     },
     {
-      "title": "Walmart invests $300M in North Carolina fulfillment center",
-      "link": "https://www.supplychaindive.com/news/walmart-300m-north-carolina-fulfillment-center/761625/",
-      "published": "Thu, 02 Oct 2025 08:10:00 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
       "title": "Home Depot pushes deeper into B2B ecommerce with digital project planning",
       "link": "https://www.digitalcommerce360.com/2025/10/02/home-depot-b2b-ecommerce-digital-project-planning/",
       "published": "Thu, 02 Oct 2025 18:58:50 +0000",
@@ -159,6 +153,18 @@
   ],
   "Supply Chain": [
     {
+      "title": "Navigating a new era of fulfillment",
+      "link": "https://www.supplychaindive.com/spons/navigating-a-new-era-of-fulfillment/801793/",
+      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
+      "title": "The new blueprint for high-stakes supply chains",
+      "link": "https://www.supplychaindive.com/spons/the-new-blueprint-for-high-stakes-supply-chains/761414/",
+      "published": "Mon, 06 Oct 2025 05:00:00 -0400",
+      "source": "Supply Chain Dive"
+    },
+    {
       "title": "Top supply chain conferences to keep on your radar in 2026",
       "link": "https://www.supplychaindive.com/news/top-supply-chain-conferences-2026/761302/",
       "published": "Thu, 02 Oct 2025 11:10:46 -0400",
@@ -168,12 +174,6 @@
       "title": "General Mills to close 3 Missouri plants as part of supply chain restructuring",
       "link": "https://www.supplychaindive.com/news/general-mills-to-close-3-plants-as-part-of-supply-chain-resturcting/801776/",
       "published": "Thu, 02 Oct 2025 09:32:49 -0400",
-      "source": "Supply Chain Dive"
-    },
-    {
-      "title": "Poshmark taps USPS Ground Advantage for lower shipping rates",
-      "link": "https://www.supplychaindive.com/news/postal-service-ground-advantage-poshmark-shipping/760754/",
-      "published": "Wed, 01 Oct 2025 10:04:06 -0400",
       "source": "Supply Chain Dive"
     },
     {
