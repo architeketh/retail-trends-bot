@@ -225,7 +225,7 @@ def totals_block(title: str, data: dict, key: str, label_key: str):
     lst = data.get(key, []) if data else []
     total = sum(int(x.get('count',0)) for x in lst)
     top = nice_list(lst, label_key)
-    return (f\"<h3 style='margin:12px 0 6px 0'>{esc(title)}</h3>\" +
+    return (f"<h3 style='margin:12px 0 6px 0'>{esc(title)}</h3>" +
             f\"<div class='kv'><div class='muted'>Total mentions</div><div><b>{total}</b></div></div>\" +
             f\"<div class='small'><span class='muted'>Top:</span> {top}</div>\")
 
