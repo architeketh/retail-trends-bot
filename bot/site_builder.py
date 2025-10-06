@@ -1,41 +1,36 @@
 # bot/site_builder.py
-import pathlib, json, datetime, re, random, shutil
+import pathlib, json, datetime, random, shutil
 
-# --- Paths ---
+# ---------- Paths ----------
 ROOT = pathlib.Path(".")
 DATA = ROOT / "data"
 ASSETS = ROOT / "assets"
 SITE = ROOT / "site"
 SITE_ASSETS = SITE / "assets"
 
-DATA.mkdir(exist_ok=True)
-ASSETS.mkdir(exist_ok=True)
-SITE.mkdir(exist_ok=True)
-SITE_ASSETS.mkdir(parents=True, exist_ok=True)
+for p in (DATA, ASSETS, SITE_ASSETS):
+    p.mkdir(parents=True, exist_ok=True)
 
 def esc(s: str) -> str:
     return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
 
 def copy_into_site_assets(rel_path: pathlib.Path) -> str:
-    """
-    Ensure an asset under ASSETS/ is present under site/assets/ for publishing.
-    Returns the web-relative path to use in HTML (e.g., 'assets/foo.png').
-    """
+    """Copy ASSETS/<rel_path> → site/assets/<rel_path>. Return 'assets/...' URL or ''."""
     src = ASSETS / rel_path
+    if not src.exists():
+        return ""
     dst = SITE_ASSETS / rel_path
-    if src.exists():
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        if not dst.exists() or src.stat().st_mtime > dst.stat().st_mtime:
-            shutil.copy2(src, dst)
-        return f"assets/{rel_path.as_posix()}"
-    return ""
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if not dst.exists() or src.stat().st_mtime > dst.stat().st_mtime:
+        shutil.copy2(src, dst)
+    return f"assets/{rel_path.as_posix()}"
 
 now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 today = datetime.date.today().isoformat()
 
-# -------- Load categorized (optional) --------
+# ---------- Load categorized (optional) ----------
 cats = {}
-for p in (ASSETS/"categorized.json", DATA/"categorized.json"):
+for p in (ASSETS / "categorized.json", DATA / "categorized.json"):
     if p.exists():
         try:
             cats = json.loads(p.read_text(encoding="utf-8"))
@@ -44,45 +39,43 @@ for p in (ASSETS/"categorized.json", DATA/"categorized.json"):
             cats = {}
             break
 
-# -------- Load totals written by charts.py --------
-kw_tot = {}
-br_tot = {}
+# ---------- Load totals (from assets) ----------
+kw_tot, br_tot = {}, {}
 try:
-    if (ASSETS/"kw_totals.json").exists():
-        kw_tot = json.loads((ASSETS/"kw_totals.json").read_text(encoding="utf-8"))
-    if (ASSETS/"brand_totals.json").exists():
-        br_tot = json.loads((ASSETS/"brand_totals.json").read_text(encoding="utf-8"))
+    if (ASSETS / "kw_totals.json").exists():
+        kw_tot = json.loads((ASSETS / "kw_totals.json").read_text(encoding="utf-8"))
+    if (ASSETS / "brand_totals.json").exists():
+        br_tot = json.loads((ASSETS / "brand_totals.json").read_text(encoding="utf-8"))
 except Exception:
-    kw_tot = {}
-    br_tot = {}
+    kw_tot, br_tot = {}, {}
 
-# -------- Build TODAY signals (history -> totals fallback) --------
-today_kw = []
-today_br = []
+# ---------- Build TODAY signals ----------
+today_kw, today_br = [], []
 try:
-    hk = json.loads((DATA/"history_keywords.json").read_text(encoding="utf-8"))
-    hb = json.loads((DATA/"history_brands.json").read_text(encoding="utf-8"))
-    if today in hk:
-        today_kw = sorted(hk[today].items(), key=lambda kv: kv[1], reverse=True)
-    if today in hb:
-        today_br = sorted(hb[today].items(), key=lambda kv: kv[1], reverse=True)
+    hk = json.loads((DATA / "history_keywords.json").read_text(encoding="utf-8"))
+    hb = json.loads((DATA / "history_brands.json").read_text(encoding="utf-8"))
 except Exception:
-    pass
+    hk, hb = {}, {}
+
+if isinstance(hk, dict) and today in hk:
+    today_kw = sorted(hk[today].items(), key=lambda kv: kv[1], reverse=True)
+if isinstance(hb, dict) and today in hb:
+    today_br = sorted(hb[today].items(), key=lambda kv: kv[1], reverse=True)
 
 if not today_kw:
     for row in kw_tot.get("today", []):
-        today_kw.append((row.get("token",""), int(row.get("count",0))))
+        today_kw.append((row.get("token", ""), int(row.get("count", 0))))
     today_kw.sort(key=lambda kv: kv[1], reverse=True)
 
 if not today_br:
     for row in br_tot.get("today", []):
-        today_br.append((row.get("brand",""), int(row.get("count",0))))
+        today_br.append((row.get("brand", ""), int(row.get("count", 0))))
     today_br.sort(key=lambda kv: kv[1], reverse=True)
 
-TOP_TODAY_KW = [k for k,_ in today_kw[:8] if k]
-TOP_TODAY_BR = [b for b,_ in today_br[:8] if b]
+TOP_TODAY_KW = [k for k, _ in today_kw[:8] if k]
+TOP_TODAY_BR = [b for b, _ in today_br[:8] if b]
 
-# -------- Natural language sentence with rotation + robust fallback --------
+# ---------- Daily sentence ----------
 lead_phrases = [
     "Today's retail pulse spotlights",
     "Retail headlines today center on",
@@ -104,7 +97,7 @@ trend_phrases = [
     "reshaping focus on",
     "driving activity in",
 ]
-random.seed(today)  # stable phrasing for the day
+random.seed(today)
 
 brands_txt = ", ".join(TOP_TODAY_BR[:3]) if TOP_TODAY_BR else ""
 terms_txt  = ", ".join(TOP_TODAY_KW[:3]) if TOP_TODAY_KW else ""
@@ -117,21 +110,21 @@ elif brands_txt:
 elif terms_txt:
     sentence = f"{random.choice(lead_phrases)} {terms_txt}, {random.choice(trend_phrases)} retail, eCommerce, and AI."
 
-# FINAL BACKSTOP
+# Fallback if nothing else available
 if not sentence:
-    ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
-    cat_counts = [(c, len(cats.get(c, []))) for c in ORDER if cats.get(c)]
-    cat_counts = sorted(cat_counts, key=lambda x: x[1], reverse=True)
+    ORDER_FALLBACK = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
+    cat_counts = [(c, len(cats.get(c, []))) for c in ORDER_FALLBACK if cats.get(c)]
+    cat_counts.sort(key=lambda x: x[1], reverse=True)
     if cat_counts:
-        topbits = ", ".join([f"{c} ({n})" for c,n in cat_counts[:3]])
+        topbits = ", ".join([f"{c} ({n})" for c, n in cat_counts[:3]])
         sentence = f"Today’s coverage spans {topbits}, reflecting the latest shifts across the retail landscape."
     else:
         sentence = "Today’s coverage is light; updates will appear after the next successful fetch."
 
 daily_summary_sentence = sentence
 
-# -------- Persist summaries.json (append once; never wipe history) --------
-sum_path = DATA/"summaries.json"
+# ---------- Persist summaries.json + BACKFILL ----------
+sum_path = DATA / "summaries.json"
 all_summaries = {}
 if sum_path.exists():
     try:
@@ -139,40 +132,69 @@ if sum_path.exists():
     except Exception:
         all_summaries = {}
 
+def build_sentence_for_date(d: str) -> str:
+    """Create a short sentence for any date using history (brands/keywords)."""
+    brands = []
+    terms = []
+    if isinstance(hb, dict) and d in hb and isinstance(hb[d], dict):
+        brands = [k for k, _ in sorted(hb[d].items(), key=lambda kv: kv[1], reverse=True)[:3] if k]
+    if isinstance(hk, dict) and d in hk and isinstance(hk[d], dict):
+        terms = [k for k, _ in sorted(hk[d].items(), key=lambda kv: kv[1], reverse=True)[:3] if k]
+
+    if brands and terms:
+        return f"{', '.join(brands)} with momentum in {', '.join(terms)} shaping retail and eCommerce."
+    if brands:
+        return f"Coverage centers on {', '.join(brands)} across the retail landscape."
+    if terms:
+        return f"Key themes include {', '.join(terms)} across retail and eCommerce."
+    return "Coverage is light; updates will appear after the next successful fetch."
+
+# Ensure today's record exists
 if today not in all_summaries:
     all_summaries[today] = {
         "generated_at": now,
-        "summary": daily_summary_sentence,
+        "summary": daily_summary_sentence or build_sentence_for_date(today),
         "top_keywords": TOP_TODAY_KW,
         "top_brands": TOP_TODAY_BR,
     }
 else:
     if not all_summaries[today].get("summary"):
-        all_summaries[today]["summary"] = daily_summary_sentence
+        all_summaries[today]["summary"] = daily_summary_sentence or build_sentence_for_date(today)
         all_summaries[today]["generated_at"] = now
+
+# Backfill every known date
+all_dates = set(all_summaries.keys()) | (set(hk.keys()) if isinstance(hk, dict) else set()) | (set(hb.keys()) if isinstance(hb, dict) else set())
+for d in sorted(all_dates):
+    rec = all_summaries.get(d) or {}
+    if not rec.get("summary"):
+        rec["summary"] = build_sentence_for_date(d)
+        if "top_keywords" not in rec and isinstance(hk, dict) and d in hk and isinstance(hk[d], dict):
+            rec["top_keywords"] = [k for k, _ in sorted(hk[d].items(), key=lambda kv: kv[1], reverse=True)[:8]]
+        if "top_brands" not in rec and isinstance(hb, dict) and d in hb and isinstance(hb[d], dict):
+            rec["top_brands"] = [k for k, _ in sorted(hb[d].items(), key=lambda kv: kv[1], reverse=True)[:8]]
+        rec.setdefault("generated_at", now)
+        all_summaries[d] = rec
 
 sum_path.write_text(json.dumps(all_summaries, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# -------- Helpers for HTML --------
+# ---------- HTML helpers ----------
 def chart_src(name: str) -> str:
-    """Find a chart image in assets and copy to site/assets."""
-    for ext in ("svg","png"):
+    for ext in ("svg", "png"):
         rel = pathlib.Path(f"{name}.{ext}")
-        src = ASSETS / rel
-        if src.exists():
-            return copy_into_site_assets(rel)
+        url = copy_into_site_assets(rel)
+        if url:
+            return url
     return ""
 
 def latest_hero():
-    """Return (src_url, meta_dict) for a hero image if present, and copy it."""
-    img_rel = pathlib.Path("hero/latest.jpg")
-    meta_path = ASSETS / "hero" / "latest.json"
-    if (ASSETS / img_rel).exists():
-        url = copy_into_site_assets(img_rel)
+    rel = pathlib.Path("hero/latest.jpg")
+    meta = ASSETS / "hero" / "latest.json"
+    if (ASSETS / rel).exists():
+        url = copy_into_site_assets(rel)
         info = {}
-        if meta_path.exists():
+        if meta.exists():
             try:
-                info = json.loads(meta_path.read_text(encoding="utf-8"))
+                info = json.loads(meta.read_text(encoding="utf-8"))
             except Exception:
                 info = {}
         return url, info
@@ -181,11 +203,7 @@ def latest_hero():
 def nice_list(items, label_key, limit=10):
     if not items:
         return "<span class='note'>—</span>"
-    # Accept dict rows like {"token": "...", "count": n}
-    return ", ".join(
-        f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})"
-        for x in items[:limit]
-    )
+    return ", ".join(f"{esc(x.get(label_key,''))} ({int(x.get('count',0))})" for x in items[:limit])
 
 def totals_block(title: str, data: dict, key: str, label_key: str):
     lst = data.get(key, []) if data else []
@@ -197,11 +215,11 @@ def totals_block(title: str, data: dict, key: str, label_key: str):
         + f"<div class='small'><span class='muted'>Top:</span> {top}</div>"
     )
 
-# Category ordering
+# ---------- Category ordering ----------
 ORDER = ["Retail","eCommerce","AI","Supply Chain","Big Box","Luxury","Vintage","Other"]
 ordered = [(k, cats.get(k, [])) for k in ORDER if cats.get(k)] + [(k, v) for k, v in cats.items() if k not in ORDER]
 
-# -------- Build index.html --------
+# ---------- Build index.html ----------
 html = []
 html.append("<!doctype html><html lang='en'><head>")
 html.append("<meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>")
@@ -239,7 +257,7 @@ img{max-width:100%;border-radius:12px}
 </style>""")
 html.append("</head><body><div class='wrap'>")
 
-# Hero with optional image
+# Hero
 hero_src, hero_meta = latest_hero()
 html.append("<section class='hero'>")
 html.append("<h1>Retail Trends</h1>")
@@ -252,12 +270,12 @@ for name in ORDER:
 html.append("</div>")
 if hero_src:
     html.append(f"<img src='{hero_src}' alt='Headline image' style='margin-top:10px'/>")
-    t = esc(hero_meta.get("title","")); s = esc(hero_meta.get("source","")); u = esc(hero_meta.get("article_url",""))
+    t = esc(hero_meta.get("title", "")); s = esc(hero_meta.get("source", "")); u = esc(hero_meta.get("article_url", ""))
     if u and (t or s):
         html.append(f"<div class='small muted' style='margin-top:6px'>Image from <a href='{u}' target='_blank' rel='noopener'>{t or s}</a></div>")
 html.append("</section>")
 
-# Daily AI Summary block
+# Daily AI Summary
 html.append("<section class='card'><h2>Daily AI Summary</h2>")
 html.append(f"<p>{esc(daily_summary_sentence)}</p></section>")
 
@@ -266,7 +284,8 @@ def totals_group():
     out = []
     out.append("<section class='card'><h2>Totals</h2><div class='totals'>")
     # Articles by category
-    out.append("<div><h3 style='margin:0 0 8px 0'>Articles by Category</h3><table class='table'><thead><tr><th>Category</th><th>Articles</th></tr></thead><tbody>")
+    out.append("<div><h3 style='margin:0 0 8px 0'>Articles by Category</h3>"
+               "<table class='table'><thead><tr><th>Category</th><th>Articles</th></tr></thead><tbody>")
     total_articles = 0
     for cat, items in ordered:
         cnt = len(items); total_articles += cnt
@@ -293,7 +312,7 @@ def totals_group():
 
 html.append(totals_group())
 
-# Charts rows
+# Charts
 def chart_row(title, key, lst, label_key):
     src = chart_src(key)
     tl = nice_list(lst, label_key) if lst else ""
@@ -302,17 +321,17 @@ def chart_row(title, key, lst, label_key):
     return f"<article class='card'><h2>{esc(title)}</h2><div>{body}</div>{right}</article>"
 
 html.append("<section class='grid2'>")
-html.append(chart_row("Top Keywords — Today","keywords_today", kw_tot.get("today", []),"token"))
-html.append(chart_row("Brand Mentions — Today","brands_today", br_tot.get("today", []),"brand"))
+html.append(chart_row("Top Keywords — Today", "keywords_today", kw_tot.get("today", []), "token"))
+html.append(chart_row("Brand Mentions — Today", "brands_today", br_tot.get("today", []), "brand"))
 html.append("</section><section class='grid2' style='margin-top:16px'>")
-html.append(chart_row("Top Keywords — Week-to-date","keywords_wtd", kw_tot.get("wtd", []),"token"))
-html.append(chart_row("Brand Mentions — Week-to-date","brands_wtd", br_tot.get("wtd", []),"brand"))
+html.append(chart_row("Top Keywords — Week-to-date", "keywords_wtd", kw_tot.get("wtd", []), "token"))
+html.append(chart_row("Brand Mentions — Week-to-date", "brands_wtd", br_tot.get("wtd", []), "brand"))
 html.append("</section><section class='grid2' style='margin-top:16px'>")
-html.append(chart_row("Top Keywords — Month-to-date","keywords_mtd", kw_tot.get("mtd", []),"token"))
-html.append(chart_row("Brand Mentions — Month-to-date","brands_mtd", br_tot.get("mtd", []),"brand"))
+html.append(chart_row("Top Keywords — Month-to-date", "keywords_mtd", kw_tot.get("mtd", []), "token"))
+html.append(chart_row("Brand Mentions — Month-to-date", "brands_mtd", br_tot.get("mtd", []), "brand"))
 html.append("</section><section class='grid2' style='margin-top:16px'>")
-html.append(chart_row("Top Keywords — Year-to-date","keywords_ytd", kw_tot.get("ytd", []),"token"))
-html.append(chart_row("Brand Mentions — Year-to-date","brands_ytd", br_tot.get("ytd", []),"brand"))
+html.append(chart_row("Top Keywords — Year-to-date", "keywords_ytd", kw_tot.get("ytd", []), "token"))
+html.append(chart_row("Brand Mentions — Year-to-date", "brands_ytd", br_tot.get("ytd", []), "brand"))
 html.append("</section>")
 
 # Headlines by category
@@ -334,12 +353,12 @@ year_now = datetime.datetime.utcnow().year
 html.append(f"</section><p class='footer'>Last updated {esc(now)} · © {year_now} Retail Trends Bot · <a href='archive.html'>Daily Summary Archive</a></p>")
 html.append("</div></body></html>")
 
-(SITE/"index.html").write_text("".join(html), encoding="utf-8")
+(SITE / "index.html").write_text("".join(html), encoding="utf-8")
 print("✓ Wrote site/index.html")
 
-# -------- Build archive.html from saved summaries --------
+# ---------- Build archive.html ----------
 try:
-    saved = json.loads((DATA/"summaries.json").read_text(encoding="utf-8"))
+    saved = json.loads((DATA / "summaries.json").read_text(encoding="utf-8"))
 except Exception:
     saved = {}
 
@@ -354,8 +373,9 @@ a{color:#fff;text-decoration:none} a:hover{text-decoration:underline}
 .muted{color:#cbd5e1}
 </style></head><body><div class='wrap'><h1>Daily Summary Archive</h1><p class='muted'>One-paragraph summaries saved each day.</p>""")
 for d, payload in sorted(saved.items(), key=lambda kv: kv[0], reverse=True):
-    line = payload.get("summary","")
+    line = payload.get("summary", "")
     arch.append(f"<div class='card'><h3>{esc(d)}</h3><p>{esc(line)}</p></div>")
 arch.append("<p><a href='index.html'>← Back to dashboard</a></p></div></body></html>")
-(SITE/"archive.html").write_text("".join(arch), encoding="utf-8")
+
+(SITE / "archive.html").write_text("".join(arch), encoding="utf-8")
 print("✓ Wrote site/archive.html")
